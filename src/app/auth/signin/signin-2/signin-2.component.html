@@ -2,7 +2,7 @@
     <div class="row login-wrapper m-0">
         <div class="col-lg-6 p-0">
             <div class="login-content">
-                <form>
+                <form #f="ngForm" (ngSubmit)="formSubmit(f)">
                     <div class="login-userset">
                         <div class="login-logo logo-normal">
                         <img src="assets/img/logo.svg" alt="img">
@@ -17,7 +17,8 @@
                     <div class="mb-3">
                             <label class="form-label">Email Address</label>
                             <div class="input-group">
-                                <input type="text" value="" class="form-control border-end-0">
+                                <input type="text" value="" class="form-control border-end-0"
+                                [(ngModel)]="user.email" name="email" required>
                                 <span class="input-group-text border-start-0">
                                     <i class="ti ti-mail"></i>
                                 </span>
@@ -26,9 +27,8 @@
                         <div class="mb-3">
                             <label class="form-label">Password</label>
                             <div class="pass-group">
-                                <input [type]="password[1] ? 'text' : 'password' " class="pass-input form-control">
-                                <span class="ti toggle-password text-gray-9" [ngClass]=" password[1] ? 'ti-eye' : 'ti-eye-off'" (click)="togglePassword(1)"></span>
-                            </div>
+                                <input [type]="password[0] ? 'text' : 'password'" class="pass-input form-control" [(ngModel)]="user.password" name="password" required>
+                                <span class="ti toggle-password text-gray-9" [ngClass]="password[0] ? 'ti-eye' : 'ti-eye-off'" (click)="togglePassword(0)"></span>                           </div>
                         </div>
                     <div class="form-login authentication-check">
                         <div class="row">
@@ -46,7 +46,7 @@
                         </div>
                     </div>
                     <div class="form-login">
-                        <button type="submit" class="btn btn-login" (click)="navigation()">Sign In</button>
+                        <button type="submit" class="btn btn-login" >Sign In</button>
                     </div>
                     <div class="signinform">
                         <h4>New on our platform?<a [routerLink]="routes.register2" class="hover-a"> Create an account</a></h4>
