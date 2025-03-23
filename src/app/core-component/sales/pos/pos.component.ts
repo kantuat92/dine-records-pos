@@ -1,12 +1,17 @@
-import { Component, ElementRef, Renderer2 } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, Renderer2, ViewChild } from '@angular/core';
 import { Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { OwlOptions } from 'ngx-owl-carousel-o';
 import { DataService, SidebarService, apiResultFormat, pageSelection } from 'src/app/core/core.index';
 import { routes } from 'src/app/core/helpers/routes';
+import { MenuApiService } from 'src/app/core/service/api-services/menu-api.service';
 import { pospurchase } from 'src/app/shared/model/page.model';
 import { PaginationService, tablePageSize } from 'src/app/shared/shared.index';
+import { Store } from '@ngrx/store';
+import { selectRestaurantId } from '../../../core/store/restaurant.selectors';
+
+
 import Swal from 'sweetalert2';
 interface data {
   value: string;
@@ -18,7 +23,11 @@ interface data {
     styleUrl: './pos.component.scss',
     standalone: false
 })
-export class PosComponent {
+export class PosComponent implements AfterViewInit {
+
+  @ViewChild('menuSection', { static: false }) menuSection: ElementRef | undefined;
+
+  
   istab=true;
   istab2=false;
   istab3=false;
@@ -81,13 +90,21 @@ export class PosComponent {
   dataSource!: MatTableDataSource<pospurchase>;
   public searchDataValue = '';
   //** / pagination variables
+  restaurantId: string | null = null;
+  errorMessage = '';
+  selectedCategory: any = null;
+  menuItems: any = [];
+  categories: any = [];
+  filteredCategories: any = [];
+  orderType = 'baseMenu';
 
   constructor(
     private data: DataService,
     private pagination: PaginationService,
     private router: Router,
     private sidebar: SidebarService,
-    private renderer: Renderer2, private el: ElementRef
+    private renderer: Renderer2, private el: ElementRef,
+    private menuApiService: MenuApiService, private store: Store, private cd: ChangeDetectorRef
   ) {
     this.data.getPosPurchase().subscribe((apiRes: apiResultFormat) => {
       this.totalData = apiRes.totalData;
@@ -117,6 +134,93 @@ export class PosComponent {
       });
     });
   }
+
+  ngOnInit(): void {
+    // Fetch the restaurantId from NgRx store
+    this.store.select(selectRestaurantId).subscribe(id => {
+      this.restaurantId = '1';
+      console.log(id);
+      if (this.restaurantId) {
+        this.getCategories(this.restaurantId);
+        this.loadAllMenuItems();
+      } else {
+        this.errorMessage = 'No restaurant ID found.';
+      }
+    });
+  }
+
+
+  getCategories(restaurantId: string): void {
+   // this.toastService.showLoader();
+    this.menuApiService.getCategories(restaurantId).subscribe(
+      response => {
+        //this.toastService.hideLoader();
+        this.categories = response;
+        this.filteredCategories = response;
+        if (response.length > 0) {
+          this.getMenuItemOnCategories(response[0]);
+        }
+        this.cd.detectChanges();
+        //console.log(this.categories)
+        //this.isLoading = false;
+      },
+      error => {
+      //  this.toastService.hideLoader();
+       // this.isLoading = false;
+        this.errorMessage = 'Error fetching categories.';
+        console.error('Error fetching categories:', error);
+      }
+    );
+  }
+  
+  openTab(): void {
+    this.istab=true;
+    this.loadAllMenuItems(); 
+    this.selectedCategory = null;// Load all items when "All" is clicked
+  }
+  getMenuItemOnCategories(category: any) {
+    console.log('order type: ' + this.orderType);
+     this.selectedCategory = category;
+    // this.toastService.showLoader();
+    this.menuApiService.getMenuItemOnCategories(this.restaurantId, category.categoryId, this.orderType).subscribe(
+      (response: any) => {
+        this.menuItems = response.content || []; // Assuming 'content' contains the menu items
+        this.menuItems = this.menuItems.map((item: any) => ({
+          ...item,
+          isChecked: false,
+        }));
+        this.cd.detectChanges();
+        this.scrollToMenuItems();
+      }, (error) => {
+    this.menuItems = [];
+    this.cd.detectChanges();
+    //this.toastService.hideLoader();
+  })
+}
+
+loadAllMenuItems(): void {
+  this.menuApiService.getMenuItems(this.restaurantId).subscribe((response: any) => {
+    this.menuItems = response || [];
+    // Add default checked state to each menu item
+    this.menuItems = this.menuItems.map((item: any) => ({
+      ...item,
+      isChecked: false,
+    }));
+    this.cd.detectChanges();
+    this.scrollToMenuItems();
+  }, (error) => {
+    this.menuItems = [];
+    this.cd.detectChanges();
+    console.error('Error fetching all menu items:', error);
+  });
+}
+
+scrollToMenuItems(): void {
+  // Scroll to the menu items container smoothly
+  if (this.menuSection) {
+    this.menuSection.nativeElement.scrollIntoView({ behavior: 'smooth' });
+  }
+}
 
   private getTableData(pageOption: pageSelection): void {
     this.data.getPosPurchase().subscribe((apiRes: apiResultFormat) => {
@@ -208,15 +312,15 @@ export class PosComponent {
   // public ngAfterViewInit(): void {
   //   window.dispatchEvent(new Event('resize'));
   // }
-  openTab():void{
-    this.istab=true;
-    this.istab2=false;
-    this.istab3=false;
-    this.istab4=false;
-    this.istab5=false;
-    this.istab6=false;
-    this.istab7=false;
-  }
+  // openTab():void{
+  //   this.istab=true;
+  //   this.istab2=false;
+  //   this.istab3=false;
+  //   this.istab4=false;
+  //   this.istab5=false;
+  //   this.istab6=false;
+  //   this.istab7=false;
+  // }
   openTab2():void{
     this.istab2=true;
     this.istab=false;

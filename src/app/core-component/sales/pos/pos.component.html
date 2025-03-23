@@ -9,64 +9,26 @@
             <owl-carousel-o [options]="posCategories5">
               <ng-template carouselSlide>
                 <li id="all" (click)="openTab()" [ngClass]="{'active':istab}">
-                  <a href="javascript:void(0);">
+                  <!-- <a href="javascript:void(0);">
                     <img src="assets/img/products/pos-product-01.png" alt="Categories">
-                  </a>
+                  </a> -->
                   <h6><a href="javascript:void(0);">All</a></h6>
                 </li>
               </ng-template>
-              <ng-template carouselSlide>
-                <li id="headphones" (click)="openTab2()" [ngClass]="{'active':istab2}">
-                  <a href="javascript:void(0);">
-                    <img src="assets/img/products/pos-product-08.png" alt="Categories">
-                  </a>
-                  <h6><a href="javascript:void(0);">Headset</a></h6>
+              <!-- Loop through categories dynamically -->
+              <ng-template carouselSlide *ngFor="let category of categories">
+                <li (click)="getMenuItemOnCategories(category)" [ngClass]="{'active': selectedCategory === category}">
+                  <!-- <a href="javascript:void(0);">
+                    <img [src]="category.logoImageUrl" alt="Category">
+                  </a> -->
+                  <h6><a href="javascript:void(0);">{{ category.categoryName }}</a></h6>
                 </li>
               </ng-template>
-              <ng-template carouselSlide>
-                <li id="shoes" (click)="openTab3()" [ngClass]="{'active':istab3}">
-                  <a href="javascript:void(0);">
-                    <img src="assets/img/products/pos-product-04.png" alt="Categories">
-                  </a>
-                  <h6><a href="javascript:void(0);">Shoes</a></h6>
-                </li>
-              </ng-template>
-              <ng-template carouselSlide>
-                <li id="mobiles" (click)="openTab4()" [ngClass]="{'active':istab4}">
-                  <a href="javascript:void(0);">
-                    <img src="assets/img/products/pos-product-15.png" alt="Categories">
-                  </a>
-                  <h6><a href="javascript:void(0);">Mobiles</a></h6>
-                </li>
-              </ng-template>
-              <ng-template carouselSlide>
-                <li id="watches" (click)="openTab5()" [ngClass]="{'active':istab5}">
-                  <a href="javascript:void(0);">
-                    <img src="assets/img/products/pos-product-03.png" alt="Categories">
-                  </a>
-                  <h6><a href="javascript:void(0);">Watches</a></h6>
-                </li>
-              </ng-template>
-              <ng-template carouselSlide>
-                <li id="laptops" (click)="openTab6()" [ngClass]="{'active':istab6}">
-                  <a href="javascript:void(0);">
-                    <img src="assets/img/products/pos-product-12.png" alt="Categories">
-                  </a>
-                  <h6><a href="javascript:void(0);">Laptops</a></h6>
-                </li>
-              </ng-template>
-              <ng-template carouselSlide>
-                <li id="appliances" (click)="openTab7()" [ngClass]="{'active':istab7}">
-                  <a href="javascript:void(0);">
-                    <img src="assets/img/products/pos-product-05.png" alt="Categories">
-                  </a>
-                  <h6><a href="javascript:void(0);">Appliance</a></h6>
-                </li>
-              </ng-template>
+              
             </owl-carousel-o>
           </ul>
         </div>
-        <div class="tab-content-wrap">
+        <div class="tab-content-wrap" #menuSection>
           <div class="d-flex align-items-center justify-content-between flex-wrap mb-2">
             <div class="mb-3">
               <h5 class="mb-1">Welcome,  Wesley Adrian</h5>
@@ -77,7 +39,7 @@
                 <span class="input-icon-addon">
                   <i class="ti ti-search"></i>
                 </span>
-                <input type="text" class="form-control" placeholder="Search Product">
+                <input type="text" class="form-control" placeholder="Search with Items or Code">
               </div>
               <a href="javascript:void(0);" class="btn btn-sm btn-dark mb-2 me-2"><i class="ti ti-tag me-1"></i>View All Brands</a>
               <a href="javascript:void(0);" class="btn btn-sm btn-primary mb-2"><i class="ti ti-star me-1"></i>Featured</a>
@@ -85,21 +47,16 @@
           </div>
           <div class="pos-products">
             <div class="tabs_container">
-              <div  class="tab_content" data-tab="all" [ngClass]="{'active':istab}">
+              <div  class="tab_content"  data-tab="all" [ngClass]="{'active':istab}">
                 <div class="row g-3">
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
+                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3" *ngFor="let item of menuItems">
                     <div class="product-info card mb-0">
-                      <!-- <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-01.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a> -->
-                      <h6 class="cat-name"><a href="javascript:void(0);">Mobiles</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">IPhone 14 64GB</a></h6>
+                      <h6 class="product-name"><a href="javascript:void(0);">
+                       
+                        <span class="text-primary "> {{ item.itemName }}</span>
+                      </a></h6>
                       <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$15800</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
+                        <p class="text-teal fs-14 mb-0">{{ item.basePrice }}</p>
                       </div>
                     </div>
                   </div>
@@ -135,151 +92,6 @@
                       </div>
                     </div>
                   </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-04.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Shoes</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Red Nike Angelo</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$7800</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card active mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-05.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Headphones</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Airpod 2</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$5478</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-06.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Shoes</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Blue White OGR</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$987</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-07.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Laptop</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">IdeaPad Slim 5 Gen 7</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$1454</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-08.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Headphones</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">SWAGME</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$6587</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-09.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Watches</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Timex Black Silver</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$1457</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-10.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Computer</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Tablet 1.02 inch</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$4744</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-11.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Watches</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Fossil Pair Of 3 in 1 </a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$789</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-13.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Shoes</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Green Nike Fe</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$7847</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
               </div>
               <div  class="tab_content" data-tab="headphones" [ngClass]="{'active':istab2}">
@@ -752,6 +564,23 @@
   <div class="col-md-12 col-lg-5 col-xl-4 ps-0 theiaStickySidebar d-lg-flex">
     <aside class="product-order-list bg-secondary-transparent flex-fill">
       <div class="card">
+        <ul class="nav nav-pills border bg-orange-100 d-flex p-2 rounded mb-3" id="pills-tab" role="tablist">
+          <li class="nav-item flex-fill" role="presentation">
+            <button class="nav-link btn active w-100" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-selected="true">
+              DineIn
+            </button>
+          </li>
+          <li class="nav-item flex-fill" role="presentation">
+            <button class="nav-link btn w-100" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-selected="false">
+              Delivery
+            </button>
+          </li>
+          <li class="nav-item flex-fill" role="presentation">
+            <button class="nav-link btn w-100" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-selected="false">
+              Parcel
+            </button>
+          </li>
+        </ul>
         <div class="card-body">
           <div class="order-head d-flex align-items-center justify-content-between w-100">
             <div>
@@ -777,7 +606,7 @@
               <a href="javascript:void(0);" class="btn btn-teal btn-icon fs-20" data-bs-toggle="modal" data-bs-target="#create"><i class="ti ti-user-plus"></i></a>
               <a href="javascript:void(0);" class="btn btn-info btn-icon fs-20" data-bs-toggle="modal" data-bs-target="#barcode"><i class="ti ti-scan"></i></a>
             </div>
-            <div class="customer-item border border-orange bg-orange-100 d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3">
+            <!-- <div class="customer-item border border-orange bg-orange-100 d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3">
               <div>
                 <h6 class="fs-16 fw-bold mb-1">James Anderson</h6>
                 <div class="d-inline-flex align-items-center gap-2 customer-bonus">
@@ -787,7 +616,7 @@
               </div>
               <a href="javascript:void(0);" class="btn btn-orange btn-sm">Apply</a>
               <a href="javascript:void(0);" class="close-icon"><i class="ti ti-x"></i></a>
-            </div>
+            </div> -->
           </div>
           <div class="product-added block-section">
             <div class="head-text d-flex align-items-center justify-content-between mb-3">
