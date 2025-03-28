@@ -449,13 +449,10 @@ export class DataService {
   }
   public getRolesPermissions(): Observable<apiResultFormat> {
     return this.http
-      .get<apiResultFormat>('assets/JSON/roles-permissions.json')
-      .pipe(
-        map((res: apiResultFormat) => {
-          return res;
-        })
-      );
+      .get<apiResultFormat>('http://localhost:8080/api/v1/roles/restaurant/1')
+      .pipe(map((res: apiResultFormat) => res));
   }
+  
   public getState(): Observable<apiResultFormat> {
     return this.http.get<apiResultFormat>('assets/JSON/state.json').pipe(
       map((res: apiResultFormat) => {

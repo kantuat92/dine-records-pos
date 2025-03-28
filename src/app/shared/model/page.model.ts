@@ -580,6 +580,7 @@ export interface fileShared {
 }
 export interface rolesPermissions {
   sNo: number;
+  id: number;
   role: string;
   createdDate: string;
   status:string;
