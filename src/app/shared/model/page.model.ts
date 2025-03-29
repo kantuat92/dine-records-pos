@@ -654,7 +654,7 @@ export interface payrollList {
   img: string;
   sNo: number;
   isSelected?: boolean;
-  
+
 
 }
 export interface salesReport {
@@ -735,7 +735,7 @@ export interface quotationList {
   status: string;
   total: string;
   isSelected?: boolean;
-  
+
 
 }
 export interface qrCode {
@@ -963,16 +963,19 @@ export interface supplierreport {
 //   paymentStatus: string;
 // }
 
-export interface permission {
-  sNo?: number;
-  modules: string;
-  create: string;
-  edit: string;
-  delete: string;
-  view: string;
-  allowAll: string;
-  isSelected?: boolean;
+export interface Operation {
+  operationId: number;
+  operationName: string;
+  selected: boolean;
 }
+
+export interface Permission {
+  sNo: number;
+  permissionId: number;
+  permissionName: string;
+  operations: Operation[];
+}
+
 export interface taxReport {
   sNo: number;
   reference: string;
@@ -993,7 +996,7 @@ export interface pospurchase {
   reference: string;
   customer: string;
   amount: string;
- 
+
 }
 export interface videocall {
   sNo: number;
@@ -1191,7 +1194,7 @@ export interface CompanyAccount {
   Email: string;
   AccountURL: string;
   Plan: string;
-  CreatedDate: string; 
+  CreatedDate: string;
   Image: string;
   Status: string;
 }
