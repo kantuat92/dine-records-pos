@@ -714,12 +714,14 @@ export interface salesInvoice {
 }
 export interface users {
   sNo: number;
+  id: number;
   img: string;
   userName: string;
   phone: string;
   email: string;
-  role: string;
-  createdOn: string;
+  roleId: number;
+  roleName: string;
+  createdDate: string;
   status: string;
   isSelected?: boolean;
 }

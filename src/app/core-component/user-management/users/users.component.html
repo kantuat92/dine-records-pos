@@ -117,10 +117,7 @@
                 </label>
               </td>
               <td>
-                <div class="d-flex align-items-center">
-                  <a href="javascript:void(0);" class="avatar avatar-md me-2">
-                    <img src="assets/img/users/{{data.img}}" alt="product">
-                  </a>
+                <div class="d-flex align-items-center">                  
                   <div>
                     <a href="javascript:void(0);">{{data.userName}}</a>
                   </div>
@@ -129,17 +126,17 @@
               </td>
               <td>{{data.phone}}</td>
               <td>{{data.email}}</td>
-              <td>{{data.role}}</td>
-              <td><span class="d-inline-flex align-items-center p-1 pe-2 rounded-1 text-white bg-success fs-10"><i class="ti ti-point-filled me-1 fs-11"></i>{{data.status}}</span></td>
+              <td>{{data.roleName}}</td>
+              <td><span [ngClass]="{ 'bg-success': data.status, 'bg-danger': !data.status }" class="d-inline-flex align-items-center p-1 pe-2 rounded-1 text-white bg-success fs-10"><i class="ti ti-point-filled me-1 fs-11"></i>{{ data.status ? 'Active' : 'Inactive' }}</span></td>
               <td class="action-table-data">
                 <div class="edit-delete-action">
                   <a class="me-2 p-2 mb-0" href="javascript:void(0);">
                     <i data-feather="eye" class="action feather icon-eye"></i>
                   </a>
-                  <a class="me-2 p-2 mb-0" data-bs-toggle="modal" data-bs-target="#edit-units">
+                  <a class="me-2 p-2 mb-0" data-bs-toggle="modal" data-bs-target="#edit-units" (click)="setEditUserId(data.id)">
                     <i data-feather="edit" class="feather icon-edit"></i>
                   </a>
-                  <a data-bs-toggle="modal" data-bs-target="#delete-modal" class="p-2 mb-0" href="javascript:void(0);">
+                  <a data-bs-toggle="modal" data-bs-target="#delete-modal" class="p-2 mb-0" href="javascript:void(0);" (click)="setDeleteUserId(data.id)">
                     <i data-feather="trash-2" class="feather icon-trash-2"></i>
                   </a>
                 </div>
@@ -154,226 +151,183 @@
 </div>
 <!-- /product list -->
 
-		<!-- Add User -->
-		<div class="modal fade" id="add-units">
-			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
-					<div class="page-wrapper-new p-0">
-						<div class="content">
-							<div class="modal-header">
-								<div class="page-title">
-									<h4>Add User</h4>
-								</div>
-								<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>
-							</div>
-							<div class="modal-body p-3">
-								<form action="users.html">
-									<div class="row">
-										<div class="col-lg-12">
-											<div class="new-employee-field">
-												
-												<div class="profile-pic-upload mb-2">
-													<div class="profile-pic">
-														<span><i data-feather="plus-circle" class="plus-down-add"></i>Add Image</span>
-													</div>
-													<div class="mb-0">
-														<div class="image-upload mb-0">
-															<input type="file">
-															<div class="image-uploads">
-																<h4>Upload Image</h4>
-															</div>
-														</div>
-														<p class="fs-13 mt-2">JPEG, PNG up to 2 MB</p>
-													</div>
-												</div>
-											</div>
-										</div>
-										<div class="col-lg-12">
-											<div class="mb-3">
-												<label class="form-label">User<span class="text-danger ms-1">*</span></label>
-												<input type="text" class="form-control">
-											</div>
-										</div>
-										<div class="col-lg-12">
-											<div class="mb-3">
-												<label class="form-label">Role<span class="text-danger ms-1">*</span></label>
-												<mat-select class="custom-mat-select select" placeholder="Select">
-													<mat-option value="1">Select</mat-option>
-													<mat-option value="1">Admin</mat-option>
-													<mat-option value="1">Manager</mat-option>
-												</mat-select>
-											</div>
-										</div>
-										<div class="col-lg-12">
-											<div class="mb-3">
-												<label class="form-label">Email<span class="text-danger ms-1">*</span></label>
-												<input type="email" class="form-control">
-											</div>
-										</div>
-										<div class="col-lg-12">
-											<div class="mb-3">
-												<label class="form-label">Phone<span class="text-danger ms-1">*</span></label>
-												<input type="tel" class="form-control">
-											</div>
-										</div>
-									
-										<div class="col-lg-6">
-											<div class="mb-3">
-												<label class="form-label">Password<span class="text-danger ms-1">*</span></label>
-												<div class="pass-group">
-													<input [type]="password[1] ? 'text' : 'password' " class="pass-input form-control"
-														placeholder="Enter your password">
-														<span class="fas toggle-password" [ngClass]=" password[1] ? 'fa-eye' : 'fa-eye-slash'"
-														(click)="togglePassword(1)"></span>
-													</div>
-											</div>
-										</div>
-										<div class="col-lg-6">
-											<div class="mb-3">
-												<label class="form-label">Confirm Password<span class="text-danger ms-1">*</span></label>
-												<div class="pass-group">
-                          <input [type]="password[2] ? 'text' : 'password' " class="pass-input form-control"
-                            placeholder="Enter your password">
-                            <span class="fas toggle-password" [ngClass]=" password[2] ? 'fa-eye' : 'fa-eye-slash'"
-                            (click)="togglePassword(2)"></span>
-                          </div>
-											</div>
-										</div>
-										<div class="col-lg-12">
-											<div class="status-toggle modal-status d-flex justify-content-between align-items-center">
-												<span class="status-label">Status</span>
-												<input type="checkbox" id="user1" class="check" checked="">
-												<label for="user1" class="checktoggle">	</label>
-											</div>
-										</div>
-							
-									</div>
-							
-								</form>
-							</div>
-							<div class="modal-footer">
-								<button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none" data-bs-dismiss="modal">Cancel</button>
-								<button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3" data-bs-dismiss="modal">Add User</button>
-							</div>
-						</div>
-					</div>
-				</div>
+		<!-- Add User Modal -->
+<div class="modal fade" id="add-units">
+	<div class="modal-dialog modal-dialog-centered">
+	  <div class="modal-content">
+		<div class="page-wrapper-new p-0">
+		  <div class="content">
+			<div class="modal-header">
+			  <div class="page-title">
+				<h4>Add User</h4>
+			  </div>
+			  <button #closeButtonForAddUser type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button>
 			</div>
+			<div class="modal-body p-3">
+			  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+				<div class="row">
+				  <div class="col-lg-12">
+					<div class="mb-3">
+					  <label class="form-label">User<span class="text-danger ms-1">*</span></label>
+					  <input type="text" class="form-control" formControlName="userName">
+					</div>
+				  </div>
+				  <div class="col-lg-12">
+					<div class="mb-3">
+					  <label class="form-label">Role<span class="text-danger ms-1">*</span></label>
+					  <select class="form-control" formControlName="roleId">
+						<option value="">Select</option>
+						<option *ngFor="let role of roles" [value]="role.id">{{ role.role }}</option>
+					  </select>
+					</div>
+				  </div>
+				  
+				  <div class="col-lg-12">
+					<div class="mb-3">
+					  <label class="form-label">Email<span class="text-danger ms-1">*</span></label>
+					  <input type="email" class="form-control" formControlName="email">
+					</div>
+				  </div>
+				  <div class="col-lg-12">
+					<div class="mb-3">
+					  <label class="form-label">Phone<span class="text-danger ms-1">*</span></label>
+					  <input type="tel" class="form-control" formControlName="phone">
+					</div>
+				  </div>
+				  <div class="col-lg-6">
+					<div class="mb-3">
+					  <label class="form-label">Password<span class="text-danger ms-1">*</span></label>
+					  <div class="pass-group">
+						<input [type]="showPassword ? 'text' : 'password'" class="form-control" formControlName="password">
+						<span class="fas toggle-password" [ngClass]="showPassword ? 'fa-eye' : 'fa-eye-slash'"
+						  (click)="togglePassword()"></span>
+					  </div>
+					</div>
+				  </div>
+				  <div class="col-lg-6">
+					<div class="mb-3">
+					  <label class="form-label">Confirm Password<span class="text-danger ms-1">*</span></label>
+					  <div class="pass-group">
+						<input [type]="showPassword ? 'text' : 'password'" class="form-control" formControlName="confirmPassword">
+						<span class="fas toggle-password" [ngClass]="showPassword ? 'fa-eye' : 'fa-eye-slash'"
+						  (click)="togglePassword()"></span>
+					  </div>
+					</div>
+				  </div>
+				  <div class="col-lg-12">
+					<div class="status-toggle modal-status d-flex justify-content-between align-items-center">
+					  <span class="status-label">Status</span>
+					  <input type="checkbox" id="userStatus" class="check" formControlName="status">
+					  <label for="userStatus" class="checktoggle"></label>
+					</div>
+				  </div>
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none" data-bs-dismiss="modal">Cancel</button>
+				  <button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3" [disabled]="userForm.invalid">Add User</button>
+				</div>
+			  </form>
+			</div>
+		  </div>
 		</div>
-		<!-- /Add User -->
+	  </div>
+	</div>
+  </div>
+  
 
 		<!-- Edit User -->
 		<div class="modal fade" id="edit-units">
 			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
-					<div class="page-wrapper-new p-0">
-						<div class="content">
-							<div class="modal-header">
-								<div class="page-title">
-									<h4>Edit User</h4>
-								</div>
-								<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>
-							</div>
-							<div class="modal-body p-3">
-								<form action="users.html">
-									<div class="row">
-										<div class="col-lg-12">
-											<div class="new-employee-field">
-												<div class="profile-pic-upload image-field">
-													<div class="profile-pic p-2">
-														<img src="./assets/img/users/user-49.png" class="object-fit-cover h-100 rounded-1" alt="user">
-														<button type="button" class="close rounded-1">
-															<span aria-hidden="true">&times;</span>
-														</button>
-													</div>
-													<div class="mb-3">
-														<div class="image-upload mb-0">
-															<input type="file">
-															<div class="image-uploads">
-																<h4>Change Image</h4>
-															</div>
-														</div>
-														<p class="mt-2">JPEG, PNG up to 2 MB</p>
-													</div>
-												</div>
-											</div>
-										</div>
-										<div class="col-lg-12">
-											<div class="mb-3">
-												<label class="form-label">User<span class="text-danger ms-1">*</span></label>
-												<input type="text" class="form-control" value="Henry Bryant">
-											</div>
-										</div>
-										<div class="col-lg-12">
-											<div class="mb-3">
-												<label class="form-label">Role<span class="text-danger ms-1">*</span></label>
-												<mat-select class="custom-mat-select select" placeholder="Select">
-													<mat-option value="1">Select</mat-option>
-													<mat-option value="1">Admin</mat-option>
-													<mat-option value="1">Manager</mat-option>
-												</mat-select>
-											</div>
-										</div>
-										<div class="col-lg-12">
-											<div class="mb-3">
-												<label class="form-label">Email<span class="text-danger ms-1">*</span></label>
-												<input type="email" class="form-control" value="henry@example.com">
-											</div>
-										</div>
-										<div class="col-lg-12">
-											<div class="mb-3">
-												<label class="form-label">Phone<span class="text-danger ms-1">*</span></label>
-												<input type="tel" class="form-control" value="+12498345785">
-											</div>
-										</div>
-									
-										<div class="col-lg-6">
-											<div class="mb-3">
-												<label class="form-label">Password<span class="text-danger ms-1">*</span></label>
-												<div class="pass-group">
-                          <input [type]="password[3] ? 'text' : 'password' " class="pass-input form-control"
-                            placeholder="Enter your password">
-                            <span class="fas toggle-password" [ngClass]=" password[3] ? 'fa-eye' : 'fa-eye-slash'"
-                            (click)="togglePassword(3)"></span>
-                          </div>
-											</div>
-										</div>
-										<div class="col-lg-6">
-											<div class="mb-3">
-												<label class="form-label">Confirm Password<span class="text-danger ms-1">*</span></label>
-												<div class="pass-group">
-                          <input [type]="password[4] ? 'text' : 'password' " class="pass-input form-control"
-                            placeholder="Enter your password">
-                            <span class="fas toggle-password" [ngClass]=" password[4] ? 'fa-eye' : 'fa-eye-slash'"
-                            (click)="togglePassword(4)"></span>
-                          </div>
-											</div>
-										</div>
-										<div class="col-lg-12">
-											<div class="status-toggle modal-status d-flex justify-content-between align-items-center">
-												<span class="status-label">Status</span>
-												<input type="checkbox" id="user2" class="check" checked="">
-												<label for="user2" class="checktoggle">	</label>
-											</div>
-										</div>
-							
-									</div>
-							
-								</form>
-							</div>
-							<div class="modal-footer">
-								<button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none" data-bs-dismiss="modal">Cancel</button>
-								<button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3" data-bs-dismiss="modal">Save Changes</button>
-							</div>
-						</div>
+			  <div class="modal-content">
+				<div class="page-wrapper-new p-0">
+				  <div class="content">
+					<div class="modal-header">
+					  <div class="page-title">
+						<h4>Edit User</h4>
+					  </div>
+					  <button #closeButtonForEditUser type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					  </button>
 					</div>
+					<div class="modal-body p-3">
+					  <form [formGroup]="editUserForm" (ngSubmit)="onEditSubmit()">
+						<div class="row">
+						  <div class="col-lg-12">
+							<div class="mb-3">
+							  <label class="form-label">User<span class="text-danger ms-1">*</span></label>
+							  <input type="text" class="form-control" formControlName="userName">
+							</div>
+						  </div>
+		  
+						  <div class="col-lg-12">
+							<div class="mb-3">
+							  <label class="form-label">Role<span class="text-danger ms-1">*</span></label>
+							  <select class="form-control" formControlName="roleId">
+								<option value="">Select</option>
+								<option *ngFor="let role of roles" [value]="role.id">{{ role.role }}</option>
+							  </select>
+							</div>
+						  </div>
+		  
+						  <div class="col-lg-12">
+							<div class="mb-3">
+							  <label class="form-label">Email<span class="text-danger ms-1">*</span></label>
+							  <input type="email" class="form-control" formControlName="email">
+							</div>
+						  </div>
+		  
+						  <div class="col-lg-12">
+							<div class="mb-3">
+							  <label class="form-label">Phone<span class="text-danger ms-1">*</span></label>
+							  <input type="tel" class="form-control" formControlName="phone">
+							</div>
+						  </div>
+		  
+						  <!-- <div class="col-lg-6">
+							<div class="mb-3">
+							  <label class="form-label">Password<span class="text-danger ms-1">*</span></label>
+							  <div class="pass-group">
+								<input [type]="showPassword ? 'text' : 'password'" class="form-control" formControlName="password">
+								<span class="fas toggle-password" [ngClass]="showPassword ? 'fa-eye' : 'fa-eye-slash'"
+								  (click)="togglePassword()"></span>
+							  </div>
+							</div>
+						  </div>
+						  <div class="col-lg-6">
+							<div class="mb-3">
+							  <label class="form-label">Confirm Password<span class="text-danger ms-1">*</span></label>
+							  <div class="pass-group">
+								<input [type]="showPassword ? 'text' : 'password'" class="form-control" formControlName="confirmPassword">
+								<span class="fas toggle-password" [ngClass]="showPassword ? 'fa-eye' : 'fa-eye-slash'"
+								  (click)="togglePassword()"></span>
+							  </div>
+							</div>
+						  </div> -->
+		  
+						  <div class="col-lg-12">
+							<div class="status-toggle modal-status d-flex justify-content-between align-items-center">
+							  <span class="status-label">Status</span>
+							  <input type="checkbox" id="userStatusEditUser" class="check" formControlName="status">
+							  <label for="userStatusEditUser" class="checktoggle"></label>
+							</div>
+						  </div>
+						</div>
+		  
+						<div class="modal-footer">
+						  <button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
+							data-bs-dismiss="modal">Cancel</button>
+						  <button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3" [disabled]="editUserForm.invalid">Save Changes</button>
+						</div>
+					  </form>
+					</div>
+				  </div>
 				</div>
+			  </div>
 			</div>
-		</div>
+		  </div>
+		  
 		<!-- /Edit User -->
 
 		<!-- delete modal -->
@@ -386,8 +340,8 @@
 								<h4 class="fs-20 fw-bold mb-2 mt-1">Delete User</h4>
 								<p class="mb-0 fs-16">Are you sure you want to delete user?</p>
 								<div class="modal-footer-btn mt-3 d-flex justify-content-center">
-									<button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none" data-bs-dismiss="modal">Cancel</button>
-									<button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3" data-bs-dismiss="modal">Yes Delete</button>
+									<button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none" data-bs-dismiss="modal" #closeButtonForDeleteUser>Cancel</button>
+									<button type="submit" class="btn btn-primary fs-13 fw-medium p-2 px-3" data-bs-dismiss="modal" (click)="deleteUser()">Yes Delete</button>
 								</div>						
 						</div>
 					</div>

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
@@ -12,6 +13,15 @@ import { routes } from 'src/app/core/helpers/routes';
 import { users } from 'src/app/shared/model/page.model';
 import { PaginationService, tablePageSize } from 'src/app/shared/shared.index';
 import Swal from 'sweetalert2';
+
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+
+interface Role {
+  id: number; // Long value from API
+  role: string; // Display label
+}
+
 @Component({
     selector: 'app-users',
     templateUrl: './users.component.html',
@@ -19,6 +29,19 @@ import Swal from 'sweetalert2';
     standalone: false
 })
 export class UsersComponent {
+
+  restaurantId: number= 1;
+  userForm: FormGroup;
+  editUserForm: FormGroup;
+  showPassword = false;
+  roles: Role[] = []; // Store roles fetched from API
+  editUserId: number | null = null;
+  deleteUserId: number | null = null;
+
+  @ViewChild('closeButtonForAddUser') closeButtonForAddUser!: ElementRef<HTMLButtonElement>;
+  @ViewChild('closeButtonForEditUser') closeButtonForEditUser!: ElementRef<HTMLButtonElement>;
+  @ViewChild('closeButtonForDeleteUser') closeButtonForDeleteUser!: ElementRef<HTMLButtonElement>;
+
   initChecked = false;
   selectedValue1 = '';
   selectedValue2 = '';
@@ -43,8 +66,31 @@ export class UsersComponent {
     private data: DataService,
     private pagination: PaginationService,
     private router: Router,
-    private sidebar: SidebarService
+    private sidebar: SidebarService, private fb: FormBuilder, private http: HttpClient
   ) {
+
+    this.loadData();
+    this.userForm = this.fb.group({
+      userName: ['', Validators.required],
+      roleId: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', Validators.required],
+      password: ['', Validators.required],
+      confirmPassword: ['', Validators.required],
+      status: [true]
+    });
+
+    this.editUserForm = this.fb.group({
+      id: [null],
+      userName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', Validators.required],
+      roleId: ['', Validators.required],
+      status: [true]
+    });
+  }
+
+  loadData() {
     this.data.getDataTable().subscribe((apiRes: apiResultFormat) => {
       this.totalData = apiRes.totalData;
       this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
@@ -56,8 +102,121 @@ export class UsersComponent {
     });
   }
 
+  ngOnInit() {
+    this.fetchRoles();
+  }
+
+  setEditUserId(userId: number) {
+    this.editUserId = userId;
+    console.log('edit user id: ', this.editUserId);
+
+    // Find the user from tableData array
+    const user = this.tableData.find(u => u.id === userId);
+
+    if (user) {
+      this.editUserForm.patchValue({
+        id: user.id,
+        userName: user.userName,
+        email: user.email,
+        phone: user.phone,
+        roleId: user.roleId,
+        status: user.status
+      });
+    } else {
+      console.warn(`User with ID ${userId} not found`);
+    }
+  }
+
+  setDeleteUserId(userId: number) {
+    this.deleteUserId = userId;
+    console.log('deleteUserId set to : ', this.deleteUserId);
+  }
+
+  fetchRoles() {
+    this.http.get<{ data: Role[]; totalData: number }>(`http://localhost:8080/api/v1/roles/restaurant/${this.restaurantId}`)
+      .subscribe(
+        (response) => {
+          console.log('Roles API Response:', response);
+          this.roles = response.data; // Extract the roles array
+        },
+        (error) => {
+          console.error('Error fetching roles:', error);
+        }
+      );
+  }
+
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
+
+  onSubmit() {
+    console.log('this.userForm.valie:   ', this.userForm.valid);
+    if (this.userForm.valid) {
+      const userData = this.userForm.value;
+      delete userData.confirmPassword; // Remove confirmPassword before sending
+
+      userData.restaurantId = this.restaurantId; // Set restaurantId before submitting
+
+      this.http.post('http://localhost:8080/api/v1/users', userData).subscribe(
+        response => {
+          this.userForm.reset();
+          this.loadData();
+          this.closeButtonForAddUser.nativeElement.click(); // Click the close button
+        },
+        error => {
+          alert('Error adding user!');
+          console.error(error);
+        }
+      );
+    }
+  }
+
+  onEditSubmit() {
+    console.log('this.editUserForm.valie:   ', this.editUserForm.valid);
+    if (this.editUserForm.valid) {
+      const userData = this.editUserForm.value;
+      delete userData.confirmPassword; // Remove confirmPassword before sending
+
+      userData.restaurantId = this.restaurantId; // Set restaurantId before submitting
+      userData.id = this.editUserId;
+
+      this.http.put(`http://localhost:8080/api/v1/users/${this.editUserId}`, userData).subscribe(
+        response => {
+          this.userForm.reset();
+          this.loadData();
+          this.closeButtonForEditUser.nativeElement.click(); // Click the close button
+        },
+        error => {
+          alert('Error adding user!');
+          console.error(error);
+        }
+      );
+    }
+  }
+
+  deleteUser(): void {
+
+    if (!this.deleteUserId) {
+      alert("User Id cannot be null");
+      return;
+    }
+
+    this.http.delete(`http://localhost:8080/api/v1/users/${this.deleteUserId}`).subscribe(
+      (response) => {
+        this.deleteUserId = null; // Clear input field
+        this.loadData();
+        this.closeButtonForDeleteUser.nativeElement.click(); // Click the close button
+      },
+      (error) => {
+        console.error('Error:', error);
+        alert('Failed to DELETE user.');
+      }
+    );
+  }
+
   private getTableData(pageOption: pageSelection): void {
-    this.data.getUsers().subscribe((apiRes: apiResultFormat) => {
+    this.data.getUsers(this.restaurantId).subscribe((apiRes: apiResultFormat) => {
       this.tableData = [];
       this.serialNumberArray = [];
       this.totalData = apiRes.totalData;
@@ -142,9 +301,7 @@ export class UsersComponent {
 
   public password : boolean[] = [false];
 
-  public togglePassword(index: number){
-    this.password[index] = !this.password[index]
-  }
+
   selectAll(initChecked: boolean) {
     if (!initChecked) {
       this.tableData.forEach((f) => {
