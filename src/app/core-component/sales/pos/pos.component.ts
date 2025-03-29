@@ -92,11 +92,14 @@ export class PosComponent implements AfterViewInit {
   //** / pagination variables
   restaurantId: string | null = null;
   errorMessage = '';
+  cart: any[] = [];
   selectedCategory: any = null;
   menuItems: any = [];
   categories: any = [];
   filteredCategories: any = [];
   orderType = 'baseMenu';
+  selectedItem: any;
+  selectedVariant: any; 
 
   constructor(
     private data: DataService,
@@ -138,7 +141,7 @@ export class PosComponent implements AfterViewInit {
   ngOnInit(): void {
     // Fetch the restaurantId from NgRx store
     this.store.select(selectRestaurantId).subscribe(id => {
-      this.restaurantId = '1';
+      this.restaurantId = '16';
       console.log(id);
       if (this.restaurantId) {
         this.getCategories(this.restaurantId);
@@ -149,24 +152,119 @@ export class PosComponent implements AfterViewInit {
     });
   }
 
+  // addToCart(item: any): void {
+  //   const existingItemIndex = this.cart.findIndex(cartItem => cartItem.itemId === item.itemId);
+  //   if (existingItemIndex >= 0) {
+  //     this.cart = this.cart.map((cartItem, index) => {
+  //       if (index === existingItemIndex) {
+  //         return {
+  //           ...cartItem,
+  //           quantity: cartItem.quantity + 1,
+  //           totalPrice: (cartItem.quantity + 1) * cartItem.price
+  //         };
+  //       }
+  //       return cartItem;
+  //     });
+  //   } else {
+  //     this.cart = [...this.cart, {
+  //       itemId: item.itemId,
+  //       itemName: item.itemName,
+  //       price: item.basePrice,
+  //       quantity: 1,
+  //       totalPrice: item.basePrice
+  //     }];
+  //   }
+  // }
+
+  addToCart(item: any): void {
+    if (item.variants && item.variants.length > 0) {
+      this.selectedItem = item;
+      this.selectedVariant = null; 
+      this.quantity = 1;
+    } else {
+      // If no variants, directly add the item to the cart
+      const existingItemIndex = this.cart.findIndex(cartItem => cartItem.itemId === item.itemId);
+  
+      if (existingItemIndex >= 0) {
+        // If the item is already in the cart, increment the quantity and update total price
+        this.cart = this.cart.map((cartItem, index) => {
+          if (index === existingItemIndex) {
+            return {
+              ...cartItem,
+              quantity: cartItem.quantity + 1,
+              totalPrice: (cartItem.quantity + 1) * cartItem.price
+            };
+          }
+          return cartItem;
+        });
+      } else {
+        // If the item is not found, add it to the cart with quantity 1
+        this.cart = [...this.cart, {
+          itemId: item.itemId,
+          itemName: item.itemName,
+          price: item.basePrice,
+          quantity: 1,
+          totalPrice: item.basePrice
+        }];
+      }
+    }
+  }
+  
+ 
+  changeQuantity(change: number): void {
+    this.quantity = Math.max(1, this.quantity + change); // Ensure minimum quantity is 1
+  }
+  addVariantToCart(): void {
+    if (this.selectedItem && this.selectedVariant) {
+      const existingItemIndex = this.cart.findIndex(cartItem => cartItem.itemId === this.selectedItem.itemId);
+
+      if (existingItemIndex >= 0) {
+        // If item already in cart, update quantity and price
+        this.cart[existingItemIndex].quantity += 1;
+        this.cart[existingItemIndex].totalPrice = this.cart[existingItemIndex].quantity * this.cart[existingItemIndex].price;
+      } else {
+        // If item is not in the cart, add with selected variant price
+        this.cart.push({
+          itemId: this.selectedItem.itemId,
+          itemName: this.selectedItem.itemName,
+          price: this.selectedVariant.price,
+          quantity: 1,
+          totalPrice: this.selectedVariant.price
+        });
+      }
+      this.closeModal();
+
+    }
+  }
+
+  closeModal(): void {
+    this.selectedItem = null;  // Reset selected item
+    this.selectedVariant = null;  // Reset selected variant
+  }
+
+  updateQuantity(cartItem: any, newQuantity: number): void {
+    const existingItemIndex = this.cart.findIndex(item => item.itemId === cartItem.itemId);
+    if (existingItemIndex >= 0) {
+      // Prevent setting quantity to 0
+      if (newQuantity > 0) {
+        this.cart[existingItemIndex].quantity = newQuantity;
+        this.cart[existingItemIndex].totalPrice = this.cart[existingItemIndex].quantity * this.cart[existingItemIndex].price;
+      }
+    }
+  }
 
   getCategories(restaurantId: string): void {
-   // this.toastService.showLoader();
     this.menuApiService.getCategories(restaurantId).subscribe(
       response => {
-        //this.toastService.hideLoader();
-        this.categories = response;
-        this.filteredCategories = response;
-        if (response.length > 0) {
-          this.getMenuItemOnCategories(response[0]);
+        // Filter out categories with status false
+        this.categories = response.filter(category => category.status === true);
+        this.filteredCategories = this.categories;
+        if (this.categories.length > 0) {
+          this.getMenuItemOnCategories(this.categories[0]);
         }
         this.cd.detectChanges();
-        //console.log(this.categories)
-        //this.isLoading = false;
       },
       error => {
-      //  this.toastService.hideLoader();
-       // this.isLoading = false;
         this.errorMessage = 'Error fetching categories.';
         console.error('Error fetching categories:', error);
       }

@@ -42,7 +42,7 @@
                 <input type="text" class="form-control" placeholder="Search with Items or Code">
               </div>
               <a href="javascript:void(0);" class="btn btn-sm btn-dark mb-2 me-2"><i class="ti ti-tag me-1"></i>View All Brands</a>
-              <a href="javascript:void(0);" class="btn btn-sm btn-primary mb-2"><i class="ti ti-star me-1"></i>Featured</a>
+              <a href="javascript:void(0);" class="btn btn-sm btn-primary mb-2"><i class="ti ti-star me-1"></i>Favourites</a>
             </div>
           </div>
           <div class="pos-products">
@@ -50,506 +50,19 @@
               <div  class="tab_content"  data-tab="all" [ngClass]="{'active':istab}">
                 <div class="row g-3">
                   <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3" *ngFor="let item of menuItems">
-                    <div class="product-info card mb-0">
+                    <div class="product-info card mb-0" (click)="addToCart(item)">
                       <h6 class="product-name"><a href="javascript:void(0);">
                        
-                        <span class="text-primary "> {{ item.itemName }}</span>
+                        <span class="product-name"> {{ item.itemName }}</span>
                       </a></h6>
                       <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-teal fs-14 mb-0">{{ item.basePrice }}</p>
-                      </div>
+                        <p class="text-teal fs-14 mb-0">{{ item.basePrice | currency: 'INR' }}</p>
+                      <!-- <div class="qty-item m-0">
+                        <button (click)="addToCart(item)" class="btn btn-primary btn-sm">Add to Cart</button>
+                      </div> -->
+                    </div>
                     </div>
                   </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <!-- <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-02.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a> -->
-                      <h6 class="cat-name"><a href="javascript:void(0);">Computer</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">MacBook Pro</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$1000</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <!-- <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-03.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a> -->
-                      <h6 class="cat-name"><a href="javascript:void(0);">Watches</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Rolex Tribute V3</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$6800</p>
-                        <div class="qty-item m-0">
-                         <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div  class="tab_content" data-tab="headphones" [ngClass]="{'active':istab2}">
-                <div class="row g-3">
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-05.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Headphones</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Airpod 2</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$5478</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-08.png" alt="Products">
-                        <span><i data-feather="check" class="feather-16" ></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Headphones</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">SWAGME</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$6587</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>	
-              <div  class="tab_content" data-tab="shoes" [ngClass]="{'active':istab3}">
-                <div class="row g-3">
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-04.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Shoes</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Red Nike Angelo</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$7800</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-06.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Shoes</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Blue White OGR</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$987</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-13.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Shoes</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Green Nike Fe</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$7847</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>	
-              <div  class="tab_content" data-tab="mobiles" [ngClass]="{'active':istab4}">
-                <div class="row g-3">
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-01.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Mobiles</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">IPhone 14 64GB</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$15800</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-14.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Mobiles</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Iphone 11</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$3654</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>	
-              <div  class="tab_content" data-tab="watches" [ngClass]="{'active':istab5}">
-                <div class="row g-3">
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-03.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Watches</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Rolex Tribute V3</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$6800</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-09.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Watches</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Timex Black Silver</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$1457</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-11.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Watches</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Fossil Pair Of 3 in 1 </a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$789</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>	
-              <div  class="tab_content" data-tab="laptops" [ngClass]="{'active':istab6}">
-                <div class="row g-3">
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-02.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Computer</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">MacBook Pro</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$1000</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-07.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Laptop</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">IdeaPad Slim 5 Gen 7</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$1454</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-10.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Computer</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Tablet 1.02 inch</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$4744</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-13.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Laptop</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Yoga Book 9i</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$4784</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-14.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Laptop</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">IdeaPad Slim 3i</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$1245</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div  class="tab_content" data-tab="appliances" [ngClass]="{'active':istab7}">
-                <div class="row g-3">
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-01.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Mobiles</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">IPhone 14 64GB</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$15800</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-02.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Computer</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">MacBook Pro</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$1000</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-03.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Watches</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Rolex Tribute V3</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$6800</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-04.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Shoes</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Red Nike Angelo</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$7800</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-05.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Headphones</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Airpod 2</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$5478</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-06.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Shoes</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Blue White OGR</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$987</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-07.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Laptop</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">IdeaPad Slim 5 Gen 7</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$1454</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-08.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Headphones</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">SWAGME</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$6587</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-09.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Watches</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Timex Black Silver</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$1457</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-10.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Computer</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Tablet 1.02 inch</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$4744</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-11.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Watches</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Fossil Pair Of 3 in 1 </a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$789</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                    <div class="product-info card mb-0">
-                      <a href="javascript:void(0);" class="pro-img">
-                        <img src="assets/img/products/pos-product-13.png" alt="Products">
-                        <span><i class="ti ti-circle-check-filled"></i></span>
-                      </a>
-                      <h6 class="cat-name"><a href="javascript:void(0);">Shoes</a></h6>
-                      <h6 class="product-name"><a href="javascript:void(0);">Green Nike Fe</a></h6>
-                      <div class="d-flex align-items-center justify-content-between price">
-                        <p class="text-gray-9 mb-0">$7847</p>
-                        <div class="qty-item m-0">
-                          <app-common-counter-2 [value]="4"></app-common-counter-2>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
               </div>
             </div>
@@ -627,89 +140,144 @@
               <a href="javascript:void(0);" class="d-flex align-items-center clear-icon fs-10 fw-medium">Clear all</a>
             </div>
             <div class="product-wrap">
-              <div class="empty-cart">
+              <div class="empty-cart" *ngIf="cart.length === 0">
                 <div class="fs-24 mb-1">
                   <i class="ti ti-shopping-cart"></i>
                 </div>
-                <p class="fw-bold">No Products Selected</p>
+                <p class="fw-bold">No Items Selected</p>
               </div>
-              <div class="product-list border-0 p-0">
-                <div class="table-responsive">
-                  <table class="table table-borderless">
+              <div class="product-list border-0 p-0"  *ngIf="cart.length > 0">
+                <div class="table-responsive product-wrap theiaStickySidebar" style="max-height: 400px; overflow-y: auto;">
+                  <table class="table table-borderless theiaStickySidebar">
                     <thead>
-                      <tr>
-                        <th class="fw-bold bg-light">Item</th>
-                        <th class="fw-bold bg-light">QTY</th>
-                        <th class="fw-bold bg-light text-end">Cost</th>
-                      </tr>
+                        <tr>
+                            <th class="bg-transparent fw-bold">Product</th>
+                            <th class="bg-transparent fw-bold">QTY</th>
+                            <th class="bg-transparent fw-bold">Price</th>
+                            <th class="bg-transparent fw-bold text-end"></th>
+                        </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>
-                          <div class="d-flex align-items-center">
-                            <a class="delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
-                              <i class="ti ti-trash-x-filled"></i>
-                            </a>
-                            <h6 class="fs-13 fw-normal"><a href="javascript:void(0);" class=" link-default"  data-bs-toggle="modal" data-bs-target="#products">iPhone 14 64GB</a></h6>
-                          </div>
-                        </td>
-                        <td>
-                          <div class="qty-item m-0">
-                            <app-common-counter-2 [value]="1"></app-common-counter-2>
-                          </div>
-                        </td>
-                        <td class="fs-13 fw-semibold text-gray-9 text-end">$15800</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div class="d-flex align-items-center">
-                            <a class="delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
-                              <i class="ti ti-trash-x-filled"></i>
-                            </a>
-                            <h6 class="fs-13 fw-normal "><a href="javascript:void(0);" class="link-default"  data-bs-toggle="modal" data-bs-target="#products">Red Nike Angelo</a></h6>
-                          </div>
-                        </td>
-                        <td>
-                          <div class="qty-item m-0">
-                            <app-common-counter-2 [value]="4"></app-common-counter-2>
-                            </div>
-                        </td>
-                        <td class="fs-13 fw-semibold text-gray-9 text-end">$398</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div class="d-flex align-items-center">
-                            <a class="delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
-                              <i class="ti ti-trash-x-filled"></i>
-                            </a>
-                            <h6 class="fs-13 fw-normal "><a href="javascript:void(0);" class="link-default"  data-bs-toggle="modal" data-bs-target="#products">Tablet 1.02 inch</a></h6>
-                          </div>
-                        </td>
-                        <td>
-                          <div class="qty-item m-0">
-                            <app-common-counter-2 [value]="4"></app-common-counter-2>
-                          </div>
-                        </td>
-                        <td class="fs-13 fw-semibold text-gray-9 text-end">$3000</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <div class="d-flex align-items-center">
-                            <a class="delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
-                              <i class="ti ti-trash-x-filled"></i>
-                            </a>
-                            <h6 class="fs-13 fw-normal "><a href="javascript:void(0);" class="link-default" data-bs-toggle="modal" data-bs-target="#products">IdeaPad Slim 3i</a></h6>
-                          </div>
-                        </td>
-                        <td>
-                          <div class="qty-item m-0">
-                            <app-common-counter-2 [value]="4"></app-common-counter-2>
-                          </div>
-                        </td>
-                        <td class="fs-13 fw-semibold text-gray-9 text-end">$3000</td>
-                      </tr>
+                        <tr *ngFor="let cartItem of cart">
+                            <td>
+                                <div class="d-flex align-items-center mb-1">
+                                    <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">{{ cartItem.itemName }}</a></h6>
+                                    <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
+                                    data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
+                                </div>
+                                <p class="fst-italic fw-light">
+                                variants:
+                                - size: large
+                                - ice: less </p> <br>
+                                <!-- add-ons:
+                                - size: large
+                                - ice: less <br> 
+                                Addons:
+                                - sauce: peri peri large
+                                - ice: less  -->
+                              
+                              </td>
+                            <td>
+                                <div class="qty-item  m-0">
+                                    <app-common-counter-2 [value]="cartItem.quantity" (quantityChange)="updateQuantity(cartItem, $event)"></app-common-counter-2>
+                                </div>
+                            </td>
+                            <td class="fw-bold">{{ cartItem.totalPrice | currency: 'INR' }}</td>
+                            <td class="text-end">
+                                <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
+                                    <i class="ti ti-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <!-- <tr>
+                          <td>
+                              <div class="d-flex align-items-center mb-1">
+                                  <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">Iphone 11S</a></h6>
+                                  <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
+                                  data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
+                              </div>
+                              Price : $400 <br>
+                              Variants:
+                              - size: large
+                              - ice: less
+                            </td>
+                          <td>
+                              <div class="qty-item  m-0">
+                                  <app-common-counter-2 [value]="4"></app-common-counter-2>
+                              </div>
+                          </td>
+                          <td class="fw-bold">$400</td>
+                          <td class="text-end">
+                              <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
+                                  <i class="ti ti-trash"></i>
+                              </a>
+                          </td>
+                      </tr> -->
+                        <!-- <tr>
+                            <td>
+                                <div class="d-flex align-items-center mb-1">
+                                    <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">Samsung Galaxy S21</a></h6>
+                                    <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
+                                    data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
+                                </div>
+                                Price : $400
+                            </td>
+                            <td>
+                                <div class="qty-item m-0">
+                                    <app-common-counter-2 [value]="1"></app-common-counter-2>
+                                </div>
+                            </td>
+                            <td class="fw-bold">$400</td>
+                            <td class="text-end">
+                                <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
+                                    <i class="ti ti-trash"></i>
+                                </a>
+                            </td>
+                        </tr> -->
+                        <!-- <tr>
+                            <td>
+                                <div class="d-flex align-items-center mb-1">
+                                    <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">Red Boot Shoes</a></h6>
+                                    <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
+                                    data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
+                                </div>
+                                Price : $600
+                            </td>
+                            <td>
+                                <div class="qty-item m-0">
+                                    <app-common-counter-2 [value]="3"></app-common-counter-2>
+                                </div>
+                            </td>
+                            <td class="fw-bold">$600</td>
+                            <td class="text-end">
+                                <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
+                                    <i class="ti ti-trash"></i>
+                                </a>
+                            </td>
+                        </tr> -->
+                        <!-- <tr>
+                            <td>
+                                <div class="d-flex align-items-center mb-1">
+                                    <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">Bracelet</a></h6>
+                                    <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
+                                    data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
+                                </div>
+                                Price : $1400
+                            </td>
+                            <td>
+                                <div class="qty-item m-0">
+                                    <app-common-counter-2 [value]="1"></app-common-counter-2>
+                                </div>
+                            </td>
+                            <td class="fw-bold">$1400</td>
+                            <td class="text-end">
+                                <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
+                                    <i class="ti ti-trash"></i>
+                                </a>
+                            </td>
+                        </tr> -->
                     </tbody>
-                  </table>
+                </table>
                 </div>
               </div>	
             </div>
@@ -1265,7 +833,30 @@
   </div>
 </div>
 <!-- /Reset -->
-
+<!--                   <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
+                    <div class="product-info card mb-0">
+                      <h6 class="cat-name"><a href="javascript:void(0);">Computer</a></h6>
+                      <h6 class="product-name"><a href="javascript:void(0);">MacBook Pro</a></h6>
+                      <div class="d-flex align-items-center justify-content-between price">
+                        <p class="text-gray-9 mb-0">$1000</p>
+                        <div class="qty-item m-0">
+                          <app-common-counter-2 [value]="4"></app-common-counter-2>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3">
+                    <div class="product-info card mb-0">
+                      <h6 class="cat-name"><a href="javascript:void(0);">Watches</a></h6>
+                      <h6 class="product-name"><a href="javascript:void(0);">Rolex Tribute V3</a></h6>
+                      <div class="d-flex align-items-center justify-content-between price">
+                        <p class="text-gray-9 mb-0">$6800</p>
+                        <div class="qty-item m-0">
+                         <app-common-counter-2 [value]="4"></app-common-counter-2>
+                        </div>
+                      </div>
+                    </div>
+                  </div> -->
 <!-- Recent Transactions -->
 <div class="modal fade pos-modal" id="recents" tabindex="-1"    aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -3265,3 +2856,53 @@
   </div>
 </div>
 <!-- /Payment Point -->
+
+<div *ngIf="selectedItem" class="modal fade modal-default pos-modal" aria-labelledby="menuitems">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+          <h5 class="me-4">Product Details</h5>
+        </div>
+        <button type="button" class="close" (click)="closeModal()">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-6">
+            <img [src]="selectedItem?.itemImageURL" alt="Product Image" class="img-fluid">
+          </div>
+          <div class="col-6">
+            <h6>{{ selectedItem?.itemName }}</h6>
+            <p>{{ selectedItem?.description }}</p>
+            <p class="text-teal fw-bold">
+              ₹{{ selectedItem?.basePrice }}
+            </p>
+
+            <!-- Variant Selection -->
+            <div *ngIf="selectedItem?.variants?.length > 0">
+              <p>Size:</p>
+              <div *ngFor="let variant of selectedItem.variants">
+                <label>
+                  <input type="radio" name="variant" [value]="variant" [(ngModel)]="selectedVariant">
+                  {{ variant.variantName }} (₹{{ variant.price }})
+                </label><br>
+              </div>
+            </div>
+
+            <!-- Quantity Controls -->
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <button class="btn btn-sm btn-light" (click)="changeQuantity(-1)">-</button>
+              <span>{{ quantity }}</span>
+              <button class="btn btn-sm btn-light" (click)="changeQuantity(1)">+</button>
+            </div>
+
+            <!-- Add to Cart Button -->
+            <button class="btn btn-pink" (click)="addVariantToCart()">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
