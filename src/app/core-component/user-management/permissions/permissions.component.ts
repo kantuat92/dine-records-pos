@@ -7,6 +7,7 @@ import { routes } from 'src/app/core/helpers/routes';
 import { DataService } from 'src/app/core/service/data/data.service';
 import { PaginationService, pageSelection, tablePageSize } from 'src/app/shared/custom-pagination/pagination.service';
 import { Permission } from 'src/app/shared/model/page.model';
+import { HttpClient } from '@angular/common/http';
 interface data {
   value: string;
 }
@@ -21,7 +22,7 @@ export class PermissionsComponent {
 
 
   restaurantId = 1;
-  roleId = 10;
+  roleId = 54;
 
   public routes = routes;
   initChecked = false;
@@ -39,7 +40,8 @@ export class PermissionsComponent {
     private data: DataService,
     private pagination: PaginationService,
     private router: Router,
-    private sidebar: SidebarService
+    private sidebar: SidebarService,
+    private http: HttpClient
   ) {
     this.data.getDataTable().subscribe((apiRes: apiResultFormat) => {
       this.totalData = apiRes.totalData;
@@ -56,7 +58,7 @@ export class PermissionsComponent {
     this.data.getPermission(this.restaurantId, this.roleId).subscribe((apiRes: apiResultFormat) => {
       this.tableData = [];
       this.serialNumberArray = [];
-      this.totalData = apiRes.totalData;      
+      this.totalData = apiRes.totalData;
       apiRes.data.map((res: Permission, index: number) => {
         const serialNumber = index + 1;
         if (index >= pageOption.skip && serialNumber <= pageOption.limit) {
@@ -128,4 +130,23 @@ export class PermissionsComponent {
     this.sidebar.toggleCollapse();
     this.isCollapsed = !this.isCollapsed;
   }
+
+  submitPermissions() {
+    const payload = {
+      restaurantId: this.restaurantId,  // Ensure these values are set in your component
+      roleId: this.roleId,
+      permissions: this.tableData
+    };
+    this.http.put(`http://localhost:8080/api/v1/permissions/assign`, payload).subscribe({
+      next: (response) => {
+        console.log('Permissions saved successfully', response);
+        alert('Permissions saved successfully!');
+      },
+      error: (error) => {
+        console.error('Error saving permissions', error);
+        alert('Failed to save permissions. Please try again.');
+      }
+    });
+  }
+
 }
