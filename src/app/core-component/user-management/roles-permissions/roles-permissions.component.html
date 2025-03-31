@@ -112,7 +112,7 @@
             </td>
             <td>
               <div class="action-icon d-inline-flex">
-                <a [routerLink]="routes.permissions" class="me-2 d-flex align-items-center p-2 border rounded"><i
+                <a [routerLink]="routes.permissions" (click)="navigateToPermissions(data.id, data.role)" class="me-2 d-flex align-items-center p-2 border rounded"><i
                     class="ti ti-shield"></i></a>
                 <a href="javascript:void(0);" class="me-2 d-flex align-items-center p-2 border rounded"
                   data-bs-toggle="modal" data-bs-target="#edit_role" (click)="setEditRoleId(data.id)"><i

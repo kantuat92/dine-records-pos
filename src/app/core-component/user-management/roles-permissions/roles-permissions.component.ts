@@ -304,6 +304,12 @@ export class RolesPermissionsComponent {
     }
   }
 
+  navigateToPermissions(roleId: number, roleName: string) {
+    this.router.navigate([routes.permissions], {
+      state: { roleId: roleId, roleName: roleName, restaurantId: this.restaurantId }
+    });
+  }
+
 
 
 }

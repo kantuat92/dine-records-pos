@@ -22,8 +22,9 @@ interface data {
 export class PermissionsComponent {
 
 
-  restaurantId = 1;
-  roleId = 54;
+  restaurantId : any;
+  roleId : any;
+  roleName: any;
 
   public routes = routes;
   initChecked = false;
@@ -45,6 +46,13 @@ export class PermissionsComponent {
     private http: HttpClient,
     private userManagementService: UserManagementAPIService
   ) {
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+        this.restaurantId = navigation.extras.state['restaurantId'];
+        this.roleId = navigation.extras.state['roleId'];
+        this.roleName = navigation.extras.state['roleName'];              
+        console.log('Received from router: Role ID:', this.roleId, ' Role Name: ', this.roleName, 'Restaurant ID:', this.restaurantId);
+    }
     this.loadData();
   }
 
