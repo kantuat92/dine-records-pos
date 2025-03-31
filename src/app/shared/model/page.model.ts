@@ -712,6 +712,12 @@ export interface salesInvoice {
   status: string;
   img: string;
 }
+
+export interface Role {
+  id: number;
+  role: string;
+}
+
 export interface users {
   sNo: number;
   id: number;

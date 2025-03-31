@@ -11,26 +11,24 @@ import {
 } from 'src/app/core/core.index';
 import { routes } from 'src/app/core/helpers/routes';
 import { users } from 'src/app/shared/model/page.model';
+import { Role } from 'src/app/shared/model/page.model';
 import { PaginationService, tablePageSize } from 'src/app/shared/shared.index';
 import Swal from 'sweetalert2';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { UserManagementAPIService } from 'src/app/core/service/api-services/user-management-api.service';
 
-interface Role {
-  id: number; // Long value from API
-  role: string; // Display label
-}
 
 @Component({
-    selector: 'app-users',
-    templateUrl: './users.component.html',
-    styleUrl: './users.component.scss',
-    standalone: false
+  selector: 'app-users',
+  templateUrl: './users.component.html',
+  styleUrl: './users.component.scss',
+  standalone: false
 })
 export class UsersComponent {
 
-  restaurantId: number= 1;
+  restaurantId: number = 1;
   userForm: FormGroup;
   editUserForm: FormGroup;
   showPassword = false;
@@ -66,7 +64,7 @@ export class UsersComponent {
     private data: DataService,
     private pagination: PaginationService,
     private router: Router,
-    private sidebar: SidebarService, private fb: FormBuilder, private http: HttpClient
+    private sidebar: SidebarService, private fb: FormBuilder, private http: HttpClient, private userManagementService: UserManagementAPIService
   ) {
 
     this.loadData();
@@ -95,7 +93,7 @@ export class UsersComponent {
       this.totalData = apiRes.totalData;
       this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
         if (this.router.url == this.routes.users) {
-          this.getTableData({ skip: res.skip, limit: this.totalData  });
+          this.getTableData({ skip: res.skip, limit: this.totalData });
           this.pageSize = res.pageSize;
         }
       });
@@ -134,16 +132,16 @@ export class UsersComponent {
   }
 
   fetchRoles() {
-    this.http.get<{ data: Role[]; totalData: number }>(`http://localhost:8080/api/v1/roles/restaurant/${this.restaurantId}`)
-      .subscribe(
-        (response) => {
-          console.log('Roles API Response:', response);
-          this.roles = response.data; // Extract the roles array
-        },
-        (error) => {
-          console.error('Error fetching roles:', error);
-        }
-      );
+    this.userManagementService.getRoles(this.restaurantId).subscribe(
+      (roles) => {
+        console.log('Roles:', roles);
+        this.roles = roles;
+      },
+      (error) => {
+        console.error('Error fetching roles:', error);
+      }
+    );
+
   }
 
 
@@ -159,7 +157,7 @@ export class UsersComponent {
 
       userData.restaurantId = this.restaurantId; // Set restaurantId before submitting
 
-      this.http.post('http://localhost:8080/api/v1/users', userData).subscribe(
+      this.userManagementService.postUser(userData).subscribe(
         response => {
           this.userForm.reset();
           this.loadData();
@@ -182,7 +180,7 @@ export class UsersComponent {
       userData.restaurantId = this.restaurantId; // Set restaurantId before submitting
       userData.id = this.editUserId;
 
-      this.http.put(`http://localhost:8080/api/v1/users/${this.editUserId}`, userData).subscribe(
+      this.userManagementService.updateUser(this.editUserId, userData).subscribe(
         response => {
           this.userForm.reset();
           this.loadData();
@@ -203,8 +201,8 @@ export class UsersComponent {
       return;
     }
 
-    this.http.delete(`http://localhost:8080/api/v1/users/${this.deleteUserId}`).subscribe(
-      (response) => {
+    this.userManagementService.deleteUser(this.deleteUserId).subscribe(
+      () => {
         this.deleteUserId = null; // Clear input field
         this.loadData();
         this.closeButtonForDeleteUser.nativeElement.click(); // Click the close button
@@ -300,7 +298,7 @@ export class UsersComponent {
       });
   }
 
-  public password : boolean[] = [false];
+  public password: boolean[] = [false];
 
 
   selectAll(initChecked: boolean) {
