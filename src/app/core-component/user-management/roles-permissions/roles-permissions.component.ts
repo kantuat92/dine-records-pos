@@ -14,17 +14,20 @@ import { SidebarService } from 'src/app/core/service/sidebar/sidebar.service';
 import { rolesPermissions } from 'src/app/shared/model/page.model';
 import { PaginationService, tablePageSize } from 'src/app/shared/shared.index';
 import Swal from 'sweetalert2';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 interface data {
   value: string;
 }
 
 @Component({
-    selector: 'app-roles-permissions',
-    templateUrl: './roles-permissions.component.html',
-    styleUrl: './roles-permissions.component.scss',
-    standalone: false
+  selector: 'app-roles-permissions',
+  templateUrl: './roles-permissions.component.html',
+  styleUrl: './roles-permissions.component.scss',
+  standalone: false
 })
 export class RolesPermissionsComponent {
+
+  editRoleForm: FormGroup;
   initChecked = false;
   public routes = routes;
   isCollapsed: boolean = false;
@@ -55,9 +58,12 @@ export class RolesPermissionsComponent {
   dataSource!: MatTableDataSource<rolesPermissions>;
   public searchDataValue = '';
   roleName: string = '';
-  editRoleName: string = '';
-  editRoleId: number | null = null;
   deleteRoleId: number | null = null;
+  public currentSearchText = '';
+  public currentStatusFilter = 'all';
+  public selectedStatus: string = 'Status'; // Default label
+
+
   @ViewChild('closeButton') closeButton!: ElementRef<HTMLButtonElement>;
   @ViewChild('closeButtonForEdit') closeButtonForEdit!: ElementRef<HTMLButtonElement>;
   @ViewChild('closeButtonForDelete') closeButtonForDelete!: ElementRef<HTMLButtonElement>;
@@ -68,10 +74,16 @@ export class RolesPermissionsComponent {
     private pagination: PaginationService,
     private router: Router,
     private sidebar: SidebarService,
-    private http: HttpClient
+    private http: HttpClient,
+    private fb: FormBuilder
   ) {
     this.loadData();
-    
+    this.editRoleForm = this.fb.group({
+      id: [null],
+      role: ['', Validators.required],
+      status: [true]
+    });
+
   }
 
   loadData() {
@@ -79,16 +91,26 @@ export class RolesPermissionsComponent {
       this.totalData = apiRes.totalData;
       this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
         if (this.router.url == this.routes.rolesPermission) {
-          this.getTableData({ skip: res.skip, limit: this.totalData  });
+          this.getTableData({ skip: res.skip, limit: this.totalData });
           this.pageSize = res.pageSize;
         }
       });
     });
+    this.searchDataValue = '';
   }
 
-  setEditRoleId(roleId: number) {
-    this.editRoleId = roleId;
-    console.log('edit role id set to: ', this.editRoleId);
+  setEditRoleId(roleId: number) {    
+    const role = this.tableData.find(u => u.id === roleId);
+    if (role) {
+      this.editRoleForm.patchValue({
+        id: role.id,
+        role: role.role,
+        status: role.status
+      });
+    } else {
+      console.warn(`Role with ID ${roleId} not found`);
+    }
+
   }
 
   setDeleteRoleId(roleId: number) {
@@ -123,31 +145,21 @@ export class RolesPermissionsComponent {
     );
   }
 
-  editRole(event: Event): void {
-    event.preventDefault(); // Prevent form submission default behavior
-
-    if (!this.editRoleName.trim()) {
-      alert("Role name cannot be empty!");
-      return;
+  editRole() {
+    if (this.editRoleForm.valid) {
+      const roleData = this.editRoleForm.value;
+      this.http.put(`http://localhost:8080/api/v1/roles/${roleData.id}`, roleData).subscribe(
+        (response) => {          
+          this.editRoleForm.reset();
+          this.loadData();
+          this.closeButtonForEdit.nativeElement.click(); // Click the close button
+        },
+        (error) => {
+          console.error('Error:', error);
+          alert('Failed to EDIT role.');
+        }
+      );
     }
-
-    const requestBody = {
-      id: this.editRoleId,
-      role: this.editRoleName
-    };
-
-    this.http.put(`http://localhost:8080/api/v1/roles/${this.editRoleId}`, requestBody).subscribe(
-      (response) => {
-        this.editRoleId = null; // Clear input field
-        this.editRoleName = ''; // Clear input field
-        this.loadData();
-        this.closeButtonForEdit.nativeElement.click(); // Click the close button
-      },
-      (error) => {
-        console.error('Error:', error);
-        alert('Failed to EDIT role.');
-      }
-    );
   }
 
   deleteRole(): void {
@@ -183,9 +195,20 @@ export class RolesPermissionsComponent {
           this.serialNumberArray.push(serialNumber);
         }
       });
-      this.dataSource = new MatTableDataSource<rolesPermissions>(
-        this.tableData
-      );
+
+
+      this.dataSource = new MatTableDataSource<rolesPermissions>(this.tableData);
+      this.dataSource.filterPredicate = (data: rolesPermissions, filter: string) => {
+        const filterObj = JSON.parse(filter);
+        const matchesStatus =
+          filterObj.status === 'all' || data.status.toString().toLowerCase() === filterObj.status;
+          const matchesSearch = data.role.toLowerCase().includes(filterObj.search);
+
+        
+        return matchesStatus && matchesSearch;
+      };
+
+
       this.pagination.calculatePageSize.next({
         totalData: this.totalData,
         pageSize: this.pageSize,
@@ -209,9 +232,27 @@ export class RolesPermissionsComponent {
   }
 
   public searchData(value: string): void {
-    this.dataSource.filter = value.trim().toLowerCase();
+    this.currentSearchText = value.trim().toLowerCase();
+    this.applyFilters();
+  }
+
+  filterByStatus(status: string) {
+    this.currentStatusFilter = status.toLowerCase();
+    this.selectedStatus = status === 'All' ? 'Status' : status === 'true' ? 'Active' : 'Inactive';
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    const filterObj = {
+      status: this.currentStatusFilter,
+      search: this.currentSearchText
+    };
+    this.dataSource.filter = JSON.stringify(filterObj);
     this.tableData = this.dataSource.filteredData;
   }
+  
+  
+  
 
   confirmColor() {
     const swalWithBootstrapButtons = Swal.mixin({
@@ -263,4 +304,6 @@ export class RolesPermissionsComponent {
     }
   }
   
+  
+
 }

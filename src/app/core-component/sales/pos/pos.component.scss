@@ -1,3 +1,33 @@
 #toggle_btn {
     display: none !important;
   }
+
+  .product-info {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+   // white-space: pre-line;
+   // background: var(--#{$prefix}component-bg); /* Set your card's background */
+    border-radius: 12px; /* Optional, for rounded corners */
+   // border: 1px solid var(--#{$prefix}border-color); /* Optional, card border */
+  }
+  
+  .product-name {
+    flex: 1; /* Ensures the item name takes available space */
+    word-wrap: break-word; /* Ensures long names break into multiple lines */
+    margin-bottom: 10px; /* Adds space between name and footer */
+    //font-size: 1.1rem; /* Set item name font size */
+  }
+  
+  .product-footer {
+    margin-top: auto; /* Pushes the price to the bottom */
+    text-align: center; /* Centers the price */
+  }
+  
+  .price {
+   // margin-bottom: 10px; /* Adds space between price and the bottom of the card */
+    font-weight: bold; /* Makes the price bold */
+    //font-size: 0.2rem; /* Adjust price font size */
+  }
+  
+

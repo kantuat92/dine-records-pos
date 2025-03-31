@@ -260,7 +260,7 @@
         }
         h6 {
             font-weight: $font-weight-bold;
-            white-space: nowrap;
+            white-space: pre-line;
             overflow: hidden;
             text-overflow: ellipsis;
             &.cat-name {
@@ -1388,8 +1388,8 @@ label span {
     }
 }
 .tab-wrap {
-    width: 142px;
-    padding: 24px;
+   // width: 142px;
+   // padding: 24px;
     border-right: 1px solid $border-color;
     flex-shrink: 0;
     @include respond-below(sm) {
@@ -1419,7 +1419,7 @@ label span {
     }
     .owl-item {
         width: 100% !important;
-        margin-bottom: 8px;
+        margin-bottom: 2px;
         @include respond-below(sm) {
             width: 32% !important;
             margin-bottom: 0;
@@ -1463,7 +1463,7 @@ label span {
         h6 {
             font-size: $font-size-13;
             font-weight: $font-weight-medium;
-            white-space: nowrap;
+           // white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
             margin-top: 10px;

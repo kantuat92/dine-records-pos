@@ -25,7 +25,7 @@ import { RegisterComponent } from './register/register/register.component';
 import { Signin3Component } from './signin/signin-3/signin-3.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'signin', pathMatch: 'full' },
+  { path: '', redirectTo: 'signin-2', pathMatch: 'full' },
 
   {
     path: '',

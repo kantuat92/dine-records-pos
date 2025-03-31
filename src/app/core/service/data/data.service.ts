@@ -64,7 +64,7 @@ export class DataService {
     );
   }
 
- 
+
   public getProductList(): Observable<apiResultFormat> {
     return this.http.get<apiResultFormat>('assets/JSON/product-list.json').pipe(
       map((res: apiResultFormat) => {
@@ -141,7 +141,7 @@ export class DataService {
         })
       );
   }
-  
+
   public getStateList(): Observable<apiResultFormat> {
     return this.http.get<apiResultFormat>('assets/JSON/stateList.json').pipe(
       map((res: apiResultFormat) => {
@@ -452,7 +452,7 @@ export class DataService {
       .get<apiResultFormat>('http://localhost:8080/api/v1/roles/restaurant/1')
       .pipe(map((res: apiResultFormat) => res));
   }
-  
+
   public getState(): Observable<apiResultFormat> {
     return this.http.get<apiResultFormat>('assets/JSON/state.json').pipe(
       map((res: apiResultFormat) => {
@@ -707,15 +707,14 @@ public getUsers(restaurantId: number): Observable<apiResultFormat> {
         })
       );
   }
-  public getPermission(): Observable<apiResultFormat> {
+  public getPermission(restaurantId: number, roleId: number): Observable<apiResultFormat> {
     return this.http
-      .get<apiResultFormat>('assets/JSON/permission.json')
+      .get<apiResultFormat>(`http://localhost:8080/api/v1/permissions/role/${roleId}/restaurant/${restaurantId}`)
       .pipe(
-        map((res: apiResultFormat) => {
-          return res;
-        })
+        map((res: apiResultFormat) => res)
       );
   }
+
   public getTaxReport1(): Observable<apiResultFormat> {
     return this.http
       .get<apiResultFormat>('assets/JSON/tax-reports1.json')

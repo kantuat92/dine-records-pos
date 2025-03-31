@@ -6,27 +6,33 @@ import { SidebarService, apiResultFormat } from 'src/app/core/core.index';
 import { routes } from 'src/app/core/helpers/routes';
 import { DataService } from 'src/app/core/service/data/data.service';
 import { PaginationService, pageSelection, tablePageSize } from 'src/app/shared/custom-pagination/pagination.service';
-import { permission } from 'src/app/shared/model/page.model';
+import { Permission } from 'src/app/shared/model/page.model';
+import { HttpClient } from '@angular/common/http';
 interface data {
   value: string;
 }
 
 @Component({
-    selector: 'app-permissions',
-    templateUrl: './permissions.component.html',
-    styleUrl: './permissions.component.scss',
-    standalone: false
+  selector: 'app-permissions',
+  templateUrl: './permissions.component.html',
+  styleUrl: './permissions.component.scss',
+  standalone: false
 })
 export class PermissionsComponent {
+
+
+  restaurantId = 1;
+  roleId = 54;
+
   public routes = routes;
   initChecked = false;
   // pagination variables
-  public tableData: Array<permission> = [];
+  public tableData: Array<Permission> = [];
   public pageSize = 10;
   public serialNumberArray: Array<number> = [];
   public totalData = 0;
   showFilter = false;
-  dataSource!: MatTableDataSource<permission>;
+  dataSource!: MatTableDataSource<Permission>;
   public searchDataValue = '';
   //** / pagination variables
 
@@ -34,25 +40,31 @@ export class PermissionsComponent {
     private data: DataService,
     private pagination: PaginationService,
     private router: Router,
-    private sidebar: SidebarService
+    private sidebar: SidebarService,
+    private http: HttpClient
   ) {
+    this.loadData();
+  }
+
+  loadData() {
     this.data.getDataTable().subscribe((apiRes: apiResultFormat) => {
       this.totalData = apiRes.totalData;
       this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
         if (this.router.url == this.routes.permissions) {
-          this.getTableData({ skip: res.skip, limit: this.totalData  });
+          this.getTableData({ skip: res.skip, limit: this.totalData });
           this.pageSize = res.pageSize;
         }
       });
     });
+    this.searchDataValue = '';
   }
 
   private getTableData(pageOption: pageSelection): void {
-    this.data.getPermission().subscribe((apiRes: apiResultFormat) => {
+    this.data.getPermission(this.restaurantId, this.roleId).subscribe((apiRes: apiResultFormat) => {
       this.tableData = [];
       this.serialNumberArray = [];
       this.totalData = apiRes.totalData;
-      apiRes.data.map((res: permission, index: number) => {
+      apiRes.data.map((res: Permission, index: number) => {
         const serialNumber = index + 1;
         if (index >= pageOption.skip && serialNumber <= pageOption.limit) {
           res.sNo = serialNumber;
@@ -60,7 +72,7 @@ export class PermissionsComponent {
           this.serialNumberArray.push(serialNumber);
         }
       });
-      this.dataSource = new MatTableDataSource<permission>(this.tableData);
+      this.dataSource = new MatTableDataSource<Permission>(this.tableData);
       this.pagination.calculatePageSize.next({
         totalData: this.totalData,
         pageSize: this.pageSize,
@@ -68,6 +80,14 @@ export class PermissionsComponent {
         serialNumberArray: this.serialNumberArray,
       });
     });
+  }
+
+  public getUniqueOperationNames(permissions: Permission[]): Set<string> {
+    return new Set(
+      permissions.flatMap(permission =>
+        permission.operations.map(operation => operation.operationName)
+      )
+    );
   }
 
   public sortData(sort: Sort) {
@@ -88,7 +108,7 @@ export class PermissionsComponent {
     this.tableData = this.dataSource.filteredData;
   }
 
-  
+
 
   public selectedValue1 = '';
   public selectedValue2 = '';
@@ -104,7 +124,7 @@ export class PermissionsComponent {
     { value: 'Admin' },
     { value: 'Shop Owner' },
   ];
-  
+
 
   public filter = false;
   openFilter() {
@@ -115,19 +135,23 @@ export class PermissionsComponent {
     this.sidebar.toggleCollapse();
     this.isCollapsed = !this.isCollapsed;
   }
-  
-  selectAll(initChecked: boolean) {
-    if (!initChecked) {
-      this.tableData.forEach((f) => {
-        f.isSelected = true;
-      });
-    } else {
-      this.tableData.forEach((f) => {
-        f.isSelected = false;
-      });
-    }
-  }
- 
 
- 
+  submitPermissions() {
+    const payload = {
+      restaurantId: this.restaurantId,  // Ensure these values are set in your component
+      roleId: this.roleId,
+      permissions: this.tableData
+    };
+    this.http.put(`http://localhost:8080/api/v1/permissions/assign`, payload).subscribe({
+      next: (response) => {
+        console.log('Permissions saved successfully', response);
+        alert('Permissions saved successfully!');
+      },
+      error: (error) => {
+        console.error('Error saving permissions', error);
+        alert('Failed to save permissions. Please try again.');
+      }
+    });
+  }
+
 }

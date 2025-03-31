@@ -16,20 +16,20 @@ export class CommonCounter2Component {
     this.quantity = this.value; // Set quantity from value input
   }
   incrementQuantity(): void {
-    if (this.quantity>=100){
-      this.quantity=100;
-    }
-    else{
-    this.quantity = Number(this.quantity) + 1;
+    if (this.quantity < 100) {
+      this.quantity += 1;
+      this.quantityChange.emit(this.quantity);  // Emit updated quantity
     }
   }
 
   // Decrement the quantity, but not below 0
   decrementQuantity(): void {
-    if (this.quantity > 0) {
+    if (this.quantity > 1) {
       this.quantity -= 1;
+      this.quantityChange.emit(this.quantity);  // Emit updated quantity
     }
   }
+
   validateQuantity(event: Event): void {
     const inputValue = (event.target as HTMLInputElement).value;
 
@@ -39,5 +39,7 @@ export class CommonCounter2Component {
     } else {
       this.quantity = Number(inputValue); // Convert valid input to a number
     }
+    this.quantityChange.emit(this.quantity); // Emit updated quantity
   }
+
 }
