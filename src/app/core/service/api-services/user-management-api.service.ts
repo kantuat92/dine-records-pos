@@ -52,8 +52,9 @@ export class UserManagementAPIService {
         return this.http.delete(url);
     }
     
-    
-    
-
+    assignPermissions(payload: any): Observable<any> {
+        const url = `${this.baseURL}/permissions/assign`;
+        return this.http.put(url, payload);
+    }
 
 }

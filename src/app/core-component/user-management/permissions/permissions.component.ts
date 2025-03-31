@@ -8,6 +8,7 @@ import { DataService } from 'src/app/core/service/data/data.service';
 import { PaginationService, pageSelection, tablePageSize } from 'src/app/shared/custom-pagination/pagination.service';
 import { Permission } from 'src/app/shared/model/page.model';
 import { HttpClient } from '@angular/common/http';
+import { UserManagementAPIService } from 'src/app/core/service/api-services/user-management-api.service';
 interface data {
   value: string;
 }
@@ -41,7 +42,8 @@ export class PermissionsComponent {
     private pagination: PaginationService,
     private router: Router,
     private sidebar: SidebarService,
-    private http: HttpClient
+    private http: HttpClient,
+    private userManagementService: UserManagementAPIService
   ) {
     this.loadData();
   }
@@ -136,13 +138,14 @@ export class PermissionsComponent {
     this.isCollapsed = !this.isCollapsed;
   }
 
-  submitPermissions() {
+  submitPermissions(): void {
     const payload = {
-      restaurantId: this.restaurantId,  // Ensure these values are set in your component
+      restaurantId: this.restaurantId,
       roleId: this.roleId,
       permissions: this.tableData
     };
-    this.http.put(`http://localhost:8080/api/v1/permissions/assign`, payload).subscribe({
+
+    this.userManagementService.assignPermissions(payload).subscribe({
       next: (response) => {
         console.log('Permissions saved successfully', response);
         alert('Permissions saved successfully!');
@@ -153,5 +156,6 @@ export class PermissionsComponent {
       }
     });
   }
+
 
 }
