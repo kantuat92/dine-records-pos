@@ -36,5 +36,24 @@ export class UserManagementAPIService {
         return this.http.delete(url);
     }
 
+    createRole(roleName: string, restaurantId: number): Observable<any> {
+        const url = `${this.baseURL}/roles`;
+        const requestBody = { role: roleName, status: true, restaurantId };
+        return this.http.post(url, requestBody);
+    }
+
+    updateRole(roleData: any): Observable<any> {
+        const url = `${this.baseURL}/roles/${roleData.id}`;
+        return this.http.put(url, roleData);
+    }
+
+    deleteRole(roleId: number): Observable<any> {
+        const url = `${this.baseURL}/roles/${roleId}`;
+        return this.http.delete(url);
+    }
+    
+    
+    
+
 
 }

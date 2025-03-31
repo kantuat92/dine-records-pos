@@ -15,6 +15,7 @@ import { rolesPermissions } from 'src/app/shared/model/page.model';
 import { PaginationService, tablePageSize } from 'src/app/shared/shared.index';
 import Swal from 'sweetalert2';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UserManagementAPIService } from 'src/app/core/service/api-services/user-management-api.service';
 interface data {
   value: string;
 }
@@ -62,6 +63,7 @@ export class RolesPermissionsComponent {
   public currentSearchText = '';
   public currentStatusFilter = 'all';
   public selectedStatus: string = 'Status'; // Default label
+  restaurantId = 1;
 
 
   @ViewChild('closeButton') closeButton!: ElementRef<HTMLButtonElement>;
@@ -75,7 +77,8 @@ export class RolesPermissionsComponent {
     private router: Router,
     private sidebar: SidebarService,
     private http: HttpClient,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private userManagementService: UserManagementAPIService
   ) {
     this.loadData();
     this.editRoleForm = this.fb.group({
@@ -99,7 +102,7 @@ export class RolesPermissionsComponent {
     this.searchDataValue = '';
   }
 
-  setEditRoleId(roleId: number) {    
+  setEditRoleId(roleId: number) {
     const role = this.tableData.find(u => u.id === roleId);
     if (role) {
       this.editRoleForm.patchValue({
@@ -126,17 +129,11 @@ export class RolesPermissionsComponent {
       return;
     }
 
-    const requestBody = {
-      role: this.roleName,
-      status: true,
-      restaurantId: 1  // Adjust dynamically if needed
-    };
-
-    this.http.post('http://localhost:8080/api/v1/roles', requestBody).subscribe(
+    this.userManagementService.createRole(this.roleName, this.restaurantId).subscribe(
       (response) => {
-        this.roleName = ''; // Clear input field
+        this.roleName = '';
         this.loadData();
-        this.closeButton.nativeElement.click(); // Click the close button
+        this.closeButton.nativeElement.click();
       },
       (error) => {
         console.error('Error:', error);
@@ -145,11 +142,13 @@ export class RolesPermissionsComponent {
     );
   }
 
-  editRole() {
+
+  editRole(): void {
     if (this.editRoleForm.valid) {
       const roleData = this.editRoleForm.value;
-      this.http.put(`http://localhost:8080/api/v1/roles/${roleData.id}`, roleData).subscribe(
-        (response) => {          
+
+      this.userManagementService.updateRole(roleData).subscribe(
+        (response) => {
           this.editRoleForm.reset();
           this.loadData();
           this.closeButtonForEdit.nativeElement.click(); // Click the close button
@@ -162,18 +161,18 @@ export class RolesPermissionsComponent {
     }
   }
 
-  deleteRole(): void {
 
+  deleteRole(): void {
     if (!this.deleteRoleId) {
       alert("Role Id cannot be null");
       return;
     }
 
-    this.http.delete(`http://localhost:8080/api/v1/roles/${this.deleteRoleId}`).subscribe(
+    this.userManagementService.deleteRole(this.deleteRoleId).subscribe(
       (response) => {
-        this.deleteRoleId = null; // Clear input field      
+        this.deleteRoleId = null;
         this.loadData();
-        this.closeButtonForDelete.nativeElement.click(); // Click the close button
+        this.closeButtonForDelete.nativeElement.click();
       },
       (error) => {
         console.error('Error:', error);
@@ -181,6 +180,7 @@ export class RolesPermissionsComponent {
       }
     );
   }
+
 
   private getTableData(pageOption: pageSelection): void {
     this.data.getRolesPermissions().subscribe((apiRes: apiResultFormat) => {
@@ -202,9 +202,9 @@ export class RolesPermissionsComponent {
         const filterObj = JSON.parse(filter);
         const matchesStatus =
           filterObj.status === 'all' || data.status.toString().toLowerCase() === filterObj.status;
-          const matchesSearch = data.role.toLowerCase().includes(filterObj.search);
+        const matchesSearch = data.role.toLowerCase().includes(filterObj.search);
 
-        
+
         return matchesStatus && matchesSearch;
       };
 
@@ -250,9 +250,9 @@ export class RolesPermissionsComponent {
     this.dataSource.filter = JSON.stringify(filterObj);
     this.tableData = this.dataSource.filteredData;
   }
-  
-  
-  
+
+
+
 
   confirmColor() {
     const swalWithBootstrapButtons = Swal.mixin({
@@ -303,7 +303,7 @@ export class RolesPermissionsComponent {
       });
     }
   }
-  
-  
+
+
 
 }
