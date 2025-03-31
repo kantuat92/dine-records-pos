@@ -583,7 +583,7 @@ export interface rolesPermissions {
   id: number;
   role: string;
   createdDate: string;
-  status:string;
+  status:boolean;
   isSelected?: boolean;
 }
 export interface salesList {
