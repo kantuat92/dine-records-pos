@@ -96,6 +96,7 @@ export class RolesPermissionsComponent {
         }
       });
     });
+    this.searchDataValue = '';
   }
 
   setEditRoleId(roleId: number) {    
@@ -206,8 +207,6 @@ export class RolesPermissionsComponent {
         
         return matchesStatus && matchesSearch;
       };
-      // this.searchDataValue = '';
-      // this.searchData('');
 
 
       this.pagination.calculatePageSize.next({

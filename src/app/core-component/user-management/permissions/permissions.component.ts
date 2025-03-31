@@ -43,6 +43,10 @@ export class PermissionsComponent {
     private sidebar: SidebarService,
     private http: HttpClient
   ) {
+    this.loadData();
+  }
+
+  loadData() {
     this.data.getDataTable().subscribe((apiRes: apiResultFormat) => {
       this.totalData = apiRes.totalData;
       this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
@@ -52,6 +56,7 @@ export class PermissionsComponent {
         }
       });
     });
+    this.searchDataValue = '';
   }
 
   private getTableData(pageOption: pageSelection): void {

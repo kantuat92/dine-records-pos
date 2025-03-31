@@ -100,6 +100,7 @@ export class UsersComponent {
         }
       });
     });
+    this.searchDataValue = '';
   }
 
   ngOnInit() {
