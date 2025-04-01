@@ -50,7 +50,10 @@
               <div  class="tab_content"  data-tab="all" [ngClass]="{'active':istab}">
                 <div class="row g-3">
                   <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3" *ngFor="let item of menuItems">
-                    <div class="product-info card mb-0" (click)="addToCart(item)">
+                    <div class="product-info card mb-0" (click)="handleMenuItemClick(item)"
+                    [attr.data-bs-toggle]="item.variants && item.variants.length > 0 ? 'modal' : null"
+                    [attr.data-bs-target]="item.variants && item.variants.length > 0 ? '#variantModal' : null"
+                    style="cursor: pointer;">
                       <h6 class="product-name"><a href="javascript:void(0);">
                        
                         <span class="product-name"> {{ item.itemName }}</span>
@@ -135,9 +138,11 @@
             <div class="head-text d-flex align-items-center justify-content-between mb-3">
               <div class="d-flex align-items-center">
                 <h5 class="me-2">Order Details</h5>
-                <div class="badge bg-light text-gray-9 fs-12 fw-semibold py-2 border rounded">Items : <span class="text-teal">3</span></div>
+                <div class="badge bg-light text-gray-9 fs-12 fw-semibold py-2 border rounded">Items : <span class="text-teal">{{ cart.length }}</span></div>
               </div>
-              <a href="javascript:void(0);" class="d-flex align-items-center clear-icon fs-10 fw-medium">Clear all</a>
+              <a href="javascript:void(0);" class="d-flex align-items-center clear-icon fs-10 fw-medium" data-bs-toggle="modal" 
+              data-bs-target="#delete"
+              (click)="prepareClearAll()">Clear all</a>
             </div>
             <div class="product-wrap">
               <div class="empty-cart" *ngIf="cart.length === 0">
@@ -165,17 +170,20 @@
                                     <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
                                     data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
                                 </div>
-                                <p class="fst-italic fw-light">
-                                variants:
-                                - size: large
-                                - ice: less </p> <br>
-                                <!-- add-ons:
-                                - size: large
-                                - ice: less <br> 
-                                Addons:
-                                - sauce: peri peri large
-                                - ice: less  -->
-                              
+                                <div *ngIf="cartItem.variants && cartItem.variants.length > 0">
+                                  <p  *ngFor="let variant of cartItem.variants" class ="variants-addons">
+                                    <em>
+                                      - {{ variant.variantName }}: {{ variant.selectedOption }} (₹{{ variant.price }})
+                                    </em>                                 
+                                  </p>
+                                </div>
+                                  <div *ngIf="cartItem.addOns && cartItem.addOns.length > 0">
+                                    <p *ngFor="let addOn of cartItem.addOns"class ="variants-addons">
+                                      <em>
+                                        - {{ addOn.name }} (₹{{ addOn.price | number: '1.2-2' }})
+                                      </em>
+                                    </p>
+                                    </div>
                               </td>
                             <td>
                                 <div class="qty-item  m-0">
@@ -184,98 +192,12 @@
                             </td>
                             <td class="fw-bold">{{ cartItem.totalPrice | currency: 'INR' }}</td>
                             <td class="text-end">
-                                <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
+                                <a class="btn-icon delete-icon" href="javascript:void(0);"  (click)="prepareDeleteItem(cartItem)" data-bs-toggle="modal" data-bs-target="#delete">
                                     <i class="ti ti-trash"></i>
                                 </a>
                             </td>
                         </tr>
-                        <!-- <tr>
-                          <td>
-                              <div class="d-flex align-items-center mb-1">
-                                  <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">Iphone 11S</a></h6>
-                                  <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
-                                  data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
-                              </div>
-                              Price : $400 <br>
-                              Variants:
-                              - size: large
-                              - ice: less
-                            </td>
-                          <td>
-                              <div class="qty-item  m-0">
-                                  <app-common-counter-2 [value]="4"></app-common-counter-2>
-                              </div>
-                          </td>
-                          <td class="fw-bold">$400</td>
-                          <td class="text-end">
-                              <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
-                                  <i class="ti ti-trash"></i>
-                              </a>
-                          </td>
-                      </tr> -->
-                        <!-- <tr>
-                            <td>
-                                <div class="d-flex align-items-center mb-1">
-                                    <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">Samsung Galaxy S21</a></h6>
-                                    <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
-                                    data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
-                                </div>
-                                Price : $400
-                            </td>
-                            <td>
-                                <div class="qty-item m-0">
-                                    <app-common-counter-2 [value]="1"></app-common-counter-2>
-                                </div>
-                            </td>
-                            <td class="fw-bold">$400</td>
-                            <td class="text-end">
-                                <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
-                                    <i class="ti ti-trash"></i>
-                                </a>
-                            </td>
-                        </tr> -->
-                        <!-- <tr>
-                            <td>
-                                <div class="d-flex align-items-center mb-1">
-                                    <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">Red Boot Shoes</a></h6>
-                                    <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
-                                    data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
-                                </div>
-                                Price : $600
-                            </td>
-                            <td>
-                                <div class="qty-item m-0">
-                                    <app-common-counter-2 [value]="3"></app-common-counter-2>
-                                </div>
-                            </td>
-                            <td class="fw-bold">$600</td>
-                            <td class="text-end">
-                                <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
-                                    <i class="ti ti-trash"></i>
-                                </a>
-                            </td>
-                        </tr> -->
-                        <!-- <tr>
-                            <td>
-                                <div class="d-flex align-items-center mb-1">
-                                    <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">Bracelet</a></h6>
-                                    <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
-                                    data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
-                                </div>
-                                Price : $1400
-                            </td>
-                            <td>
-                                <div class="qty-item m-0">
-                                    <app-common-counter-2 [value]="1"></app-common-counter-2>
-                                </div>
-                            </td>
-                            <td class="fw-bold">$1400</td>
-                            <td class="text-end">
-                                <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
-                                    <i class="ti ti-trash"></i>
-                                </a>
-                            </td>
-                        </tr> -->
+
                     </tbody>
                 </table>
                 </div>
@@ -422,6 +344,103 @@
   </div>
 </div>
 
+
+<!-- Variants and addons -->
+
+<div class="modal fade modal-default pos-modal" id="variantModal" aria-labelledby="variantModalLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+          <h5 class="me-4">{{selectedItem?.itemName}}</h5>
+          <!-- <span class="badge bg-teal">₹{{getCurrentTotal() | number: '1.2-2'}}</span> -->
+          <span class="badge bg-teal">₹{{selectedItem?.basePrice}}</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                ></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-12">
+            <!-- Variants Section -->
+            <div *ngIf="selectedItem?.variants?.length > 0" class="mb-4">
+              <h6 class="section-title">Select Size <span class="required-asterisk">*</span></h6>
+              <div class="option-buttons">
+                <button
+                  *ngFor="let variant of selectedItem.variants"
+                  type="button"
+                  class="option-button"
+                  [ngClass]="{'option-button-selected': selectedVariant?.id === variant.id}"
+                  (click)="selectVariant(variant)"
+                >
+                  {{ variant.variantName }}
+                  <span *ngIf="variant.price > 0" class="option-price">+₹{{ variant.price | number: '1.2-2' }}</span>
+                </button>
+              </div>
+              <div *ngIf="selectedItem?.variants?.length > 0 && !selectedVariant" class="text-danger mt-1">
+                <i class="ti ti-alert-circle"></i> Please select a size
+              </div>
+            </div>
+
+            <!-- Add-ons Section -->
+            <div *ngIf="selectedItem?.addOns?.length > 0" class="mb-4">
+              <h6 class="section-title">Add Extras</h6>
+              <div class="option-buttons">
+                <button
+                  *ngFor="let addOn of selectedItem.addOns"
+                  type="button"
+                  class="option-button"
+                  [ngClass]="{'option-button-selected': selectedAddOns[addOn.id]}"
+                  (click)="toggleAddOn(addOn)"
+                >
+                  {{ addOn.name }}
+                  <span *ngIf="addOn.price > 0" class="option-price">+₹{{ addOn.price | number: '1.2-2' }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Quantity Selector -->
+            <div class="quantity-selector mb-4">
+              <h6 class="section-title">Quantity</h6>
+              <div class="d-flex align-items-center gap-3">
+                <button type="button" 
+                        class="btn btn-quantity" 
+                        (click)="changeQuantity(-1)"
+                        [disabled]="quantity <= 1">
+                  <i class="ti ti-minus"></i>
+                </button>
+                <span class="quantity-value">{{ quantity }}</span>
+                <button type="button" 
+                        class="btn btn-quantity" 
+                        (click)="changeQuantity(1)">
+                  <i class="ti ti-plus"></i>
+                </button>
+              </div>
+            </div>
+              <!-- <div class="quantity-selector mb-4">
+                <h6 class="section-title">Quantity</h6>
+                <div class="d-flex align-items-center gap-3">
+                  <app-common-counter-2 
+                    [value]="quantity"
+                    (quantityChange)="changeQuantity($event)"
+                    class="modal-quantity-counter"
+                  ></app-common-counter-2>
+                </div>
+              </div> -->
+            <!-- Add to Cart Button -->
+            <button class="btn btn-add-to-cart w-100" 
+                    (click)="addVariantToCartFinal()"
+                    [disabled]="(selectedItem?.variants?.length > 0 && !selectedVariant)" data-bs-dismiss="modal">
+              <span *ngIf="!isItemInCart(); else updateText">Add to Cart</span>
+              <ng-template #updateText>Update Cart</ng-template>
+              <span class="total-price">₹{{getCurrentTotal() | number: '1.2-2'}}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Payment Completed -->
 <div class="modal fade modal-default" id="payment-completed" aria-labelledby="payment-completed">
@@ -796,11 +815,17 @@
               <i class="ti ti-trash"></i>
             </div>
             <h3 class="mb-2">Are you Sure!</h3>
-            <p class="fs-16 mb-3">The current order will be deleted as no payment has been made so far.
+            <p class="fs-16 mb-3"> <span *ngIf="isClearingAll">All items</span>
+              <span *ngIf="!isClearingAll">This item</span>
+              will be deleted as no payment has been made so far.
             </p>
             <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
-              <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">No, Cancel</button>
-              <button type="submit" class="btn btn-md btn-primary" data-bs-dismiss="modal">Yes, Delete</button>
+              <button type="button" 
+                    class="btn btn-md btn-secondary" 
+                    data-bs-dismiss="modal">No, Cancel</button>
+            <button type="button" 
+                    class="btn btn-md btn-primary" data-bs-dismiss="modal"
+                    (click)="confirmDeletion()">Yes, Delete</button>
             </div>
           </form>
         </div>
@@ -2864,7 +2889,7 @@
         <div class="d-flex align-items-center">
           <h5 class="me-4">Product Details</h5>
         </div>
-        <button type="button" class="close" (click)="closeModal()">
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">×</span>
         </button>
       </div>
