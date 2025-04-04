@@ -10,7 +10,7 @@ export class MenuApiService {
   private baseUrl = 'http://localhost:8080/api/v1';
   constructor(private http: HttpClient) { }
 
-
+ //Menu and Categories
   getCategories(restaurantId: any): Observable<Category[]> {
     const url = `${this.baseUrl}/menu-categories/restaurant/${restaurantId}?sort=createdDate`;
     return this.http.get<Category[]>(url);
@@ -38,5 +38,14 @@ export class MenuApiService {
 
   getMenuItems(restaurantId : any) : Observable<any> {
     return this.http.get(`${this.baseUrl}/menu-items/restaurant/${restaurantId}/items`);
+  }
+
+  //Area and Tables
+  getTablesByRestaurantId(restaurantId: any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/tables/restaurant/${restaurantId}`);
+  }
+
+  getAreasByRestaurantId(restaurantId: any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/table-areas/restaurant/${restaurantId}`);
   }
 }

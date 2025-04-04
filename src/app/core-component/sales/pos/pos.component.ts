@@ -10,7 +10,6 @@ import { pospurchase } from 'src/app/shared/model/page.model';
 import { PaginationService, tablePageSize } from 'src/app/shared/shared.index';
 import { Store } from '@ngrx/store';
 import { selectRestaurantId } from '../../../core/store/restaurant.selectors';
-import * as bootstrap from 'bootstrap';
 
 
 import Swal from 'sweetalert2';
@@ -27,7 +26,6 @@ interface data {
 export class PosComponent implements AfterViewInit {
 
   @ViewChild('menuSection', { static: false }) menuSection: ElementRef | undefined;
- // @ViewChild('variantModal') variantModal: ElementRef | undefined;
   @ViewChild('variantModal') variantModal: ElementRef | undefined;
 
   
@@ -108,7 +106,16 @@ export class PosComponent implements AfterViewInit {
   selectedAddOns: { [id: number]: any } = {}; 
   currentItemToDelete: any = null;
   isClearingAll: boolean = false;
-  
+  showOnlyFavorites: boolean = false;
+  originalMenuItems: any[] = [];
+
+  showTableDropdown = false;
+  areas: any[] = [];
+  tables: any[] = [];
+  selectedArea: any = null;
+  selectedTable: any = null;
+  filteredTables: any[] = [];
+
   constructor(
     private data: DataService,
     private pagination: PaginationService,
@@ -154,217 +161,31 @@ export class PosComponent implements AfterViewInit {
       if (this.restaurantId) {
         this.getCategories(this.restaurantId);
         this.loadAllMenuItems();
-      } else {
+        this.loadAreasAndTables();
+
+        }
+        else {
         this.errorMessage = 'No restaurant ID found.';
       }
     });
   }
 
-  // addToCart(item: any): void {
-  //   const existingItemIndex = this.cart.findIndex(cartItem => cartItem.itemId === item.itemId);
-  //   if (existingItemIndex >= 0) {
-  //     this.cart = this.cart.map((cartItem, index) => {
-  //       if (index === existingItemIndex) {
-  //         return {
-  //           ...cartItem,
-  //           quantity: cartItem.quantity + 1,
-  //           totalPrice: (cartItem.quantity + 1) * cartItem.price
-  //         };
-  //       }
-  //       return cartItem;
-  //     });
-  //   } else {
-  //     this.cart = [...this.cart, {
-  //       itemId: item.itemId,
-  //       itemName: item.itemName,
-  //       price: item.basePrice,
-  //       quantity: 1,
-  //       totalPrice: item.basePrice
-  //     }];
-  //   }
-  // }
-
  
 
-  // addToCart(item: any): void {
-  //   if (item.variants && item.variants.length > 0) {
-  //     this.selectedItem = item;
-  //     this.selectedVariant = null; 
-  //     this.quantity = 1;
-  //   } else {
-  //     // If no variants, directly add the item to the cart
-  //     const existingItemIndex = this.cart.findIndex(cartItem => cartItem.itemId === item.itemId);
-  
-  //     if (existingItemIndex >= 0) {
-  //       // If the item is already in the cart, increment the quantity and update total price
-  //       this.cart = this.cart.map((cartItem, index) => {
-  //         if (index === existingItemIndex) {
-  //           return {
-  //             ...cartItem,
-  //             quantity: cartItem.quantity + 1,
-  //             totalPrice: (cartItem.quantity + 1) * cartItem.price
-  //           };
-  //         }
-  //         return cartItem;
-  //       });
-  //     } else {
-  //       // If the item is not found, add it to the cart with quantity 1
-  //       this.cart = [...this.cart, {
-  //         itemId: item.itemId,
-  //         itemName: item.itemName,
-  //         price: item.basePrice,
-  //         quantity: 1,
-  //         totalPrice: item.basePrice
-  //       }];
-  //     }
-  //   }
-  // }
-  
-//   handleMenuItemClick(item: any): void {
-//     if (item.variants && item.variants.length > 0) {
-//         this.selectedItem = item;
-//         this.quantity = 1;
-//         this.selectedVariant = null;// Reset selected options
-//         this.selectedAddOns = {}; 
-//         this.cd.detectChanges();
-//     } else {
-//         this.addToCart(item);
-//     }
-// }
-
-handleMenuItemClick(item: any): void {
-  this.selectedItem = item;
-  this.quantity = 1;
-  this.selectedVariant = null;
-  this.selectedAddOns = {}; // Reset selected add-ons
-  this.itemQuantity = 1; // Reset quantity in modal
-  this.cd.detectChanges();
-  const hasVariantsOrAddOns = (item.variants && item.variants.length > 0) || (item.addOns && item.addOns.length > 0);
-  if (!hasVariantsOrAddOns) {
-    this.addToCart(item, null, []); // Call addToCart with empty addOns array
+  handleMenuItemClick(item: any): void {
+    this.selectedItem = item;
+    this.quantity = 1;
+    this.selectedVariant = null;
+    this.selectedAddOns = {}; // Reset selected add-ons
+    this.itemQuantity = 1; // Reset quantity in modal
+    this.cd.detectChanges();
+    const hasVariantsOrAddOns = (item.variants && item.variants.length > 0) || (item.addOns && item.addOns.length > 0);
+    if (!hasVariantsOrAddOns) {
+      this.addToCart(item, null, []); // Call addToCart with empty addOns array
+    }
   }
-}
 
-addToCartdev(item: any, selectedVariant: any = null, selectedAddOns: any[] = []): void {
-  const finalItem = selectedVariant ? { ...item, basePrice: parseFloat(selectedVariant.price) } : item;
-  const finalVariants = selectedVariant ? [{ variantName: 'Size', selectedOption: selectedVariant.variantName, price: parseFloat(selectedVariant.price) }] : [];
 
-  const baseAndAddOnPrice = finalItem.basePrice + selectedAddOns.reduce((sum, addOn) => sum + parseFloat(addOn.price), 0);
-
-  const existingItemIndex = this.cart.findIndex(
-    cartItem =>
-      cartItem.itemId === finalItem.itemId &&
-      this.areVariantsEqual(cartItem.variants, finalVariants) &&
-      this.areAddOnsEqual(cartItem.addOns, selectedAddOns)
-  );
-
-  if (existingItemIndex >= 0) {
-    this.cart = this.cart.map((cartItem, index) =>
-      index === existingItemIndex
-        ? {
-            ...cartItem,
-            quantity: cartItem.quantity + this.quantity,
-            totalPrice: (cartItem.quantity + this.quantity) * cartItem.price + // Recalculate based on individual price
-                        (cartItem.addOns || []).reduce((sum: number, addOn: { price: string; }) => sum + parseFloat(addOn.price), 0) * (cartItem.quantity + this.quantity)
-          }
-        : cartItem
-    );
-  } else {
-    this.cart = [
-      ...this.cart,
-      {
-        itemId: finalItem.itemId,
-        itemName: finalItem.itemName,
-        price: finalItem.basePrice,
-        quantity: this.quantity,
-        totalPrice: baseAndAddOnPrice * this.quantity, // Calculate total price for new item
-        variants: finalVariants,
-        addOns: selectedAddOns
-      }
-    ];
-  }
-  this.quantity = 1;
- // this.closeVariantModal();
-  this.cd.detectChanges();
-}
-
-addToCarts(item: any, selectedVariant: any = null, selectedAddOns: any[] = []): void {
-  const finalItem = selectedVariant ? { ...item, basePrice: parseFloat(selectedVariant.price) } : item;
-  const finalVariants = selectedVariant ? [{ variantName: 'Size', selectedOption: selectedVariant.variantName, price: parseFloat(selectedVariant.price) }] : [];
-
-  const existingItemIndex = this.cart.findIndex(
-      cartItem =>
-          cartItem.itemId === finalItem.itemId &&
-          this.areVariantsEqual(cartItem.variants, finalVariants) &&
-          this.areAddOnsEqual(cartItem.addOns, selectedAddOns)
-  );
-
-  if (existingItemIndex >= 0) {
-      this.cart = this.cart.map((cartItem, index) =>
-          index === existingItemIndex
-              ? {
-                  ...cartItem,
-                  quantity: cartItem.quantity + this.quantity,
-                  totalPrice: (cartItem.quantity + this.quantity) * cartItem.price,
-              }
-              : cartItem
-      );
-  } else {
-      this.cart = [
-          ...this.cart,
-          {
-              itemId: finalItem.itemId,
-              itemName: finalItem.itemName,
-              price: finalItem.basePrice,
-              quantity: this.quantity,
-              totalPrice: finalItem.basePrice * this.quantity,
-              variants: finalVariants,
-          }
-      ];
-  }
-  this.quantity = 1;
- // this.closeVariantModal();
-  this.cd.detectChanges();
-}
-
-//working add to cart
-addToCartworking(item: any, selectedVariant: any = null, selectedAddOns: any[] = []): void {
-  const finalItem = selectedVariant ? { ...item, basePrice: parseFloat(selectedVariant.price) } : item;
-  const finalVariants = selectedVariant ? [{ variantName: 'Size', selectedOption: selectedVariant.variantName, price: parseFloat(selectedVariant.price) }] : [];
-
-  const existingItemIndex = this.cart.findIndex(
-      cartItem =>
-          cartItem.itemId === finalItem.itemId &&
-          this.areVariantsEqual(cartItem.variants, finalVariants)
-  );
-
-  if (existingItemIndex >= 0) {
-      this.cart = this.cart.map((cartItem, index) =>
-          index === existingItemIndex
-              ? {
-                  ...cartItem,
-                  quantity: cartItem.quantity + this.quantity,
-                  totalPrice: (cartItem.quantity + this.quantity) * cartItem.price
-              }
-              : cartItem
-      );
-  } else {
-      this.cart = [
-          ...this.cart,
-          {
-              itemId: finalItem.itemId,
-              itemName: finalItem.itemName,
-              price: finalItem.basePrice,
-              quantity: this.quantity,
-              totalPrice: finalItem.basePrice * this.quantity,
-              variants: finalVariants
-          }
-      ];
-  }
-  this.quantity = 1;
- // this.closeVariantModal();
-  this.cd.detectChanges();
-}
 
 //deepseek code
 addToCart(item: any, selectedVariant: any = null, selectedAddOns: any[] = []): void {
@@ -493,31 +314,31 @@ addToCart1(item: any, selectedVariant: any = null, selectedAddOnsArray: any[] = 
   this.cd.detectChanges();
 }
 
-areVariantsEqual(variants1: any[], variants2: any[]): boolean {
-  if (!variants1 && !variants2) return true;
-  if (!variants1 || !variants2 || variants1.length !== variants2.length) return false;
-  for (const v1 of variants1) {
-    const found = variants2.find(v2 => v1.variantName === v2.variantName && v1.selectedOption === v2.selectedOption);
-    if (!found) return false;
-  }
-  return true;
-}
-areAddOnsEqual(addOns1: any[], addOns2: any[]): boolean {
-  if (!addOns1 && !addOns2) return true;
-  if (!addOns1 || !addOns2 || addOns1.length !== addOns2.length) return false;
-  // Compare based on ID to handle potential order differences
-  const sortedAddOns1 = [...addOns1].sort((a, b) => a.id - b.id);
-  const sortedAddOns2 = [...addOns2].sort((a, b) => a.id - b.id);
-  for (let i = 0; i < sortedAddOns1.length; i++) {
-    if (sortedAddOns1[i].id !== sortedAddOns2[i].id) {
-      return false;
+  areVariantsEqual(variants1: any[], variants2: any[]): boolean {
+    if (!variants1 && !variants2) return true;
+    if (!variants1 || !variants2 || variants1.length !== variants2.length) return false;
+    for (const v1 of variants1) {
+      const found = variants2.find(v2 => v1.variantName === v2.variantName && v1.selectedOption === v2.selectedOption);
+      if (!found) return false;
     }
+    return true;
   }
-  return true;
-}
-selectVariantOption(variant: any, option: any): void {
-  this.selectedVariantOptions[variant.variantName] = { optionName: option.optionName, price: option.price };
-}
+  areAddOnsEqual(addOns1: any[], addOns2: any[]): boolean {
+    if (!addOns1 && !addOns2) return true;
+    if (!addOns1 || !addOns2 || addOns1.length !== addOns2.length) return false;
+    // Compare based on ID to handle potential order differences
+    const sortedAddOns1 = [...addOns1].sort((a, b) => a.id - b.id);
+    const sortedAddOns2 = [...addOns2].sort((a, b) => a.id - b.id);
+    for (let i = 0; i < sortedAddOns1.length; i++) {
+      if (sortedAddOns1[i].id !== sortedAddOns2[i].id) {
+        return false;
+      }
+    }
+    return true;
+  }
+  selectVariantOption(variant: any, option: any): void {
+    this.selectedVariantOptions[variant.variantName] = { optionName: option.optionName, price: option.price };
+  }
 
 
 selectVariant(variant: any): void {
@@ -528,15 +349,6 @@ addVariantToCartFinal(): void {
   if (this.selectedItem) {
     const selectedAddOnArray = Object.values(this.selectedAddOns);
     this.addToCart(this.selectedItem, this.selectedVariant, selectedAddOnArray);
-    // //this.variantModal.nativeElement.modal('hide');
-    // const modalElement = document.getElementById('variantModal');
-    // if (modalElement) {
-    //   const modal = bootstrap.Modal.getInstance(modalElement);
-    //   modal?.hide();
-    // }
-   // this.closeModal();
-    //this.closeVariantModal();
-    //this.cd.detectChanges();
     }
 }
 
@@ -655,80 +467,26 @@ changeQuantity(change: number): void {
         this.addToCart(this.selectedItem, selectedVariants);
     }
   }
-  // addVariantToCart(): void {
-  // //   if (this.selectedItem && this.selectedVariant) {
-  // //     const existingItemIndex = this.cart.findIndex(cartItem => cartItem.itemId === this.selectedItem.itemId);
 
-  // //     if (existingItemIndex >= 0) {
-  // //       // If item already in cart, update quantity and price
-  // //       this.cart[existingItemIndex].quantity += 1;
-  // //       this.cart[existingItemIndex].totalPrice = this.cart[existingItemIndex].quantity * this.cart[existingItemIndex].price;
-  // //     } else {
-  // //       // If item is not in the cart, add with selected variant price
-  // //       this.cart.push({
-  // //         itemId: this.selectedItem.itemId,
-  // //         itemName: this.selectedItem.itemName,
-  // //         price: this.selectedVariant.price,
-  // //         quantity: 1,
-  // //         totalPrice: this.selectedVariant.price
-  // //       });
-  // //     }
-  // //     this.closeModal();
+ 
+  updateQuantity(cartItem: any, newQuantity: number): void {
+    this.cart = this.cart.map(item => {
+        if (item.itemId === cartItem.itemId && this.areVariantsEqual(item.variants, cartItem.variants)) {
+            return {
+                ...item,
+                quantity: newQuantity,
+                totalPrice: newQuantity * item.price
+            };
+        }
+        return item;
+    });
+    this.cd.detectChanges();
+  }
 
-  // //   }
-  // // }
-
-  // closeModal(): void {
-  //   this.selectedItem = null;  // Reset selected item
-  //   this.selectedVariant = null;  // Reset selected variant
-  // }
-
-  // updateQuantity(cartItem: any, newQuantity: number): void {
-  //   const existingItemIndex = this.cart.findIndex(item => item.itemId === cartItem.itemId);
-  //   if (existingItemIndex >= 0) {
-  //     // Prevent setting quantity to 0
-  //     if (newQuantity > 0) {
-  //       this.cart[existingItemIndex].quantity = newQuantity;
-  //       this.cart[existingItemIndex].totalPrice = this.cart[existingItemIndex].quantity * this.cart[existingItemIndex].price;
-  //     }
-  //   }
-  // }
-
-//   updateQuantity(cartItem: any, newQuantity: number): void {
-//     const existingItemIndex = this.cart.findIndex(item =>
-//         item.itemId === cartItem.itemId && this.areVariantsEqual(item.variants, cartItem.variants)
-//     );
-//     if (existingItemIndex >= 0) {
-//         if (newQuantity > 0) {
-//             this.cart = this.cart.map((item, index) =>
-//                 index === existingItemIndex
-//                     ? { ...item, itemQuantity: newQuantity, totalPrice: newQuantity * item.price }
-//                     : item
-//             );
-//             this.cd.detectChanges();
-//         }
-//     }
-// }
-
-//working
-updateQuantity(cartItem: any, newQuantity: number): void {
-  this.cart = this.cart.map(item => {
-      if (item.itemId === cartItem.itemId && this.areVariantsEqual(item.variants, cartItem.variants)) {
-          return {
-              ...item,
-              quantity: newQuantity,
-              totalPrice: newQuantity * item.price
-          };
-      }
-      return item;
-  });
-  this.cd.detectChanges();
-}
-
-updateQuantitycurrent(cartItem: any, newQuantity: number): void {
-  cartItem.quantity = newQuantity;
-  cartItem.totalPrice = (cartItem.price + (cartItem.addOns || []).reduce((sum: number, addOn: { price: string; }) => sum + parseFloat(addOn.price), 0)) * newQuantity;
-}
+  updateQuantitycurrent(cartItem: any, newQuantity: number): void {
+    cartItem.quantity = newQuantity;
+    cartItem.totalPrice = (cartItem.price + (cartItem.addOns || []).reduce((sum: number, addOn: { price: string; }) => sum + parseFloat(addOn.price), 0)) * newQuantity;
+  }
 
   getCategories(restaurantId: string): void {
     this.menuApiService.getCategories(restaurantId).subscribe(
@@ -755,7 +513,9 @@ updateQuantitycurrent(cartItem: any, newQuantity: number): void {
   }
   getMenuItemOnCategories(category: any) {
     console.log('order type: ' + this.orderType);
+    //this.showOnlyFavorites = false; 
      this.selectedCategory = category;
+
     // this.toastService.showLoader();
     this.menuApiService.getMenuItemOnCategories(this.restaurantId, category.categoryId, this.orderType).subscribe(
       (response: any) => {
@@ -777,6 +537,8 @@ loadAllMenuItems(): void {
   this.menuApiService.getMenuItems(this.restaurantId).subscribe((response: any) => {
     this.menuItems = response || [];
     // Add default checked state to each menu item
+    this.originalMenuItems = [...this.menuItems]; 
+
     this.menuItems = this.menuItems.map((item: any) => ({
       ...item,
       isChecked: false,
@@ -795,6 +557,54 @@ scrollToMenuItems(): void {
   if (this.menuSection) {
     this.menuSection.nativeElement.scrollIntoView({ behavior: 'smooth' });
   }
+}
+
+showFavorites(): void {
+  this.showOnlyFavorites = !this.showOnlyFavorites;
+  
+  if (this.showOnlyFavorites) {
+    this.menuItems = this.originalMenuItems.filter(item => item.setAsFavorite === "true");
+  } else {
+    this.menuItems = [...this.originalMenuItems];
+  }
+  
+  // Reset tab states if needed
+  this.istab = true;
+  this.selectedCategory = null;
+}
+
+
+toggleTableDropdown(): void {
+  this.showTableDropdown = !this.showTableDropdown;
+  if (this.showTableDropdown && !this.areas.length) {
+    this.loadAreasAndTables();
+  }
+}
+
+// Load data
+loadAreasAndTables(): void {
+  this.menuApiService.getAreasByRestaurantId(this.restaurantId).subscribe(areas => {
+    this.areas = areas;
+  });
+  
+  this.menuApiService.getTablesByRestaurantId(this.restaurantId).subscribe(tables => {
+    this.tables = tables;
+  });
+}
+
+// Select area
+selectArea(area: any): void {
+  this.selectedArea = area;
+  this.filteredTables = this.tables.filter(table => 
+    area.tableIds.includes(table.id)
+  );
+}
+
+// Select table
+selectTable(table: any): void {
+  this.selectedTable = table;
+  this.showTableDropdown = false;
+  // You can emit an event or store the selected table as needed
 }
 
   private getTableData(pageOption: pageSelection): void {
