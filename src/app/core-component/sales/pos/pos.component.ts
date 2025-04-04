@@ -185,9 +185,18 @@ export class PosComponent implements AfterViewInit {
     }
   }
 
+  closeDropdown(): void {
+    const dropdown = document.getElementById('tableDropdownTrigger');
+    if (dropdown) {
+      dropdown.setAttribute('aria-expanded', 'false');
+      dropdown.classList.remove('show');
+      const menu = dropdown.nextElementSibling as HTMLElement;
+      if (menu) {
+        menu.classList.remove('show');
+      }
+    }
+  }
 
-
-//deepseek code
 addToCart(item: any, selectedVariant: any = null, selectedAddOns: any[] = []): void {
   const finalItem = selectedVariant ? { ...item, basePrice: parseFloat(selectedVariant.price) } : item;
   const finalVariants = selectedVariant ? [{ variantName: 'Size', selectedOption: selectedVariant.variantName, price: parseFloat(selectedVariant.price) }] : [];
@@ -198,6 +207,19 @@ addToCart(item: any, selectedVariant: any = null, selectedAddOns: any[] = []): v
   // Calculate base price (item price + add-ons price)
   const basePrice = parseFloat(finalItem.basePrice) + addOnsPrice;
 
+  let applicableTaxes = [];
+  if (this.selectedArea && item.taxes) {
+    applicableTaxes = item.taxes.filter((tax: any) => {
+      return tax.areaWiseItemsTaxes.some((areaTax: any) => 
+        areaTax.menuItemId === item.itemId && 
+        areaTax.areaIds.includes(this.selectedArea.id)
+      );
+    });
+  }
+  if (applicableTaxes.length > 0) {
+    finalItem.taxes = applicableTaxes;
+  }
+  // Check if the item already exists in the cart
   const existingItemIndex = this.cart.findIndex(
       cartItem =>
           cartItem.itemId === finalItem.itemId &&
@@ -211,7 +233,8 @@ addToCart(item: any, selectedVariant: any = null, selectedAddOns: any[] = []): v
               ? {
                   ...cartItem,
                   quantity: cartItem.quantity + this.quantity,
-                  totalPrice: (cartItem.quantity + this.quantity) * basePrice
+                  totalPrice: (cartItem.quantity + this.quantity) * basePrice,
+                  taxes: applicableTaxes
               }
               : cartItem
       );
@@ -229,7 +252,8 @@ addToCart(item: any, selectedVariant: any = null, selectedAddOns: any[] = []): v
                   id: addOn.id,
                   name: addOn.name,
                   price: parseFloat(addOn.price)
-              }))
+              })),
+              taxes: applicableTaxes
           }
       ];
   }
@@ -267,51 +291,6 @@ isItemInCart(): boolean {
       this.areVariantsEqual(item.variants, finalVariants) &&
       this.areAddOnsEqual(item.addOns, selectedAddOnArray)
   );
-}
-addToCart1(item: any, selectedVariant: any = null, selectedAddOnsArray: any[] = []): void {
-  let finalPrice = item.basePrice;
-  const finalVariants = selectedVariant ? [{ variantName: 'Size', selectedOption: selectedVariant.variantName, price: parseFloat(selectedVariant.price) }] : [];
-  const finalAddOns = selectedAddOnsArray.map(addOn => ({ id: addOn.id, name: addOn.name, price: addOn.price }));
-
-  if (selectedVariant) {
-      finalPrice = parseFloat(selectedVariant.price);
-  }
-  finalPrice += selectedAddOnsArray.reduce((sum, addOn) => sum + addOn.price, 0);
-
-  const existingItemIndex = this.cart.findIndex(
-      cartItem =>
-          cartItem.itemId === item.itemId &&
-          this.areVariantsEqual(cartItem.variants, finalVariants) &&
-          this.areAddOnsEqual(cartItem.addOns, finalAddOns)
-  );
-
-  if (existingItemIndex >= 0) {
-      this.cart = this.cart.map((cartItem, index) =>
-          index === existingItemIndex
-              ? {
-                  ...cartItem,
-                  quantity: cartItem.quantity + this.quantity,
-                  totalPrice: (cartItem.quantity + this.quantity) * cartItem.price
-              }
-              : cartItem
-      );
-  } else {
-      this.cart = [
-          ...this.cart,
-          {
-              itemId: item.itemId,
-              itemName: item.itemName,
-              price: finalPrice, // Use the calculated finalPrice
-              quantity: this.quantity,
-              totalPrice: finalPrice * this.quantity,
-              variants: finalVariants,
-              addOns: finalAddOns
-          }
-      ];
-  }
-  this.quantity = 1;
-//  this.closeVariantModal();
-  this.cd.detectChanges();
 }
 
   areVariantsEqual(variants1: any[], variants2: any[]): boolean {
@@ -352,26 +331,6 @@ addVariantToCartFinal(): void {
     }
 }
 
-// closeModal(): void {
-//   console.log('closeModal called');
-//   if (this.variantModal) {
-//     const modalElement = this.variantModal.nativeElement;
-//     const modalInstance = bootstrap.Modal.getInstance(modalElement);
-//     console.log('Modal Instance:', modalInstance);
-//     if (modalInstance) {
-//       modalInstance.hide();
-//       console.log('modalInstance.hide() called');
-//     }
-//   }
-// }
-// closeModal() {
-//   if (this.variantModal) {
-//     const modalElement = this.variantModal.nativeElement;
-//     const modalInstance = new bootstrap.Modal(modalElement); // Initialize Bootstrap modal
-//     modalInstance.hide(); // Hide the modal
-//   }
-// }
-
 toggleAddOn(addOn: any): void {
   if (this.selectedAddOns[addOn.id]) {
     delete this.selectedAddOns[addOn.id];
@@ -407,33 +366,9 @@ confirmDeletion(): void {
     // Remove specific item
     this.cart = this.cart.filter(item => item !== this.currentItemToDelete);
   }
-  // No need to manually close modal - Bootstrap handles it via data-bs-dismiss
 }
 
-// closeVariantModal(): void {
-//   this.selectedItem = null;
-//   this.selectedVariantOptions = {};
-//   this.selectedVariant = null;
-//   this.selectedAddOns = {};
-//   this.itemQuantity = 1;
-//   this.cd.detectChanges();
-// }
-// resetModalState(): void {
-//   this.quantity = 1;
-//   this.selectedVariant = null;
-//   this.selectedAddOns = {};
-//   this.cd.detectChanges(); 
-// }
-//working 
-// changeQuantity(change: number): void {
-//     this.itemQuantity = Math.max(1, this.itemQuantity + change); // Ensure minimum quantity is 1
-//   }
 
-  // Modify your changeQuantity method to handle the event
-// changeQuantity(newQuantity: number): void {
-//   this.quantity = Math.max(1, newQuantity); // Ensure minimum quantity is 1
-//   this.cd.detectChanges();
-// }
 
 changeQuantity(change: number): void {
   const newQuantity = this.quantity + change;
@@ -488,6 +423,81 @@ changeQuantity(change: number): void {
     cartItem.totalPrice = (cartItem.price + (cartItem.addOns || []).reduce((sum: number, addOn: { price: string; }) => sum + parseFloat(addOn.price), 0)) * newQuantity;
   }
 
+  calculateTax(): number {
+    if (!this.selectedArea) return 0;
+  
+    let totalTax = 0;
+  
+    this.cart.forEach(cartItem => {
+      if (cartItem.taxes && cartItem.taxes.length > 0) {
+        cartItem.taxes.forEach((tax: any) => {
+          // Calculate tax amount based on type (Percent/Fixed)
+          if (tax.type === 'Percent') {
+            totalTax += (cartItem.totalPrice * tax.amount) / 100;
+          } else if (tax.type === 'Fixed') {
+            totalTax += tax.amount * cartItem.quantity;
+          }
+        });
+      }
+    });
+  
+    return totalTax;
+  }
+  
+  calculateSubTotal(): number {
+    const itemTotal = this.cart.reduce((total, cartItem) => total + cartItem.totalPrice, 0);
+    const taxTotal = this.calculateTax();
+    return itemTotal + taxTotal;
+  }
+
+  calculateItemsTotal(): number {
+    return this.cart.reduce((total, cartItem) => total + cartItem.totalPrice, 0);
+  }
+  
+  getTaxDescription(): string {
+    if (!this.selectedArea) return '';
+    
+    const taxDescriptions: string[] = [];
+    
+    this.cart.forEach(cartItem => {
+      if (cartItem.taxes && cartItem.taxes.length > 0) {
+        cartItem.taxes.forEach((tax: any) => {
+          const description = `${tax.title} (${tax.amount}${tax.type === 'Percent' ? '%' : '₹'})`;
+          if (!taxDescriptions.includes(description)) {
+            taxDescriptions.push(description);
+          }
+        });
+      }
+    });
+    
+    return taxDescriptions.join(' + ');
+  }
+
+  onAreaSelect(area: any): void {
+    this.selectedArea = area;
+    
+    // Update taxes for all items in cart when area changes
+    this.cart = this.cart.map(cartItem => {
+      let applicableTaxes = [];
+      if (this.menuItems) {
+        const originalItem = this.menuItems.find((item: { itemId: any; }) => item.itemId === cartItem.itemId);
+        if (originalItem && originalItem.taxes) {
+          applicableTaxes = originalItem.taxes.filter((tax: any) => {
+            return tax.areaWiseItemsTaxes.some((areaTax: any) => 
+              areaTax.menuItemId === cartItem.itemId && 
+              areaTax.areaIds.includes(this.selectedArea.id)
+            );
+          });
+        }
+      }
+      return {
+        ...cartItem,
+        taxes: applicableTaxes
+      };
+    });
+    
+    this.cd.detectChanges();
+  }
   getCategories(restaurantId: string): void {
     this.menuApiService.getCategories(restaurantId).subscribe(
       response => {
@@ -606,6 +616,8 @@ selectTable(table: any): void {
   this.showTableDropdown = false;
   // You can emit an event or store the selected table as needed
 }
+
+
 
   private getTableData(pageOption: pageSelection): void {
     this.data.getPosPurchase().subscribe((apiRes: apiResultFormat) => {

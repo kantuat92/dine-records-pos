@@ -143,7 +143,7 @@
                     <div *ngFor="let table of filteredTables"
                          class="table-box text-center"
                          [class.selected]="selectedTable?.id === table.id"
-                         (click)="selectTable(table); $event.stopPropagation()">
+                         (click)="selectTable(table); closeDropdown(); $event.stopPropagation()" >
                       <div class="table-number">{{ table.tableNumber }}</div>
                       <div class="table-seats">{{ table.numberOfPersons }} <i class="ti ti-user"></i></div>
                     </div>
@@ -190,7 +190,8 @@
        
           <div class="order-head d-flex align-items-center justify-content-between w-100">
             <div>
-              <h3>Order List</h3>
+              <small class="text-muted">{{ selectedArea?.areaName }}</small>
+              <h3>{{ selectedTable?.tableNumber }}</h3>
             </div>
             <div class="d-flex align-items-center gap-2">
               <span class="badge badge-dark fs-10 fw-medium badge-xs">#ORD123</span>
@@ -286,9 +287,14 @@
                 <td>Shipping<a href="javascript:void(0);" class="ms-3 link-default"  data-bs-toggle="modal" data-bs-target="#shipping-cost"><i class="ti ti-edit"></i></a></td>
                 <td class="text-gray-9 text-end">$40.21</td>
               </tr>
-              <tr class="d-flex justify-content-between align-items-center">
-                <td>Tax<a href="javascript:void(0);" class="ms-3 link-default"  data-bs-toggle="modal" data-bs-target="#order-tax"><i class="ti ti-edit"></i></a></td>
-                <td class="text-gray-9 text-end">$25</td>
+              <tr class="d-flex justify-content-between align-items-center" *ngIf="selectedArea && calculateTax() > 0">
+                <td>
+                  Tax ({{ getTaxDescription() }})
+                  <a href="javascript:void(0);" class="ms-3 link-default" data-bs-toggle="modal" data-bs-target="#order-tax">
+                    <i class="ti ti-edit"></i>
+                  </a>
+                </td>
+                <td class="text-gray-9 text-end">{{ calculateTax() | currency: 'INR' }}</td>
               </tr>
               <tr class="d-flex justify-content-between align-items-center">
                 <td>Coupon<a href="javascript:void(0);" class="ms-3 link-default"  data-bs-toggle="modal" data-bs-target="#coupon-code"><i class="ti ti-edit"></i></a></td>
@@ -309,7 +315,7 @@
               </tr>
               <tr class="d-flex justify-content-between align-items-center">
                 <td>Sub Total</td>
-                <td class="text-gray-9 text-end">$60,454</td>
+                <td class="text-gray-9 text-end">{{ calculateSubTotal() | currency: 'INR' }}</td>
               </tr>
               <tr class="d-flex justify-content-between align-items-center">
                 <td class="fw-bold border-top border-dashed">Total Payable</td>
