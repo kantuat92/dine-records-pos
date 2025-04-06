@@ -18,8 +18,8 @@ export class Signin2Component {
 
   user: User = {
     name: '',
-    email: '',
-    password: '',
+    email: 'kantuat94@gmail.com',
+    password: 'Shopping86$',
     confirmPassword: '',
     country: '',
     restaurantName: '',

@@ -28,7 +28,7 @@ import { UserManagementAPIService } from 'src/app/core/service/api-services/user
 })
 export class UsersComponent {
 
-  restaurantId: number = 1;
+  restaurantId: number = 17;
   userForm: FormGroup;
   editUserForm: FormGroup;
   showPassword = false;
@@ -132,17 +132,18 @@ export class UsersComponent {
   }
 
   fetchRoles() {
+    console.log('restaurantId: ', this.restaurantId);
     this.userManagementService.getRoles(this.restaurantId).subscribe(
-      (roles) => {
-        console.log('Roles:', roles);
-        this.roles = roles;
+      (response) => {
+        console.log('API Response:', response);
+        this.roles = response.data; // assuming roles are inside `data`
       },
       (error) => {
         console.error('Error fetching roles:', error);
       }
     );
-
   }
+  
 
 
   togglePassword() {
@@ -215,7 +216,7 @@ export class UsersComponent {
   }
 
   private getTableData(pageOption: pageSelection): void {
-    this.data.getUsers(this.restaurantId).subscribe((apiRes: apiResultFormat) => {
+    this.userManagementService.getUsers(this.restaurantId).subscribe((apiRes: apiResultFormat) => {
       this.tableData = [];
       this.serialNumberArray = [];
       this.totalData = apiRes.totalData;

@@ -63,7 +63,7 @@ export class RolesPermissionsComponent {
   public currentSearchText = '';
   public currentStatusFilter = 'all';
   public selectedStatus: string = 'Status'; // Default label
-  restaurantId = 1;
+  restaurantId = 17;
 
 
   @ViewChild('closeButton') closeButton!: ElementRef<HTMLButtonElement>;
@@ -183,7 +183,7 @@ export class RolesPermissionsComponent {
 
 
   private getTableData(pageOption: pageSelection): void {
-    this.data.getRolesPermissions().subscribe((apiRes: apiResultFormat) => {
+    this.userManagementService.getRoles(this.restaurantId).subscribe((apiRes: apiResultFormat) => {
       this.tableData = [];
       this.serialNumberArray = [];
       this.totalData = apiRes.totalData;

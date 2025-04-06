@@ -70,7 +70,7 @@ export class PermissionsComponent {
   }
 
   private getTableData(pageOption: pageSelection): void {
-    this.data.getPermission(this.restaurantId, this.roleId).subscribe((apiRes: apiResultFormat) => {
+    this.userManagementService.getPermission(this.restaurantId, this.roleId).subscribe((apiRes: apiResultFormat) => {
       this.tableData = [];
       this.serialNumberArray = [];
       this.totalData = apiRes.totalData;

@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { Role } from "src/app/shared/model/page.model";
 import { map } from 'rxjs/operators';
+import { apiResultFormat } from "../../core.index";
 
 
 
@@ -17,10 +18,26 @@ export class UserManagementAPIService {
 
     }
 
-    getRoles(restaurantId: any): Observable<Role[]> {
+    public getUsers(restaurantId: number): Observable<apiResultFormat> {
+        return this.http.get<apiResultFormat>(`${this.baseURL}/users/restaurant/${restaurantId}`).pipe(
+          map((res: apiResultFormat) => res)
+        );
+    }
+
+    public getPermission(restaurantId: number, roleId: number): Observable<apiResultFormat> {
+        return this.http
+          .get<apiResultFormat>(`${this.baseURL}/permissions/role/${roleId}/restaurant/${restaurantId}`)
+          .pipe(
+            map((res: apiResultFormat) => res)
+          );
+    }
+    
+    public getRoles(restaurantId: any): Observable<apiResultFormat> {
         const url = `${this.baseURL}/roles/restaurant/${restaurantId}`;
-        return this.http.get<{ data: Role[] }>(url).pipe(map(response => response.data));
-    }    
+        return this.http
+          .get<apiResultFormat>(url)
+          .pipe(map((res: apiResultFormat) => res));
+    }
 
     postUser(userData: any): Observable<any> {
         const url = `${this.baseURL}/users`;
@@ -56,5 +73,13 @@ export class UserManagementAPIService {
         const url = `${this.baseURL}/permissions/assign`;
         return this.http.put(url, payload);
     }
+
+    loginUser(credentials: any) {
+        return this.http.post(`${this.baseURL}/auth/login`, credentials).subscribe((res: any) => {
+          localStorage.setItem('token', res.token);
+          console.log('User has been loggedin.')
+        });
+    }
+      
 
 }

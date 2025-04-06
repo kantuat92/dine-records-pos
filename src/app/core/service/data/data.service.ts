@@ -447,11 +447,6 @@ export class DataService {
       })
     );
   }
-  public getRolesPermissions(): Observable<apiResultFormat> {
-    return this.http
-      .get<apiResultFormat>('http://localhost:8080/api/v1/roles/restaurant/1')
-      .pipe(map((res: apiResultFormat) => res));
-  }
 
   public getState(): Observable<apiResultFormat> {
     return this.http.get<apiResultFormat>('assets/JSON/state.json').pipe(
@@ -563,12 +558,6 @@ export class DataService {
         return res;
       })
     );
-}
-
-public getUsers(restaurantId: number): Observable<apiResultFormat> {
-  return this.http.get<apiResultFormat>(`http://localhost:8080/api/v1/users/restaurant/${restaurantId}`).pipe(
-    map((res: apiResultFormat) => res)
-  );
 }
 
   public getQrCode(): Observable<apiResultFormat> {
@@ -705,13 +694,6 @@ public getUsers(restaurantId: number): Observable<apiResultFormat> {
         map((res: apiResultFormat) => {
           return res;
         })
-      );
-  }
-  public getPermission(restaurantId: number, roleId: number): Observable<apiResultFormat> {
-    return this.http
-      .get<apiResultFormat>(`http://localhost:8080/api/v1/permissions/role/${roleId}/restaurant/${restaurantId}`)
-      .pipe(
-        map((res: apiResultFormat) => res)
       );
   }
 
