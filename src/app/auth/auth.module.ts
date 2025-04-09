@@ -6,7 +6,7 @@ import { AuthComponent } from './auth.component';
 import { ResetPassword2Component } from './reset-password/reset-password-2/reset-password-2.component';
 import { ResetPassword3Component } from './reset-password/reset-password-3/reset-password-3.component';
 import { ResetPasswordComponent } from './reset-password/reset-password/reset-password.component';
-import { Register2Component } from './register/register-2/register-2.component';
+import { RegisterComponent } from './register/register.component';
 import { sharedModule } from '../shared/shared.module';
 import { LockScreenComponent } from './lock-screen/lock-screen.component';
 import { Success2Component } from './successs/success-2/success-2.component';
@@ -18,11 +18,11 @@ import { EmailVerification3Component } from './email-verification/email-verifica
 import { TwoStepVerificationComponent } from './two-step-verification/two-step-verification/two-step-verification.component';
 import { TwoStepVerification2Component } from './two-step-verification/two-step-verification-2/two-step-verification-2.component';
 import { TwoStepVerification3Component } from './two-step-verification/two-step-verification-3/two-step-verification-3.component';
-import { Signin2Component } from './signin/signin-2/signin-2.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password/forgot-password.component';
 import { ForgotPassword2Component } from './forgot-password/forgot-password-2/forgot-password-2.component';
 import { ForgotPassword3Component } from './forgot-password/forgot-password-3/forgot-password-3.component';
 import { InputOtpModule } from 'primeng/inputotp';
+import { SigninComponent } from './signin/signin.component';
 
 
 @NgModule({
@@ -31,18 +31,18 @@ import { InputOtpModule } from 'primeng/inputotp';
     ResetPassword2Component,
     ResetPassword3Component,
     ResetPasswordComponent,
-    Register2Component,    
+    RegisterComponent,
     LockScreenComponent,
     SuccessComponent,
     Success2Component,
-    Success3Component,    
+    Success3Component,
     EmailVerificationComponent,
     EmailVerification2Component,
     EmailVerification3Component,
     TwoStepVerificationComponent,
     TwoStepVerification2Component,
-    TwoStepVerification3Component,    
-    Signin2Component,    
+    TwoStepVerification3Component,
+    SigninComponent,
     ForgotPasswordComponent,
     ForgotPassword2Component,
     ForgotPassword3Component

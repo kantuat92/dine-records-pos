@@ -10,12 +10,12 @@ import { setRestaurantId } from 'src/app/core/store/restaurant.actions';
 import { UserManagementAPIService } from 'src/app/core/service/api-services/user-management-api.service';
 
 @Component({
-    selector: 'app-signin-2',
-    templateUrl: './signin-2.component.html',
-    styleUrl: './signin-2.component.scss',
+    selector: 'app-signin',
+    templateUrl: './signin.component.html',
+    styleUrl: './signin.component.scss',
     standalone: false
 })
-export class Signin2Component {
+export class SigninComponent {
 
   user: User = {
     name: '',

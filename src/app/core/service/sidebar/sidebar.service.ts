@@ -295,7 +295,7 @@ export class SidebarService {
               menuValue: 'Detached',
               route: routes.Detached,
             },
-            
+
             {
               menuValue: 'Two Column',
               route: routes.TwoColumn,
@@ -837,11 +837,11 @@ export class SidebarService {
           hasSubRoute: true,
           showSubRoute: false,
           subMenus:[
-              { 
+              {
                 menuValue: 'Sales Report',
                 route: routes.salesReport,
             },
-              { 
+              {
                 menuValue: 'Best Seller',
                 route: routes.bestSeller,
             },
@@ -857,19 +857,19 @@ export class SidebarService {
         {
           menuValue: 'Inventory Report',
           icon2: 'triangle-inverted',
-          
+
           hasSubRoute: true,
           showSubRoute: false,
           subMenus:[
-              { 
+              {
                 menuValue: 'Inventory Report',
                 route: routes.inventoryReport,
             },
-              { 
+              {
                 menuValue: 'Stock History',
                 route: routes.stockHistory,
             },
-              { 
+              {
                 menuValue: 'Stock Sold',
                 route: routes.soldStock,
             },
@@ -885,15 +885,15 @@ export class SidebarService {
         {
           menuValue: 'Supplier Report',
           icon2: 'user-star',
-        
+
           hasSubRoute: true,
           showSubRoute: false,
           subMenus:[
-              { 
+              {
                 menuValue: 'Supplier Report',
                 route: routes.supplierReport,
             },
-              { 
+              {
                 menuValue: 'Supplier Due Report',
                 route: routes.supplierDueReport,
             },
@@ -902,15 +902,15 @@ export class SidebarService {
         {
           menuValue: 'Customer Report',
           icon2: 'report',
-         
+
           hasSubRoute: true,
           showSubRoute: false,
           subMenus:[
-              { 
+              {
                 menuValue: 'Customer Report',
                 route: routes.customerReport,
             },
-              { 
+              {
                 menuValue: 'Customer Due Report',
                 route: routes.customerDueReport,
             },
@@ -923,15 +923,15 @@ export class SidebarService {
           hasSubRoute: true,
           showSubRoute: false,
           subMenus:[
-              { 
+              {
                 menuValue: 'Product Report',
                 route: routes.productReport,
             },
-              { 
+              {
                 menuValue: 'Product Expiry Report',
                 route: routes.productExpiryReport,
             },
-              { 
+              {
                 menuValue: 'Product Quantity Alert',
                 route: routes.productQuantityAlert,
             },
@@ -982,11 +982,11 @@ export class SidebarService {
         {
           menuValue: 'Pages',
           icon2: 'page-break',
-         
+
           hasSubRoute: true,
           showSubRoute: false,
           subMenus:[
-              { 
+              {
                 menuValue: 'Pages',
                 route: routes.page,
             },
@@ -999,19 +999,19 @@ export class SidebarService {
           hasSubRoute: true,
           showSubRoute: false,
           subMenus:[
-              { 
+              {
                 menuValue: 'All Blogs',
                 route: routes.allBlog,
             },
-              { 
+              {
                 menuValue: 'Blog Tags',
                 route: routes.blogTag,
             },
-              { 
+              {
                 menuValue: 'Categories',
                 route: routes.categories,
             },
-              { 
+              {
                 menuValue: 'Blog Comments',
                 route: routes.blogComments,
             },
@@ -1020,19 +1020,19 @@ export class SidebarService {
         {
           menuValue: 'Location',
           icon2: 'map-pin',
-        
+
           hasSubRoute: true,
           showSubRoute: false,
           subMenus:[
-              { 
+              {
                 menuValue: 'Countries',
                 route: routes.countries,
             },
-              { 
+              {
                 menuValue: 'States',
                 route: routes.states,
             },
-              { 
+              {
                 menuValue: 'Cities',
                 route: routes.cities,
             },
@@ -1105,10 +1105,10 @@ export class SidebarService {
               customSubmenuTwo: true,
               hasSubRoute: true,
               showSubRoute: false,
-              subMenusTwo: [                
+              subMenusTwo: [
                 {
                   menuValue: 'Illustration',
-                  route: routes.signIn2,
+                  route: routes.signIn,
                   hasSubRoute: false,
                   showSubRoute: false,
                 }
@@ -1119,10 +1119,10 @@ export class SidebarService {
               customSubmenuTwo: true,
               hasSubRoute: true,
               showSubRoute: false,
-              subMenusTwo: [                
+              subMenusTwo: [
                 {
                   menuValue: 'Illustration',
-                  route: routes.register2,
+                  route: routes.register,
                   hasSubRoute: false,
                   showSubRoute: false,
                 }
@@ -1566,7 +1566,7 @@ export class SidebarService {
         {
           menuValue: 'Logout',
           icon2: 'logout',
-          route: routes.signIn2,
+          route: routes.signIn,
           hasSubRoute: false,
           showSubRoute: false,
         },
@@ -2401,7 +2401,7 @@ export class SidebarService {
             },
           ],
         },
-       
+
       ],
     },
     {
@@ -2650,7 +2650,7 @@ export class SidebarService {
               customSubmenuTwo: false,
               base: 'quotation-list',
             },
-            
+
             {
               menuValue: 'POS',
               hasSubRoute: true,
@@ -2780,7 +2780,7 @@ export class SidebarService {
                   route: routes.expenseCategory,
                   base: 'expense-category',
                 },
-                
+
               ],
             },
             {
@@ -2800,7 +2800,7 @@ export class SidebarService {
                   route: routes.incomeCategory,
                   base: 'income-category',
                 },
-                
+
               ],
             },
             {
@@ -2905,7 +2905,7 @@ export class SidebarService {
                   route: routes.attendanceAdmin,
                   base: 'attendance-admin',
                 },
-                
+
               ],
 
             },
@@ -2930,7 +2930,7 @@ export class SidebarService {
                   route: routes.leavesType,
                   base: 'leave-type',
                 },
-                
+
               ],
 
             },
@@ -2958,7 +2958,7 @@ export class SidebarService {
                   route: routes.paySlip,
                   base: 'payslip',
                 },
-                
+
               ],
 
             },
@@ -3026,7 +3026,7 @@ export class SidebarService {
                 },
               ]
             },
-            
+
             {
               menuValue: 'Invoice Report',
               route: routes.invoiceReport,
@@ -3121,7 +3121,7 @@ export class SidebarService {
               base: 'annual-report',
               customSubmenuTwo: false,
             },
-            
+
           ],
         },
       ],
@@ -3159,7 +3159,7 @@ export class SidebarService {
                   showSubRoute: false,
                   route:routes.page
                 },
-               
+
               ]
             },
             {
@@ -3272,13 +3272,13 @@ export class SidebarService {
                   menuValue: 'Login',
                   hasSubRoute: false,
                   showSubRoute: false,
-                  route:routes.signIn2
+                  route:routes.signIn
                 },
                 {
                   menuValue: 'Register',
                   hasSubRoute: false,
                   showSubRoute: false,
-                  route:routes.register2
+                  route:routes.register
                 },
                 {
                   menuValue: 'Forgot Password',
@@ -3308,7 +3308,7 @@ export class SidebarService {
                   menuValue: 'Lock Screen',
                   hasSubRoute: false,
                   showSubRoute: false,
-                  route:routes.signIn2
+                  route:routes.signIn
                 },
               ]
             },
@@ -3339,7 +3339,7 @@ export class SidebarService {
               customSubmenuTwo:false,
 
             },
-            
+
             {
               menuValue: 'Pricing',
               route: routes.pricing,
@@ -3492,7 +3492,7 @@ export class SidebarService {
                   route: routes.posSettings,
                   base: 'pos-settings',
                 },
-                
+
                 {
                   menuValue: 'Signatures',
                   route: routes.signatures,
@@ -3590,7 +3590,7 @@ export class SidebarService {
               menuValue: 'Logout',
               customSubmenuTwo: false,
               base: 'logout',
-              route:routes.signIn2
+              route:routes.signIn
             }
           ]
         }
@@ -3665,9 +3665,9 @@ export class SidebarService {
                   base: 'ui-breadcrumb',
                 },
                 {
-                   menuValue: 'Cards', 
-                  route: routes.uiCards, 
-                  base: 'ui-cards' 
+                   menuValue: 'Cards',
+                  route: routes.uiCards,
+                  base: 'ui-cards'
                 },
                 {
                   menuValue: 'Carousel',
@@ -3684,10 +3684,10 @@ export class SidebarService {
                   route: routes.uiDropdowns,
                   base: 'ui-dropdowns',
                 },
-                { 
-                  menuValue: 'Grid', 
-                  route: routes.uiGrid, 
-                  base: 'ui-grid' 
+                {
+                  menuValue: 'Grid',
+                  route: routes.uiGrid,
+                  base: 'ui-grid'
                 },
                 {
                   menuValue: 'Images',
@@ -3699,15 +3699,15 @@ export class SidebarService {
                   route: routes.uiLightbox,
                   base: 'ui-lightbox',
                 },
-                { 
+                {
                   menuValue: 'Media',
                    route: routes.uiMedia,
                     base: 'ui-media'
                    },
-                { 
+                {
                   menuValue: 'Modals',
                    route: routes.uiModals,
-                    base: 'ui-modals' 
+                    base: 'ui-modals'
                   },
                 {
                   menuValue: 'Offcanvas',
@@ -3755,7 +3755,7 @@ export class SidebarService {
                   route: routes.uiNavTabs,
                   base: 'ui-tabs',
                 },
-                
+
 
                 {
                   menuValue: 'Toasts',
@@ -4284,7 +4284,7 @@ export class SidebarService {
                   hasSubRoute: false,
                   showSubRoute: false,
                 },
-                
+
                 {
                   tittle: 'Customers',
                   route: '/ecommer',
@@ -4616,7 +4616,7 @@ export class SidebarService {
                   customSubmenuTwo: false,
                   subRoutes: [],
                 },
-                
+
               ],
             },
           ],
@@ -4695,7 +4695,7 @@ export class SidebarService {
               subRoutes: [],
               customSubmenuTwo: false,
             },
-            
+
           ],
         },
         {
@@ -5286,7 +5286,7 @@ export class SidebarService {
           showSubRoute: false,
           activeRoute: 'map',
           subRoutes: [
-            
+
             {
               tittle: 'LeafLets',
               route: routes.leaflet,
@@ -5298,7 +5298,7 @@ export class SidebarService {
         },
       ]
     },
-    
+
     {
       tittle: 'Pages',
       hasSubRoute: true,
@@ -5322,10 +5322,10 @@ export class SidebarService {
               hasSubRoute: true,
               showSubRoute: false,
               customSubmenuTwo: true,
-              subMenusTwo: [                
+              subMenusTwo: [
                 {
                   tittle: 'Illustration',
-                  route: routes.signIn2,
+                  route: routes.signIn,
                   hasSubRoute: false,
                   showSubRoute: false,
                 }
@@ -5336,13 +5336,13 @@ export class SidebarService {
               hasSubRoute: true,
               showSubRoute: false,
               customSubmenuTwo: true,
-              subMenusTwo: [                
+              subMenusTwo: [
                 {
                   tittle: 'Illustration',
-                  route: routes.register2,
+                  route: routes.register,
                   hasSubRoute: false,
                   showSubRoute: false,
-                }                
+                }
               ],
             },
             {
@@ -5519,7 +5519,7 @@ export class SidebarService {
               tittle: 'Pages',
               hasSubRoute: true,
               showSubRoute: false,
-              
+
               customSubmenuTwo: true,
               subMenusTwo:[
                 {
@@ -6281,7 +6281,7 @@ export class SidebarService {
               showSubRoute: false,
               route: routes.wareHouse,
               subRoutes: [],
-              customSubmenuTwo: false,  
+              customSubmenuTwo: false,
             },
           ],
         },
@@ -6362,7 +6362,7 @@ export class SidebarService {
       ],
     },
   ];
-  
+
   public settings_sidebar = [
     {
       icon: 'ti ti-settings',

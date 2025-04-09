@@ -6,12 +6,12 @@ import { RestaurantApiService } from 'src/app/core/service/api-services/restaura
 
 
 @Component({
-  selector: 'app-register-2',
-  templateUrl: './register-2.component.html',
-  styleUrl: './register-2.component.scss',
+  selector: 'app-register',
+  templateUrl: './register.component.html',
+  styleUrl: './register.component.scss',
   standalone: false
 })
-export class Register2Component {
+export class RegisterComponent {
 
   registerForm!: FormGroup;
   successMessage: string | null = null;
@@ -82,6 +82,6 @@ export class Register2Component {
 
 
   navigation() {
-    this.router.navigate([routes.signIn2])
+    this.router.navigate([routes.signIn])
   }
 }

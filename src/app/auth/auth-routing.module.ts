@@ -9,8 +9,6 @@ import { ResetPassword3Component } from './reset-password/reset-password-3/reset
 import { ResetPasswordComponent } from './reset-password/reset-password/reset-password.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password/forgot-password.component';
 import { ForgotPassword2Component } from './forgot-password/forgot-password-2/forgot-password-2.component';
-import { Register2Component } from './register/register-2/register-2.component';
-import { Signin2Component } from './signin/signin-2/signin-2.component';
 import { TwoStepVerification2Component } from './two-step-verification/two-step-verification-2/two-step-verification-2.component';
 import { TwoStepVerificationComponent } from './two-step-verification/two-step-verification/two-step-verification.component';
 import { TwoStepVerification3Component } from './two-step-verification/two-step-verification-3/two-step-verification-3.component';
@@ -19,9 +17,11 @@ import { ForgotPassword3Component } from './forgot-password/forgot-password-3/fo
 import { SuccessComponent } from './successs/success/success.component';
 import { Success2Component } from './successs/success-2/success-2.component';
 import { Success3Component } from './successs/success-3/success-3.component';
+import { SigninComponent } from './signin/signin.component';
+import { RegisterComponent } from './register/register.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'signin-2', pathMatch: 'full' },
+  { path: '', redirectTo: 'signin', pathMatch: 'full' },
 
   {
     path: '',
@@ -62,15 +62,15 @@ const routes: Routes = [
       {
         path: 'forgot-password-3',
         component: ForgotPassword3Component,
-      },    
+      },
       {
-        path: 'register-2',
-        component: Register2Component,
-      },            
+        path: 'register',
+        component: RegisterComponent,
+      },
       {
-        path: 'signin-2',
-        component: Signin2Component,
-      },     
+        path: 'signin',
+        component: SigninComponent,
+      },
       {
         path: 'two-step-verification',
         component: TwoStepVerificationComponent,

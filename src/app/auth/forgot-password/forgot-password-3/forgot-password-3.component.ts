@@ -14,6 +14,6 @@ export class ForgotPassword3Component {
   constructor(private router: Router) {}
 
   navigation() {
-    this.router.navigate([routes.signIn2])
+    this.router.navigate([routes.signIn])
   }
 }

@@ -6,7 +6,7 @@ export class routes {
     return this.base;
   }
   // auth routes *start*
-  
+
   public static get signUp(): string {
     return this.base + '/signup';
   }
@@ -360,7 +360,7 @@ export class routes {
     return this.content + '/faq';
   }
 
-  
+
 
   public static get newCountry(): string {
     return this.places + '/new-country';
@@ -570,9 +570,9 @@ export class routes {
 
   public static get banIpAddress(): string {
     return this.settings + '/other-settings/ban-ip-address';
-  }  
-  public static get register2(): string {
-    return this.base + '/register-2';
+  }
+  public static get register(): string {
+    return this.base + '/register';
   }
 
   // base ui pages routes starts
@@ -778,7 +778,7 @@ export class routes {
   public static get attendanceAdmin(): string {
     return this.attendance + '/attendance-admin';
   }
- 
+
   public static get attendanceEmployee(): string {
     return this.attendance + '/attendance-employee';
   }
@@ -1027,8 +1027,8 @@ export class routes {
   public static get purchaseReturns(): string {
     return this.purchase + '/purchase-returns';
   }
-  public static get signIn2(): string {
-    return this.base + '/signin-2';
+  public static get signIn(): string {
+    return this.base + '/signin';
   }
   public static get resetPassword(): string {
     return this.base + '/reset-password';
