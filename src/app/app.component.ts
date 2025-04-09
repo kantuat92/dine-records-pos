@@ -6,7 +6,6 @@ import {
   Event as RouterEvent,
 } from '@angular/router';
 import { SpinnerService } from './core/core.index';
-import { UserManagementAPIService } from './core/service/api-services/user-management-api.service';
 
 @Component({
     selector: 'app-root',
@@ -18,7 +17,7 @@ export class AppComponent {
   title = 'template';
   public page = '';
 
-  constructor(private router: Router, private spinner: SpinnerService, private userManagementService: UserManagementAPIService) {
+  constructor(private router: Router, private spinner: SpinnerService) {
     this.router.events.subscribe((event: RouterEvent) => {
       if (event instanceof NavigationStart) {
         const URL = event.url.split('/');
@@ -37,13 +36,7 @@ export class AppComponent {
       if (event instanceof NavigationEnd) {
         this.spinner.hide();
       }
-    });
-
-    userManagementService.loginUser({
-      'username': 'super-admin-user',
-      'password': 'abcd'
-    });
-    
+    });  
   }
   
 }

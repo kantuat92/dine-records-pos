@@ -15,10 +15,10 @@
                         <h4>Access the Dreamspos panel using your email and passcode.</h4>
                     </div>
                     <div class="mb-3">
-                            <label class="form-label">Email Address</label>
+                            <label class="form-label">User Name</label>
                             <div class="input-group">
                                 <input type="text" class="form-control border-end-0"
-                                [(ngModel)]="user.email" name="email" required value="kantuat94@gmail.com">
+                                [(ngModel)]="user.name" name="email" required>
                                 <span class="input-group-text border-start-0">
                                     <i class="ti ti-mail"></i>
                                 </span>
@@ -27,7 +27,7 @@
                         <div class="mb-3">
                             <label class="form-label">Password</label>
                             <div class="pass-group">
-                                <input [type]="password[0] ? 'text' : 'password'" class="pass-input form-control" [(ngModel)]="user.password" name="password" required value="Shopping86$">
+                                <input [type]="password[0] ? 'text' : 'password'" class="pass-input form-control" [(ngModel)]="user.password" name="password" required>
                                 <span class="ti toggle-password text-gray-9" [ngClass]="password[0] ? 'ti-eye' : 'ti-eye-off'" (click)="togglePassword(0)"></span>                           </div>
                         </div>
                     <div class="form-login authentication-check">

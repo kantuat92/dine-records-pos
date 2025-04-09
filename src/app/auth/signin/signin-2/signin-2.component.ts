@@ -7,6 +7,7 @@ import { Store } from '@ngrx/store';
 import { NgForm } from '@angular/forms';
 import { User } from 'src/app/core/models/user.model';
 import { setRestaurantId } from 'src/app/core/store/restaurant.actions';
+import { UserManagementAPIService } from 'src/app/core/service/api-services/user-management-api.service';
 
 @Component({
     selector: 'app-signin-2',
@@ -18,8 +19,8 @@ export class Signin2Component {
 
   user: User = {
     name: '',
-    email: 'kantuat94@gmail.com',
-    password: 'Shopping86$',
+    email: '',
+    password: '',
     confirmPassword: '',
     country: '',
     restaurantName: '',
@@ -30,7 +31,7 @@ export class Signin2Component {
   errorMessage: string = '';
   constructor(private router: Router, private authService: AuthService,
     private restaurantapiservice: RestaurantApiService,
-    private store: Store)
+    private store: Store, private userManagementService: UserManagementAPIService)
     {
 
     }
@@ -44,14 +45,19 @@ export class Signin2Component {
 
       try {
         // Call AuthService to log in the user
-        await this.authService.signIn(this.user.email, this.user.password);
+        const loginData = {
+          'username': this.user.name,
+          'password': this.user.password
+        };
+        await this.userManagementService.loginUser(loginData);
          // Fetch restaurant ID by making an API call
-        this.restaurantapiservice.getRestaurantByUserEmail(this.user.email).subscribe({
+        this.restaurantapiservice.getRestaurantByUsername(this.user.name).subscribe({
           next: (restaurant) => {
             const restaurantId = restaurant.id;
             // Dispatch restaurantId to NgRx store
             this.store.dispatch(setRestaurantId({ restaurantId }));
             console.log('Restaurant ID dispatched during Login:', restaurantId);
+            this.router.navigate([this.routes.dashboard]);
           },
           error: (error) => {
             console.error('Failed to fetch restaurant details: ', error);
