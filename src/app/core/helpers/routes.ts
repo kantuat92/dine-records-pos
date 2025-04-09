@@ -7,9 +7,6 @@ export class routes {
   }
   // auth routes *start*
   
-  public static get signIn(): string {
-    return this.base + '/signin';
-  }
   public static get signUp(): string {
     return this.base + '/signup';
   }
@@ -573,15 +570,9 @@ export class routes {
 
   public static get banIpAddress(): string {
     return this.settings + '/other-settings/ban-ip-address';
-  }
-  public static get register(): string {
-    return this.base + '/register';
-  }
+  }  
   public static get register2(): string {
     return this.base + '/register-2';
-  }
-  public static get register3(): string {
-    return this.base + '/register-3';
   }
 
   // base ui pages routes starts
@@ -1038,9 +1029,6 @@ export class routes {
   }
   public static get signIn2(): string {
     return this.base + '/signin-2';
-  }
-  public static get signIn3(): string {
-    return this.base + '/signin-3';
   }
   public static get resetPassword(): string {
     return this.base + '/reset-password';

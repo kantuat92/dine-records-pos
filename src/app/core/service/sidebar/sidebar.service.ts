@@ -1105,25 +1105,13 @@ export class SidebarService {
               customSubmenuTwo: true,
               hasSubRoute: true,
               showSubRoute: false,
-              subMenusTwo: [
-                {
-                  menuValue: 'Cover',
-                  route: routes.signIn,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
+              subMenusTwo: [                
                 {
                   menuValue: 'Illustration',
                   route: routes.signIn2,
                   hasSubRoute: false,
                   showSubRoute: false,
-                },
-                {
-                  menuValue: 'Basic',
-                  route: routes.signIn3,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
+                }
               ],
             },
             {
@@ -1131,25 +1119,13 @@ export class SidebarService {
               customSubmenuTwo: true,
               hasSubRoute: true,
               showSubRoute: false,
-              subMenusTwo: [
-                {
-                  menuValue: 'Cover',
-                  route: routes.register,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
+              subMenusTwo: [                
                 {
                   menuValue: 'Illustration',
                   route: routes.register2,
                   hasSubRoute: false,
                   showSubRoute: false,
-                },
-                {
-                  menuValue: 'Basic',
-                  route: routes.register3,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
+                }
               ],
             },
             {
@@ -1590,7 +1566,7 @@ export class SidebarService {
         {
           menuValue: 'Logout',
           icon2: 'logout',
-          route: routes.signIn,
+          route: routes.signIn2,
           hasSubRoute: false,
           showSubRoute: false,
         },
@@ -3296,13 +3272,13 @@ export class SidebarService {
                   menuValue: 'Login',
                   hasSubRoute: false,
                   showSubRoute: false,
-                  route:routes.signIn
+                  route:routes.signIn2
                 },
                 {
                   menuValue: 'Register',
                   hasSubRoute: false,
                   showSubRoute: false,
-                  route:routes.register
+                  route:routes.register2
                 },
                 {
                   menuValue: 'Forgot Password',
@@ -3332,7 +3308,7 @@ export class SidebarService {
                   menuValue: 'Lock Screen',
                   hasSubRoute: false,
                   showSubRoute: false,
-                  route:routes.signIn
+                  route:routes.signIn2
                 },
               ]
             },
@@ -3614,7 +3590,7 @@ export class SidebarService {
               menuValue: 'Logout',
               customSubmenuTwo: false,
               base: 'logout',
-              route:routes.signIn
+              route:routes.signIn2
             }
           ]
         }
@@ -5346,25 +5322,13 @@ export class SidebarService {
               hasSubRoute: true,
               showSubRoute: false,
               customSubmenuTwo: true,
-              subMenusTwo: [
-                {
-                  tittle: 'Cover',
-                  route: routes.signIn,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
+              subMenusTwo: [                
                 {
                   tittle: 'Illustration',
                   route: routes.signIn2,
                   hasSubRoute: false,
                   showSubRoute: false,
-                },
-                {
-                  tittle: 'Basic',
-                  route: routes.signIn3,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
+                }
               ],
             },
             {
@@ -5372,25 +5336,13 @@ export class SidebarService {
               hasSubRoute: true,
               showSubRoute: false,
               customSubmenuTwo: true,
-              subMenusTwo: [
-                {
-                  tittle: 'Cover',
-                  route: routes.register,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
+              subMenusTwo: [                
                 {
                   tittle: 'Illustration',
                   route: routes.register2,
                   hasSubRoute: false,
                   showSubRoute: false,
-                },
-                {
-                  tittle: 'Basic',
-                  route: routes.register3,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
+                }                
               ],
             },
             {

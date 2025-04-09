@@ -10,8 +10,6 @@ import { ResetPasswordComponent } from './reset-password/reset-password/reset-pa
 import { ForgotPasswordComponent } from './forgot-password/forgot-password/forgot-password.component';
 import { ForgotPassword2Component } from './forgot-password/forgot-password-2/forgot-password-2.component';
 import { Register2Component } from './register/register-2/register-2.component';
-import { Register3Component } from './register/register-3/register-3.component';
-import { SigninComponent } from './signin/signin/signin.component';
 import { Signin2Component } from './signin/signin-2/signin-2.component';
 import { TwoStepVerification2Component } from './two-step-verification/two-step-verification-2/two-step-verification-2.component';
 import { TwoStepVerificationComponent } from './two-step-verification/two-step-verification/two-step-verification.component';
@@ -21,8 +19,6 @@ import { ForgotPassword3Component } from './forgot-password/forgot-password-3/fo
 import { SuccessComponent } from './successs/success/success.component';
 import { Success2Component } from './successs/success-2/success-2.component';
 import { Success3Component } from './successs/success-3/success-3.component';
-import { RegisterComponent } from './register/register/register.component';
-import { Signin3Component } from './signin/signin-3/signin-3.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'signin-2', pathMatch: 'full' },
@@ -66,31 +62,15 @@ const routes: Routes = [
       {
         path: 'forgot-password-3',
         component: ForgotPassword3Component,
-      },
-      {
-        path: 'register',
-        component: RegisterComponent,
-      },
+      },    
       {
         path: 'register-2',
         component: Register2Component,
-      },
-      {
-        path: 'register-3',
-        component: Register3Component,
-      },
-      {
-        path: 'signin',
-        component: SigninComponent,
-      },
+      },            
       {
         path: 'signin-2',
         component: Signin2Component,
-      },
-      {
-        path: 'signin-3',
-        component: Signin3Component,
-      },
+      },     
       {
         path: 'two-step-verification',
         component: TwoStepVerificationComponent,
