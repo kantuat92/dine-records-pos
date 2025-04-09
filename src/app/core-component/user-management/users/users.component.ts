@@ -14,10 +14,12 @@ import { users } from 'src/app/shared/model/page.model';
 import { Role } from 'src/app/shared/model/page.model';
 import { PaginationService, tablePageSize } from 'src/app/shared/shared.index';
 import Swal from 'sweetalert2';
+import { Store } from '@ngrx/store';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { UserManagementAPIService } from 'src/app/core/service/api-services/user-management-api.service';
+import { selectRestaurantId } from '../../../core/store/restaurant.selectors';
 
 
 @Component({
@@ -28,7 +30,7 @@ import { UserManagementAPIService } from 'src/app/core/service/api-services/user
 })
 export class UsersComponent {
 
-  restaurantId: number = 23;
+  restaurantId: any;
   userForm: FormGroup;
   editUserForm: FormGroup;
   showPassword = false;
@@ -64,9 +66,17 @@ export class UsersComponent {
     private data: DataService,
     private pagination: PaginationService,
     private router: Router,
-    private sidebar: SidebarService, private fb: FormBuilder, private http: HttpClient, private userManagementService: UserManagementAPIService
+    private sidebar: SidebarService,
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private userManagementService: UserManagementAPIService,
+    private store: Store
   ) {
 
+    this.store.select(selectRestaurantId).subscribe(id => {
+      console.log('In users.component.ts Restaurant id from store: ', id);
+      this.restaurantId = id;
+    });
     this.loadData();
     this.userForm = this.fb.group({
       userName: ['', Validators.required],
@@ -143,7 +153,7 @@ export class UsersComponent {
       }
     );
   }
-  
+
 
 
   togglePassword() {

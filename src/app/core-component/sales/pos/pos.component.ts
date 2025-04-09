@@ -156,8 +156,8 @@ export class PosComponent implements AfterViewInit {
   ngOnInit(): void {
     // Fetch the restaurantId from NgRx store
     this.store.select(selectRestaurantId).subscribe(id => {
-      this.restaurantId = '16';
-      console.log(id);
+      console.log('In pos.component.ts Restaurant id from store: ', id);
+      this.restaurantId = id;
       if (this.restaurantId) {
         this.getCategories(this.restaurantId);
         this.loadAllMenuItems();

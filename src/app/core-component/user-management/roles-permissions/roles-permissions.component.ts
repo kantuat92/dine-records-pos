@@ -16,6 +16,9 @@ import { PaginationService, tablePageSize } from 'src/app/shared/shared.index';
 import Swal from 'sweetalert2';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserManagementAPIService } from 'src/app/core/service/api-services/user-management-api.service';
+import { Store } from '@ngrx/store';
+import { selectRestaurantId } from '../../../core/store/restaurant.selectors';
+
 interface data {
   value: string;
 }
@@ -63,7 +66,7 @@ export class RolesPermissionsComponent {
   public currentSearchText = '';
   public currentStatusFilter = 'all';
   public selectedStatus: string = 'Status'; // Default label
-  restaurantId = 17;
+  restaurantId: any;
 
 
   @ViewChild('closeButton') closeButton!: ElementRef<HTMLButtonElement>;
@@ -78,8 +81,15 @@ export class RolesPermissionsComponent {
     private sidebar: SidebarService,
     private http: HttpClient,
     private fb: FormBuilder,
-    private userManagementService: UserManagementAPIService
+    private userManagementService: UserManagementAPIService,
+    private store: Store
   ) {
+
+    this.store.select(selectRestaurantId).subscribe(id => {
+      console.log('In roles-permissions.component.ts Restaurant id from store: ', id);
+      this.restaurantId = id;
+    });
+
     this.loadData();
     this.editRoleForm = this.fb.group({
       id: [null],
