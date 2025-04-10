@@ -16,11 +16,10 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-
+        let cloned;
         const token = this.userManagementService.getAccessToken();
-
         if (token) {
-            const cloned = req.clone({
+             cloned = req.clone({
                 setHeaders: {
                     Authorization: `Bearer ${token}`
                 }
@@ -28,7 +27,7 @@ export class AuthInterceptor implements HttpInterceptor {
             console.log('JWT has been set in Auth interceptor for URL: ', req.url);            
         }
 
-        return next.handle(req).pipe(
+        return next.handle(cloned ? cloned : req).pipe(
             catchError(err => {                
                 if (err.status === 401 && !req.url.includes('/auth/refresh')) {
                     console.log('Received 401 for URL: ', req.url);
