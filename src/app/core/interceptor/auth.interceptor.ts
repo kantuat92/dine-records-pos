@@ -5,16 +5,19 @@ import {
     HttpInterceptor,
     HttpRequest
 } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { catchError, Observable, switchMap, throwError } from 'rxjs';
+import { UserManagementAPIService } from '../service/api-services/user-management-api.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-    
-    intercept(
-        req: HttpRequest<any>,
-        next: HttpHandler
-    ): Observable<HttpEvent<any>> {
-        const token = localStorage.getItem('token');
+
+    constructor(private userManagementService: UserManagementAPIService) {
+
+    }
+
+    intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+
+        const token = this.userManagementService.getAccessToken();
 
         if (token) {
             const cloned = req.clone({
@@ -22,10 +25,26 @@ export class AuthInterceptor implements HttpInterceptor {
                     Authorization: `Bearer ${token}`
                 }
             });
-            console.log('JWT has been set in Auth interceptor.')
-            return next.handle(cloned);
+            console.log('JWT has been set in Auth interceptor for URL: ', req.url);            
         }
 
-        return next.handle(req);
+        return next.handle(req).pipe(
+            catchError(err => {                
+                if (err.status === 401 && !req.url.includes('/auth/refresh')) {
+                    console.log('Received 401 for URL: ', req.url);
+                    console.log('Refreshing the access token');
+                    return this.userManagementService.refreshToken().pipe(
+                        switchMap(() => {
+                            const newToken = this.userManagementService.getAccessToken();
+                            const newReq = req.clone({
+                                setHeaders: { Authorization: `Bearer ${newToken}` }
+                            });
+                            return next.handle(newReq);
+                        })
+                    );
+                }
+                return throwError(() => err);
+            })
+        );
     }
 }
