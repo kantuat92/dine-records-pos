@@ -347,7 +347,7 @@
         <a class="dropdown-item" [routerLink]="routes.salesReport"><i class="ti ti-file-text me-2"></i>Reports</a>
         <a class="dropdown-item" [routerLink]="routes.generalSettings"><i class="ti ti-settings-2 me-2"></i>Settings</a>
         <hr class="my-2">
-        <a class="dropdown-item logout pb-0" [routerLink]="routes.signIn"><i class="ti ti-logout me-2"></i>Logout</a>
+        <a class="dropdown-item logout pb-0" (click)="logout($event)"><i class="ti ti-logout me-2"></i>Logout</a>
       </div>
     </li>
   </ul>
@@ -360,7 +360,7 @@
     <div class="dropdown-menu dropdown-menu-right">
       <a class="dropdown-item" [routerLink] = "routes.profile">My Profile</a>
       <a class="dropdown-item" [routerLink] = "routes.generalSettings">Settings</a>
-      <a class="dropdown-item" [routerLink] = "routes.signIn">Logout</a>
+      <a class="dropdown-item" (click)="logout($event)">Logout</a>
     </div>
   </div>
   <!-- /Mobile Menu -->
@@ -485,7 +485,7 @@
             Profile</a>
           <a class="dropdown-item" [routerLink]="routes.generalSettings"><i class="me-2" data-feather="settings"></i>Settings</a>
           <hr class="m-0">
-          <a class="dropdown-item logout pb-0" [routerLink]="routes.signIn"><img src="assets/img/icons/log-out.svg" class="me-2" alt="img">Logout</a>
+          <a class="dropdown-item logout pb-0" (click)="logout($event)"><img src="assets/img/icons/log-out.svg" class="me-2" alt="img">Logout</a>
         </div>
       </div>
     </li>
@@ -498,7 +498,7 @@
     <div class="dropdown-menu dropdown-menu-right">
       <a class="dropdown-item" [routerLink]="routes.profile" >My Profile</a>
       <a class="dropdown-item" [routerLink]="routes.generalSettings" >Settings</a>
-      <a class="dropdown-item" [routerLink]="routes.signIn" >Logout</a>
+      <a class="dropdown-item" (click)="logout($event)" >Logout</a>
     </div>
   </div>
   <!-- /Mobile Menu -->
