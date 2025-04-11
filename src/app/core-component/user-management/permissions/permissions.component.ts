@@ -9,6 +9,7 @@ import { PaginationService, pageSelection, tablePageSize } from 'src/app/shared/
 import { Permission } from 'src/app/shared/model/page.model';
 import { HttpClient } from '@angular/common/http';
 import { UserManagementAPIService } from 'src/app/core/service/api-services/user-management-api.service';
+import { Subscription } from 'rxjs';
 interface data {
   value: string;
 }
@@ -22,8 +23,8 @@ interface data {
 export class PermissionsComponent {
 
 
-  restaurantId : any;
-  roleId : any;
+  restaurantId: any;
+  roleId: any;
   roleName: any;
 
   public routes = routes;
@@ -38,6 +39,8 @@ export class PermissionsComponent {
   public searchDataValue = '';
   //** / pagination variables
 
+  private tablePageSizeSub!: Subscription;
+
   constructor(
     private data: DataService,
     private pagination: PaginationService,
@@ -48,24 +51,39 @@ export class PermissionsComponent {
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
-        this.restaurantId = navigation.extras.state['restaurantId'];
-        this.roleId = navigation.extras.state['roleId'];
-        this.roleName = navigation.extras.state['roleName'];              
-        console.log('Received from router: Role ID:', this.roleId, ' Role Name: ', this.roleName, 'Restaurant ID:', this.restaurantId);
+      this.restaurantId = navigation.extras.state['restaurantId'];
+      this.roleId = navigation.extras.state['roleId'];
+      this.roleName = navigation.extras.state['roleName'];
+      console.log('Received from router: Role ID:', this.roleId, ' Role Name: ', this.roleName, 'Restaurant ID:', this.restaurantId);
     }
+  }
+
+  ngOnInit() {
+    console.log('ngOnInit called in permissions');
     this.loadData();
   }
 
+  ngOnDestroy() {
+    console.log('ngOnDestroy called in permissions');
+    if (this.tablePageSizeSub) {
+      this.tablePageSizeSub.unsubscribe();
+    }
+  }
+
   loadData() {
-    this.data.getDataTable().subscribe((apiRes: apiResultFormat) => {
-      this.totalData = apiRes.totalData;
-      this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
-        if (this.router.url == this.routes.permissions) {
-          this.getTableData({ skip: res.skip, limit: this.totalData });
-          this.pageSize = res.pageSize;
-        }
-      });
+
+    if (this.tablePageSizeSub) {
+      this.tablePageSizeSub.unsubscribe();
+    }
+
+    this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
+      if (this.router.url == this.routes.permissions) {
+        console.log('In tablePageSize subscribe, permissions');
+        this.getTableData({ skip: res.skip, limit: res.limit });
+        this.pageSize = res.pageSize;
+      }
     });
+
     this.searchDataValue = '';
   }
 
