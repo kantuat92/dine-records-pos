@@ -578,7 +578,7 @@ export interface fileShared {
   img2: string;
   isSelected?: boolean;
 }
-export interface rolesPermissions {
+export interface Role {
   sNo: number;
   id: number;
   role: string;
@@ -711,11 +711,6 @@ export interface salesInvoice {
   amountDue: string;
   status: string;
   img: string;
-}
-
-export interface Role {
-  id: number;
-  role: string;
 }
 
 export interface user {

@@ -11,7 +11,7 @@ import {
 } from 'src/app/core/core.index';
 import { HttpClient } from '@angular/common/http';
 import { SidebarService } from 'src/app/core/service/sidebar/sidebar.service';
-import { rolesPermissions } from 'src/app/shared/model/page.model';
+import { Role } from 'src/app/shared/model/page.model';
 import { PaginationService, tablePageSize } from 'src/app/shared/shared.index';
 import Swal from 'sweetalert2';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -55,12 +55,12 @@ export class RolesPermissionsComponent {
     { value: 'Shop Owner' },
   ];
 
-  public tableData: Array<rolesPermissions> = [];
+  public tableData: Array<Role> = [];
   public pageSize = 10;
   public serialNumberArray: Array<number> = [];
   public totalData = 0;
   showFilter = false;
-  dataSource!: MatTableDataSource<rolesPermissions>;
+  dataSource!: MatTableDataSource<Role>;
   public searchDataValue = '';
   roleName: string = '';
   deleteRoleId: number | null = null;
@@ -160,7 +160,11 @@ export class RolesPermissionsComponent {
     this.userManagementService.createRole(this.roleName, this.restaurantId).subscribe(
       (response) => {
         this.roleName = '';
-        this.loadData();
+        const newRole: Role = {
+          ...response,
+          sNo: this.tableData.length + 1
+        }
+        this.tableData.push(newRole);
         this.closeButton.nativeElement.click();
       },
       (error) => {
@@ -177,8 +181,16 @@ export class RolesPermissionsComponent {
 
       this.userManagementService.updateRole(roleData).subscribe(
         (response) => {
+
+          const index = this.tableData.findIndex(role => role.id === roleData.id);
+          if (index !== -1) {
+            this.tableData[index] = {
+              ...this.tableData[index],
+              ...roleData
+            };
+            this.dataSource = new MatTableDataSource<Role>(this.tableData);
+          }
           this.editRoleForm.reset();
-          this.loadData();
           this.closeButtonForEdit.nativeElement.click(); // Click the close button
         },
         (error) => {
@@ -198,8 +210,12 @@ export class RolesPermissionsComponent {
 
     this.userManagementService.deleteRole(this.deleteRoleId).subscribe(
       (response) => {
+        this.tableData = this.tableData.filter(role => role.id !== this.deleteRoleId);
+        this.tableData.forEach((role, index) => role.sNo = index + 1);
+        this.serialNumberArray = this.tableData.map((_, index) => index + 1);
+        this.dataSource = new MatTableDataSource<Role>(this.tableData);
+        
         this.deleteRoleId = null;
-        this.loadData();
         this.closeButtonForDelete.nativeElement.click();
       },
       (error) => {
@@ -215,7 +231,7 @@ export class RolesPermissionsComponent {
       this.tableData = [];
       this.serialNumberArray = [];
       this.totalData = apiRes.totalData;
-      apiRes.data.map((res: rolesPermissions, index: number) => {
+      apiRes.data.map((res: Role, index: number) => {
         const serialNumber = index + 1;
         if (index >= pageOption.skip && serialNumber <= pageOption.limit) {
           res.sNo = serialNumber;
@@ -225,8 +241,8 @@ export class RolesPermissionsComponent {
       });
 
 
-      this.dataSource = new MatTableDataSource<rolesPermissions>(this.tableData);
-      this.dataSource.filterPredicate = (data: rolesPermissions, filter: string) => {
+      this.dataSource = new MatTableDataSource<Role>(this.tableData);
+      this.dataSource.filterPredicate = (data: Role, filter: string) => {
         const filterObj = JSON.parse(filter);
         const matchesStatus =
           filterObj.status === 'all' || data.status.toString().toLowerCase() === filterObj.status;
