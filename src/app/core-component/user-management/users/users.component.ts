@@ -211,8 +211,16 @@ export class UsersComponent {
 
       this.userManagementService.updateUser(this.editUserId, userData).subscribe(
         response => {
+          const index = this.tableData.findIndex(user => user.id === this.editUserId);
+          if (index !== -1) {
+            this.tableData[index] = {
+              ...this.tableData[index],
+              ...userData
+            };
+            this.dataSource = new MatTableDataSource<user>(this.tableData);
+          }
           this.editUserForm.reset();
-          this.loadData();
+          this.editUserForm.patchValue({ status: true });
           this.closeButtonForEditUser.nativeElement.click(); // Click the close button
         },
         error => {
