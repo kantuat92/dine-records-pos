@@ -443,4 +443,9 @@
     grid-template-columns: repeat(4, minmax(50px, 1fr));
     gap: 10px; /* Slightly larger gap on desktop */
   }
+  .highlighted {
+    background-color: #57a169 !important; /* light green */
+    transition: background-color 0.5s ease;
+  }
+  
 }

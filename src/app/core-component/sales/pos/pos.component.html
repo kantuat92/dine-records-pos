@@ -45,12 +45,17 @@
               <div  class="tab_content"  data-tab="all" [ngClass]="{'active':istab}">
                 <div class="row g-3">
                   <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3" *ngFor="let item of menuItems">
-                    <div class="product-info card mb-0" (click)="handleMenuItemClick(item)"
+                    <!-- <div class="product-info card mb-0" (click)="handleMenuItemClick(item)"
                     [attr.data-bs-toggle]="item.variants && item.variants.length > 0 ? 'modal' : null"
                     [attr.data-bs-target]="item.variants && item.variants.length > 0 ? '#variantModal' : null"
+                    style="cursor: pointer;"> -->
+                    <div class="product-info card mb-0"
+                    (click)="handleMenuItemClick(item)"
+                    [ngClass]="{'highlighted': item.highlight}"
+                    [attr.data-bs-toggle]="(item.variants?.length > 0 || (!selectedArea && item.taxes?.length > 1)) ? 'modal' : null"
+                    [attr.data-bs-target]="item.variants?.length > 0 ? '#variantModal' : ((!selectedArea && item.taxes?.length > 1) ? '#taxModal' : null)"
                     style="cursor: pointer;">
-                      <h6 class="product-name"><a href="javascript:void(0);">
-                       
+                      <h6 class="product-name"><a href="javascript:void(0);"> 
                         <span class="product-name"> {{ item.itemName }}</span>
                         <i *ngIf="item.setAsFavorite === 'true'" 
                           class="ti ti-star-filled text-warning ms-1"
@@ -287,7 +292,7 @@
                 <td>Shipping<a href="javascript:void(0);" class="ms-3 link-default"  data-bs-toggle="modal" data-bs-target="#shipping-cost"><i class="ti ti-edit"></i></a></td>
                 <td class="text-gray-9 text-end">$40.21</td>
               </tr>
-              <tr class="d-flex justify-content-between align-items-center" *ngIf="selectedArea && calculateTax() > 0">
+              <tr class="d-flex justify-content-between align-items-center" *ngIf="calculateTax() > 0">
                 <td>
                   Tax ({{ getTaxDescription() }})
                   <a href="javascript:void(0);" class="ms-3 link-default" data-bs-toggle="modal" data-bs-target="#order-tax">
@@ -510,6 +515,82 @@
     </div>
   </div>
 </div>
+
+<!-- Add Tax Selection Modal -->
+<!-- Trigger -->
+<!-- No bootstrap JS needed, control with Angular -->
+<!-- <div *ngIf="showTaxModal" class="modal-backdrop">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="success-wrap text-center">
+          <form>
+            <div class="icon-success bg-warning-transparent text-warning mb-2">
+              <i class="ti ti-alert-circle"></i>
+            </div>
+            <h3 class="mb-2">Tax Selection Required</h3>
+            <p class="fs-16 mb-3">You have not selected a table. Please select a tax to apply:</p>
+            
+            <select class="form-select mb-3" [(ngModel)]="selectedTax" name="taxSelect">
+              <option [ngValue]="null" disabled>Select a tax rate</option>
+              <option *ngFor="let tax of availableTaxes" [ngValue]="tax">
+                {{ tax.title }} ({{ tax.amount }}{{ tax.type === 'Percent' ? '%' : '₹' }})
+              </option>
+            </select>
+            
+            <div class="modal-footer">
+              <button type="button" class="btn btn-md btn-secondary" (click)="resetTaxSelection()" >Cancel</button>
+              <button type="button" class="btn btn-md btn-primary" [disabled]="!selectedTax"
+              data-bs-dismiss="modal" 
+              (click)="finalizeAddToCart([selectedTax])">
+                Apply Tax
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+<div class="modal fade" id="taxModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="success-wrap text-center">
+          <form>
+            <div class="icon-success bg-warning-transparent text-warning mb-2">
+              <i class="ti ti-alert-circle"></i>
+            </div>
+            <h3 class="mb-2">Tax Selection Required</h3>
+            <p class="fs-16 mb-3">You have not selected a table. Please select a tax to apply:</p>
+
+            <select class="form-select mb-3" [(ngModel)]="selectedTax" name="taxSelect">
+              <option [ngValue]="null" disabled>Select a tax rate</option>
+              <option *ngFor="let tax of availableTaxes" [ngValue]="tax">
+                {{ tax.title }} ({{ tax.amount }}{{ tax.type === 'Percent' ? '%' : '₹' }})
+              </option>
+            </select>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">
+                Cancel
+              </button>
+              <button type="button" class="btn btn-md btn-primary"
+                      [disabled]="!selectedTax"
+                      data-bs-dismiss="modal"
+                      (click)="finalizeAddToCart([selectedTax])">
+                Apply Tax
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 <!-- Payment Completed -->
 <div class="modal fade modal-default" id="payment-completed" aria-labelledby="payment-completed">
