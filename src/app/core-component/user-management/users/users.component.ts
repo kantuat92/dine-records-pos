@@ -239,9 +239,13 @@ export class UsersComponent {
     }
 
     this.userManagementService.deleteUser(this.deleteUserId).subscribe(
-      () => {
+      () => {        
+        this.tableData = this.tableData.filter(user => user.id !== this.deleteUserId);
+        this.tableData.forEach((user, index) => user.sNo = index + 1);
+        this.serialNumberArray = this.tableData.map((_, index) => index + 1);
+        this.dataSource = new MatTableDataSource<user>(this.tableData);
+
         this.deleteUserId = null; // Clear input field
-        this.loadData();
         this.closeButtonForDeleteUser.nativeElement.click(); // Click the close button
       },
       (error) => {
