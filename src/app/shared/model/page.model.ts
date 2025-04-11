@@ -718,7 +718,7 @@ export interface Role {
   role: string;
 }
 
-export interface users {
+export interface user {
   sNo: number;
   id: number;
   img: string;

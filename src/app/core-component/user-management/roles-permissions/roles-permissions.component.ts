@@ -18,6 +18,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserManagementAPIService } from 'src/app/core/service/api-services/user-management-api.service';
 import { Store } from '@ngrx/store';
 import { selectRestaurantId } from '../../../core/store/restaurant.selectors';
+import { Subscription } from 'rxjs';
 
 interface data {
   value: string;
@@ -53,7 +54,7 @@ export class RolesPermissionsComponent {
     { value: 'Admin' },
     { value: 'Shop Owner' },
   ];
-  // pagination variables
+
   public tableData: Array<rolesPermissions> = [];
   public pageSize = 10;
   public serialNumberArray: Array<number> = [];
@@ -72,7 +73,8 @@ export class RolesPermissionsComponent {
   @ViewChild('closeButton') closeButton!: ElementRef<HTMLButtonElement>;
   @ViewChild('closeButtonForEdit') closeButtonForEdit!: ElementRef<HTMLButtonElement>;
   @ViewChild('closeButtonForDelete') closeButtonForDelete!: ElementRef<HTMLButtonElement>;
-  //** / pagination variables
+
+  private tablePageSizeSub!: Subscription;
 
   constructor(
     private data: DataService,
@@ -90,7 +92,7 @@ export class RolesPermissionsComponent {
       this.restaurantId = id;
     });
 
-    this.loadData();
+
     this.editRoleForm = this.fb.group({
       id: [null],
       role: ['', Validators.required],
@@ -99,16 +101,32 @@ export class RolesPermissionsComponent {
 
   }
 
+  ngOnInit() {
+    console.log('ngOnInit called in roles-permissions');
+    this.loadData();
+  }
+
+  ngOnDestroy() {
+    console.log('ngOnDestroy called in roles-permissions');
+    if (this.tablePageSizeSub) {
+      this.tablePageSizeSub.unsubscribe();
+    }
+  }
+
   loadData() {
-    this.data.getDataTable().subscribe((apiRes: apiResultFormat) => {
-      this.totalData = apiRes.totalData;
-      this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
-        if (this.router.url == this.routes.rolesPermission) {
-          this.getTableData({ skip: res.skip, limit: this.totalData });
-          this.pageSize = res.pageSize;
-        }
-      });
+
+    if (this.tablePageSizeSub) {
+      this.tablePageSizeSub.unsubscribe();
+    }
+
+    this.tablePageSizeSub = this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
+      if (this.router.url == this.routes.rolesPermission) {
+        console.log('In tablePageSize subscribe, roles-permissions');
+        this.getTableData({ skip: res.skip, limit: res.limit });
+        this.pageSize = res.pageSize;
+      }
     });
+
     this.searchDataValue = '';
   }
 

@@ -10,7 +10,7 @@ import {
   SidebarService,
 } from 'src/app/core/core.index';
 import { routes } from 'src/app/core/helpers/routes';
-import { users } from 'src/app/shared/model/page.model';
+import { user } from 'src/app/shared/model/page.model';
 import { Role } from 'src/app/shared/model/page.model';
 import { PaginationService, tablePageSize } from 'src/app/shared/shared.index';
 import Swal from 'sweetalert2';
@@ -20,6 +20,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { UserManagementAPIService } from 'src/app/core/service/api-services/user-management-api.service';
 import { selectRestaurantId } from '../../../core/store/restaurant.selectors';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -52,15 +53,17 @@ export class UsersComponent {
   selectedValue7 = '';
 
   public routes = routes;
-  // pagination variables
-  public tableData: Array<users> = [];
+
+  public tableData: Array<user> = [];
   public pageSize = 10;
   public serialNumberArray: Array<number> = [];
   public totalData = 0;
   showFilter = false;
-  dataSource!: MatTableDataSource<users>;
+  dataSource!: MatTableDataSource<user>;
   public searchDataValue = '';
-  //** / pagination variables
+
+
+  private tablePageSizeSub!: Subscription;
 
   constructor(
     private data: DataService,
@@ -77,7 +80,6 @@ export class UsersComponent {
       console.log('In users.component.ts Restaurant id from store: ', id);
       this.restaurantId = id;
     });
-    this.loadData();
     this.userForm = this.fb.group({
       userName: ['', Validators.required],
       roleId: ['', Validators.required],
@@ -99,20 +101,32 @@ export class UsersComponent {
   }
 
   loadData() {
-    this.data.getDataTable().subscribe((apiRes: apiResultFormat) => {
-      this.totalData = apiRes.totalData;
-      this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
-        if (this.router.url == this.routes.users) {
-          this.getTableData({ skip: res.skip, limit: this.totalData });
-          this.pageSize = res.pageSize;
-        }
-      });
+
+    if (this.tablePageSizeSub) {
+      this.tablePageSizeSub.unsubscribe();
+    }
+    this.tablePageSizeSub = this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
+      console.log('In tablePageSize subscribe, users');
+      if (this.router.url == this.routes.users) {
+        this.getTableData({ skip: res.skip, limit: res.limit });
+        this.pageSize = res.pageSize;
+      }
     });
+
     this.searchDataValue = '';
   }
 
   ngOnInit() {
+    console.log('ngOnInit called in users');
     this.fetchRoles();
+    this.loadData();
+  }
+
+  ngOnDestroy() {
+    console.log('ngOnDestroy called in users');
+    if (this.tablePageSizeSub) {
+      this.tablePageSizeSub.unsubscribe();
+    }
   }
 
   setEditUserId(userId: number) {
@@ -186,14 +200,13 @@ export class UsersComponent {
     console.log('this.editUserForm.valie:   ', this.editUserForm.valid);
     if (this.editUserForm.valid) {
       const userData = this.editUserForm.value;
-      delete userData.confirmPassword; // Remove confirmPassword before sending
 
       userData.restaurantId = this.restaurantId; // Set restaurantId before submitting
       userData.id = this.editUserId;
 
       this.userManagementService.updateUser(this.editUserId, userData).subscribe(
         response => {
-          this.userForm.reset();
+          this.editUserForm.reset();
           this.loadData();
           this.closeButtonForEditUser.nativeElement.click(); // Click the close button
         },
@@ -230,7 +243,7 @@ export class UsersComponent {
       this.tableData = [];
       this.serialNumberArray = [];
       this.totalData = apiRes.totalData;
-      apiRes.data.map((res: users, index: number) => {
+      apiRes.data.map((res: user, index: number) => {
         const serialNumber = index + 1;
         if (index >= pageOption.skip && serialNumber <= pageOption.limit) {
           res.sNo = serialNumber;
@@ -238,7 +251,7 @@ export class UsersComponent {
           this.serialNumberArray.push(serialNumber);
         }
       });
-      this.dataSource = new MatTableDataSource<users>(this.tableData);
+      this.dataSource = new MatTableDataSource<user>(this.tableData);
       this.pagination.calculatePageSize.next({
         totalData: this.totalData,
         pageSize: this.pageSize,
