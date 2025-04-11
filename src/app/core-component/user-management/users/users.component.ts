@@ -184,8 +184,13 @@ export class UsersComponent {
 
       this.userManagementService.postUser(userData).subscribe(
         response => {
+          const newUser: user = {
+            ...response,
+            sNo: this.tableData.length + 1
+          }
+          this.tableData.push(newUser);
           this.userForm.reset();
-          this.loadData();
+          this.userForm.patchValue({ status: true });
           this.closeButtonForAddUser.nativeElement.click(); // Click the close button
         },
         error => {

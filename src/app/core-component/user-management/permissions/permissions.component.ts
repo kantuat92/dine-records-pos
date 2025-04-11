@@ -79,7 +79,7 @@ export class PermissionsComponent {
     this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
       if (this.router.url == this.routes.permissions) {
         console.log('In tablePageSize subscribe, permissions');
-        this.getTableData({ skip: res.skip, limit: res.limit });
+        this.getTableData({ skip: res.skip, limit: 10000 });
         this.pageSize = res.pageSize;
       }
     });
