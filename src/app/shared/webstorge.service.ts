@@ -19,8 +19,11 @@ export class WebstorgeService {
     this.router.navigate([routes.dashboard]);
   }
   public Logout(): void {
+    console.log('Removing local storage items');
     localStorage.removeItem('authorized');
     localStorage.removeItem('loginTime');
-    this.router.navigate(['/auth/signin']);
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    this.router.navigate([routes.signIn]);
   }
 }
