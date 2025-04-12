@@ -121,6 +121,10 @@ export class PosComponent implements AfterViewInit {
   selectedTax: any = null;
   pendingItemToAdd: any = null;
 
+  selectedOrderTaxId: number | string | null = null;
+  customTaxAmount: number | null = null;
+  isServiceTaxSelected = false;
+  serviceTaxPercent: number = 0; 
 
   constructor(
     private data: DataService,
@@ -176,8 +180,9 @@ export class PosComponent implements AfterViewInit {
     });
   }
 
- 
-//working code
+
+  
+//current working code
   handleMenuItemClick1(item: any): void {
     this.selectedItem = item;
     this.quantity = 1;
@@ -195,8 +200,8 @@ export class PosComponent implements AfterViewInit {
     this.selectedItem = item;
     this.quantity = 1;
     this.selectedVariant = null;
-    this.selectedAddOns = {}; // Reset selected add-ons
-    this.itemQuantity = 1; // Reset quantity in modal
+    this.selectedAddOns = {}; 
+    this.itemQuantity = 1; 
     this.cd.detectChanges();
     item.highlight = true;
 
@@ -205,36 +210,18 @@ export class PosComponent implements AfterViewInit {
       (item.addOns && item.addOns.length > 0);
   
     const hasMultipleTaxes = item.taxes && item.taxes.length > 1;
-  
+
     if (!hasVariantsOrAddOns) {
       if (!this.selectedArea && hasMultipleTaxes) {
-        // No variants, but has multiple taxes and area is not selected
         this.availableTaxes = item.taxes;
         this.pendingItemToAdd = item;
         this.selectedTax = null;
-        // Don't need to trigger modal manually – Bootstrap data-bs-target handles this
         return;
       }
-  
-      // No variants or add-ons or tax modal needed
-      this.addToCart(item, null, []); // add with no variant, no add-ons
+        this.addToCart(item, null, []); 
     }
-  
-    // If it has variants or add-ons, modal will show via data-bs-toggle/target
   }
   
-
-//  handleMenuItemClick(item: any) {
-//   if (!this.selectedArea) {
-//     if (item.taxes && item.taxes.length > 1) {
-//       this.availableTaxes = item.taxes;
-//       this.pendingItemToAdd = item;
-//       this.showTaxModal = true;
-//       return;
-//     }
-//   }
-//   this.addToCart(item);
-// }
 
 finalizeAddToCart(selectedTaxes: any[]) {
   if (!this.pendingItemToAdd) return;
@@ -255,11 +242,7 @@ finalizeAddToCart(selectedTaxes: any[]) {
       }
     }
   }
-  resetTaxSelection() {
-    this.selectedTax = null;
-    this.pendingItemToAdd = null;
-    this.showTaxModal = false;
-  }
+
 
   //working code
   addToCart(item: any, selectedVariant: any = null, selectedAddOns: any[] = []): void {
@@ -337,6 +320,111 @@ finalizeAddToCart(selectedTaxes: any[]) {
   // this.closeVariantModal();
     this.cd.detectChanges();
   }
+
+  prepareTaxModal(): void {
+    if (this.cart.length > 0 && this.cart[0].originalTaxes) {
+      this.availableTaxes = this.cart[0].originalTaxes; // assumes same taxes apply to all items
+    }
+  
+    const appliedTax = this.cart[0]?.appliedTaxes?.[0];
+  
+    if (appliedTax && appliedTax.title === 'Service Tax') {
+      this.selectedOrderTaxId = 'serviceTax';
+      this.customTaxAmount = appliedTax.amount;
+      this.isServiceTaxSelected = true;
+    } else if (appliedTax) {
+      this.selectedOrderTaxId = appliedTax.id;
+      this.customTaxAmount = null;
+      this.isServiceTaxSelected = false;
+    }
+  }
+  prepareTaxModalState() {
+    // Case 1: Service Tax applied (separate from normal tax)
+    if (this.serviceTaxPercent > 0) {
+      this.selectedOrderTaxId = 'serviceTax';
+      this.customTaxAmount = this.serviceTaxPercent;
+      return;
+    }
+  
+    // Case 2: Normal tax applied to items
+    const firstItem = this.cart[0]; // Assume all items have same applied tax
+    const applied = firstItem?.appliedTaxes?.[0];
+  
+    if (applied) {
+      const matchedTax = this.availableTaxes.find(t => t.id === applied.id);
+      if (matchedTax) {
+        this.selectedOrderTaxId = matchedTax.id;
+        this.customTaxAmount = matchedTax.amount;
+        return;
+      }
+    }
+  
+    // Default case
+    this.selectedOrderTaxId = null;
+    this.customTaxAmount = null;
+  }
+  
+  
+  // Triggered when dropdown selection changes
+  onTaxSelectionChange(value: string | number): void {
+    this.isServiceTaxSelected = (value === 'serviceTax');
+    if (!this.isServiceTaxSelected) {
+      this.customTaxAmount = null;
+    }
+  }
+  
+  // Called when the user clicks Submit in modal
+  // applySelectedTaxToCart(): void {
+  //   let newTax: any = null;
+  
+  //   if (this.selectedOrderTaxId === 'serviceTax') {
+  //     if (!this.customTaxAmount || this.customTaxAmount <= 0) return;
+  
+  //     newTax = {
+  //       title: 'Service Tax',
+  //       type: 'Percent',
+  //       amount: this.customTaxAmount
+  //     };
+  //   } else {
+  //     newTax = this.availableTaxes.find(tax => tax.id === this.selectedOrderTaxId);
+  //     if (!newTax) return;
+  //   }
+  
+  //   // Apply selected tax to all cart items
+  //   this.cart = this.cart.map(item => {
+  //     const updatedItem = { ...item };
+  
+  //     const itemTotal = updatedItem.price * updatedItem.quantity;
+  
+  //     updatedItem.appliedTaxes = [newTax];
+  //     updatedItem.totalPrice = itemTotal;
+  
+  //     return updatedItem;
+  //   });
+  
+  //   this.cd.detectChanges();
+  // }
+
+  applySelectedTaxToCart() {
+    if (this.selectedOrderTaxId === 'serviceTax') {
+      // Apply service tax separately
+      this.serviceTaxPercent = this.customTaxAmount ?? 0;
+    } else {
+      // Normal tax selection
+      const selectedTax = this.availableTaxes.find(t => t.id === this.selectedOrderTaxId);
+      if (selectedTax) {
+        this.cart = this.cart.map(item => ({
+          ...item,
+          appliedTaxes: [selectedTax]
+        }));
+      }
+  
+      this.serviceTaxPercent = 0; // Clear service tax if not selected
+    }
+  
+    this.cd.detectChanges();
+  }
+  
   getApplicableTaxes(itemId: number, taxes: any[]): any[] {
     if (!this.selectedArea) {
       return taxes || [];
@@ -355,36 +443,118 @@ finalizeAddToCart(selectedTaxes: any[]) {
       );
     });
   }
-// Add this to your component class
-getCurrentTotal(): number {
-  if (!this.selectedItem) return 0;
-  
-  const basePrice = this.selectedVariant 
-    ? parseFloat(this.selectedVariant.price) 
-    : parseFloat(this.selectedItem.basePrice);
-    
-  const addOnsTotal = Object.values(this.selectedAddOns)
-    .reduce((sum, addOn) => sum + parseFloat(addOn.price), 0);
-    
-  return (basePrice + addOnsTotal) * this.quantity;
-}
 
-isItemInCart(): boolean {
-  if (!this.selectedItem) return false;
+  get serviceTaxAmount(): number {
+    const subtotal = this.cart.reduce((sum, item) => sum + item.totalPrice, 0);
+    return (this.serviceTaxPercent / 100) * subtotal;
+  }
+  //working code
+  calculateTax1(): number {
+    return this.cart.reduce((total, item) => {
+      const itemTax = (item.appliedTaxes || []).reduce((sum: number, tax: { type: string; amount: number; }) => {
+        return sum + (
+          tax.type === 'Percent' 
+            ? (item.totalPrice * tax.amount) / 100
+            : tax.amount * item.quantity
+        );
+      }, 0);
+      return total + itemTax;
+    }, 0);
+  }
+  calculateTax(): number {
+    const standardTax = this.cart.reduce((total, item) => {
+      const itemTax = (item.appliedTaxes || []).reduce((sum: number, tax: { type: string; amount: number; }) => {
+        return sum + (
+          tax.type === 'Percent'
+            ? (item.totalPrice * tax.amount) / 100
+            : tax.amount * item.quantity
+        );
+      }, 0);
+      return total + itemTax;
+    }, 0);
   
-  const finalVariants = this.selectedVariant 
-    ? [{ variantName: 'Size', selectedOption: this.selectedVariant.variantName, price: parseFloat(this.selectedVariant.price) }] 
-    : [];
+    return standardTax + this.serviceTaxAmount;
+  }
+  
+  getTaxDescription(): string {
+    const taxDescriptions = new Set<string>();
     
-  const selectedAddOnArray = Object.values(this.selectedAddOns);
+    this.cart.forEach(item => {
+      (item.appliedTaxes || []).forEach((tax: { title: any; amount: any; type: string; }) => {
+        taxDescriptions.add(`${tax.title} (${tax.amount}${tax.type === 'Percent' ? '%' : '₹'})`);
+      });
+    });
+    
+    return Array.from(taxDescriptions).join(' + ');
+  }
+  getTaxBreakdown(): { label: string, value: number }[] {
+    const breakdown: { label: string, value: number }[] = [];
   
-  return this.cart.some(
-    item => 
-      item.itemId === this.selectedItem.itemId &&
-      this.areVariantsEqual(item.variants, finalVariants) &&
-      this.areAddOnsEqual(item.addOns, selectedAddOnArray)
-  );
-}
+    this.cart.forEach(item => {
+      (item.appliedTaxes || []).forEach((tax: { title: string, amount: number, type: string }) => {
+        let taxAmount = 0;
+  
+        if (tax.type === 'Percent') {
+          taxAmount = (item.totalPrice * tax.amount) / 100;
+        } else {
+          taxAmount = tax.amount * item.quantity;
+        }
+  
+        const halfAmount = taxAmount / 2;
+        const halfRate = tax.amount / 2;
+  
+        breakdown.push({
+          label: `CGST: ${halfRate}${tax.type === 'Percent' ? '%' : '₹'}`,
+          value: parseFloat(halfAmount.toFixed(2))
+        });
+  
+        breakdown.push({
+          label: `SGST: ${halfRate}${tax.type === 'Percent' ? '%' : '₹'}`,
+          value: parseFloat(halfAmount.toFixed(2))
+        });
+      });
+    });
+  
+    if (this.serviceTaxPercent > 0) {
+      breakdown.push({
+        label: `Service Tax ${this.serviceTaxPercent}%`,
+        value: parseFloat(this.serviceTaxAmount.toFixed(2))
+      });
+    }
+    return breakdown;
+  }
+
+
+// Add this to your component class
+    getCurrentTotal(): number {
+      if (!this.selectedItem) return 0;
+      
+      const basePrice = this.selectedVariant 
+        ? parseFloat(this.selectedVariant.price) 
+        : parseFloat(this.selectedItem.basePrice);
+        
+      const addOnsTotal = Object.values(this.selectedAddOns)
+        .reduce((sum, addOn) => sum + parseFloat(addOn.price), 0);
+        
+      return (basePrice + addOnsTotal) * this.quantity;
+    }
+
+  isItemInCart(): boolean {
+    if (!this.selectedItem) return false;
+    
+    const finalVariants = this.selectedVariant 
+      ? [{ variantName: 'Size', selectedOption: this.selectedVariant.variantName, price: parseFloat(this.selectedVariant.price) }] 
+      : [];
+      
+    const selectedAddOnArray = Object.values(this.selectedAddOns);
+    
+    return this.cart.some(
+      item => 
+        item.itemId === this.selectedItem.itemId &&
+        this.areVariantsEqual(item.variants, finalVariants) &&
+        this.areAddOnsEqual(item.addOns, selectedAddOnArray)
+    );
+  }
 
   areVariantsEqual(variants1: any[], variants2: any[]): boolean {
     if (!variants1 && !variants2) return true;
@@ -413,16 +583,47 @@ isItemInCart(): boolean {
   }
 
 
-selectVariant(variant: any): void {
-  this.selectedVariant = variant;
-}
+  selectVariant(variant: any): void {
+    this.selectedVariant = variant;
+  }
+
+// working code.
+// addVariantToCartFinal(): void {
+//   if (this.selectedItem) {
+//     const selectedAddOnArray = Object.values(this.selectedAddOns);
+//     this.addToCart(this.selectedItem, this.selectedVariant, selectedAddOnArray);
+//     }
+// }
 
 addVariantToCartFinal(): void {
-  if (this.selectedItem) {
-    const selectedAddOnArray = Object.values(this.selectedAddOns);
-    this.addToCart(this.selectedItem, this.selectedVariant, selectedAddOnArray);
+  if (!this.selectedItem) return;
+
+  const selectedAddOnArray = Object.values(this.selectedAddOns);
+  const hasMultipleTaxes = this.selectedItem.taxes && this.selectedItem.taxes.length > 1;
+
+  // 🚨 If area not selected and multiple taxes exist, defer to tax modal
+  if (!this.selectedArea && hasMultipleTaxes) {
+    this.pendingItemToAdd = {
+      ...this.selectedItem,
+      selectedVariant: this.selectedVariant,
+      selectedAddOns: selectedAddOnArray,
+      quantity: this.quantity
+    };
+    this.availableTaxes = this.selectedItem.taxes;
+    this.selectedTax = null;
+
+    const taxModalTrigger = document.getElementById('taxModalTrigger');
+    if (taxModalTrigger) {
+      taxModalTrigger.click();
     }
+
+    return;
+  }
+
+  // ✅ Normal flow
+  this.addToCart(this.selectedItem, this.selectedVariant, selectedAddOnArray);
 }
+
 
 toggleAddOn(addOn: any): void {
   if (this.selectedAddOns[addOn.id]) {
@@ -553,31 +754,8 @@ changeQuantity(change: number): void {
   //   return Array.from(uniqueTaxes).join(' + ');
   // }
 
-  calculateTax(): number {
-    return this.cart.reduce((total, item) => {
-      const itemTax = (item.appliedTaxes || []).reduce((sum: number, tax: { type: string; amount: number; }) => {
-        return sum + (
-          tax.type === 'Percent' 
-            ? (item.totalPrice * tax.amount) / 100
-            : tax.amount * item.quantity
-        );
-      }, 0);
-      return total + itemTax;
-    }, 0);
-  }
+ 
   
-  getTaxDescription(): string {
-    const taxDescriptions = new Set<string>();
-    
-    this.cart.forEach(item => {
-      (item.appliedTaxes || []).forEach((tax: { title: any; amount: any; type: string; }) => {
-        taxDescriptions.add(`${tax.title} (${tax.amount}${tax.type === 'Percent' ? '%' : '₹'})`);
-      });
-    });
-    
-    return Array.from(taxDescriptions).join(' + ');
-  }
-
   // getAreaSpecificTaxes(itemId: number, taxes: any[]): any[] {
   //   if (!this.selectedArea || !taxes) return taxes || [];
     
@@ -1001,6 +1179,15 @@ selectTable(table: any): void {
       });
     });
     checkActiveElements();
+
+    const modalElement = document.getElementById('order-tax');
+  if (modalElement) {
+    modalElement.addEventListener('shown.bs.modal', () => {
+      this.prepareTaxModal();
+    });
   }
+  }
+
+  
 
 }

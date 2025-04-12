@@ -447,5 +447,19 @@
     background-color: #57a169 !important; /* light green */
     transition: background-color 0.5s ease;
   }
+
+  .tax-breakdown-row {
+    font-size: 8px;
+    line-height: 1; /* Tight line spacing */
+  }
+  
+  .tax-breakdown-label,
+  .tax-breakdown-value {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    vertical-align: middle;
+    color: #6c757d; /* Optional: muted gray */
+  }
+  
   
 }

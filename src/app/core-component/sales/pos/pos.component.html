@@ -294,12 +294,17 @@
               </tr>
               <tr class="d-flex justify-content-between align-items-center" *ngIf="calculateTax() > 0">
                 <td>
-                  Tax ({{ getTaxDescription() }})
+                  <!-- Tax ({{ getTaxDescription() }}) -->
+                   Tax
                   <a href="javascript:void(0);" class="ms-3 link-default" data-bs-toggle="modal" data-bs-target="#order-tax">
                     <i class="ti ti-edit"></i>
-                  </a>
+                  </a>                 
                 </td>
-                <td class="text-gray-9 text-end">{{ calculateTax() | currency: 'INR' }}</td>
+                <!-- <td class="text-gray-9 text-end">{{ calculateTax() | currency: 'INR' }}</td> -->
+              </tr>
+              <tr  class="d-flex justify-content-between align-items-center" *ngFor="let line of getTaxBreakdown()">
+                <td class="ps-4">- {{ line.label }}</td>
+                <td class="text-end text-gray-9">{{ line.value | currency: 'INR' }}</td>
               </tr>
               <tr class="d-flex justify-content-between align-items-center">
                 <td>Coupon<a href="javascript:void(0);" class="ms-3 link-default"  data-bs-toggle="modal" data-bs-target="#coupon-code"><i class="ti ti-edit"></i></a></td>
@@ -491,16 +496,6 @@
                 </button>
               </div>
             </div>
-              <!-- <div class="quantity-selector mb-4">
-                <h6 class="section-title">Quantity</h6>
-                <div class="d-flex align-items-center gap-3">
-                  <app-common-counter-2 
-                    [value]="quantity"
-                    (quantityChange)="changeQuantity($event)"
-                    class="modal-quantity-counter"
-                  ></app-common-counter-2>
-                </div>
-              </div> -->
             <!-- Add to Cart Button -->
             <button class="btn btn-add-to-cart w-100" 
                     (click)="addVariantToCartFinal()"
@@ -515,44 +510,10 @@
     </div>
   </div>
 </div>
+<!-- Hidden button to trigger Bootstrap tax modal -->
+<button id="taxModalTrigger" type="button" data-bs-toggle="modal" data-bs-target="#taxModal" hidden></button>
 
 <!-- Add Tax Selection Modal -->
-<!-- Trigger -->
-<!-- No bootstrap JS needed, control with Angular -->
-<!-- <div *ngIf="showTaxModal" class="modal-backdrop">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-body">
-        <div class="success-wrap text-center">
-          <form>
-            <div class="icon-success bg-warning-transparent text-warning mb-2">
-              <i class="ti ti-alert-circle"></i>
-            </div>
-            <h3 class="mb-2">Tax Selection Required</h3>
-            <p class="fs-16 mb-3">You have not selected a table. Please select a tax to apply:</p>
-            
-            <select class="form-select mb-3" [(ngModel)]="selectedTax" name="taxSelect">
-              <option [ngValue]="null" disabled>Select a tax rate</option>
-              <option *ngFor="let tax of availableTaxes" [ngValue]="tax">
-                {{ tax.title }} ({{ tax.amount }}{{ tax.type === 'Percent' ? '%' : '₹' }})
-              </option>
-            </select>
-            
-            <div class="modal-footer">
-              <button type="button" class="btn btn-md btn-secondary" (click)="resetTaxSelection()" >Cancel</button>
-              <button type="button" class="btn btn-md btn-primary" [disabled]="!selectedTax"
-              data-bs-dismiss="modal" 
-              (click)="finalizeAddToCart([selectedTax])">
-                Apply Tax
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-</div> -->
-
 <div class="modal fade" id="taxModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -590,7 +551,99 @@
   </div>
 </div>
 
+<!-- Order Tax -->
+<!-- <div class="modal fade modal-default" id="order-tax">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Order Tax</h5>
+         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+           <span aria-hidden="true">×</span>
+         </button>
+       </div>
+       <form action="pos.html">
+        <div class="modal-body pb-1">
+          <div class="mb-3">
+            <label class="form-label">Order Tax <span class="text-danger">*</span></label>
+            <mat-select class="custom-mat-select Select" placeholder="Select">
+              <mat-option value="1">Select</mat-option>
+              <mat-option value="1">No Tax</mat-option>
+              <mat-option value="1">&#64;10</mat-option>
+              <mat-option value="1">&#64;15</mat-option>
+              <mat-option value="1">VAT</mat-option>
+              <mat-option value="1">SLTAX</mat-option>
+            </mat-select>
+          </div>
 
+          <div class="mb-3">
+            <label for="username" class="form-label">Add Tax Amount</label>
+            <input class="form-control" type="text" id="username" required="">
+        </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-end flex-wrap gap-2">
+          <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-md btn-primary" data-bs-dismiss="modal">Submit</button>
+        </div>
+       </form>
+    </div>
+  </div>
+</div> -->
+
+<div class="modal fade modal-default" id="order-tax">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h5 class="modal-title">Order Tax</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <form (ngSubmit)="applySelectedTaxToCart()">
+        <div class="modal-body pb-1">
+          <!-- Tax Dropdown -->
+          <div class="mb-3">
+            <label class="form-label">Order Tax <span class="text-danger">*</span></label>
+            <mat-form-field class="w-100">
+              <mat-select 
+                [(ngModel)]="selectedOrderTaxId" 
+                >
+                
+                <!-- Dynamically loaded tax options -->
+                <mat-option *ngFor="let tax of availableTaxes" [value]="tax.id">
+                  ({{ tax.amount }}{{ tax.type === 'Percent' ? '%' : '₹' }})
+                </mat-option>
+
+                <!-- Manual service tax option -->
+                <mat-option value="serviceTax">Service Tax</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Add Tax Amount if Service Tax is selected -->
+          <div class="mb-3" *ngIf="isServiceTaxSelected">
+            <label class="form-label">Add Tax Amount (%)</label>
+            <input 
+              class="form-control" 
+              type="number" 
+              [(ngModel)]="customTaxAmount" 
+              name="customTaxAmount" 
+              placeholder="e.g., 5">
+          </div>
+
+        </div>
+
+        <div class="modal-footer d-flex justify-content-end flex-wrap gap-2">
+          <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-md btn-primary" data-bs-dismiss="modal">Submit</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- /Order Tax -->
 
 <!-- Payment Completed -->
 <div class="modal fade modal-default" id="payment-completed" aria-labelledby="payment-completed">
@@ -1946,39 +1999,7 @@
 
 
 
-<!-- Order Tax -->
-<div class="modal fade modal-default" id="order-tax">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Order Tax</h5>
-         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-           <span aria-hidden="true">×</span>
-         </button>
-       </div>
-       <form action="pos.html">
-        <div class="modal-body pb-1">
-          <div class="mb-3">
-            <label class="form-label">Order Tax <span class="text-danger">*</span></label>
-            <mat-select class="custom-mat-select Select" placeholder="Select">
-              <mat-option value="1">Select</mat-option>
-              <mat-option value="1">No Tax</mat-option>
-              <mat-option value="1">&#64;10</mat-option>
-              <mat-option value="1">&#64;15</mat-option>
-              <mat-option value="1">VAT</mat-option>
-              <mat-option value="1">SLTAX</mat-option>
-            </mat-select>
-          </div>
-        </div>
-        <div class="modal-footer d-flex justify-content-end flex-wrap gap-2">
-          <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-md btn-primary" data-bs-dismiss="modal">Submit</button>
-        </div>
-       </form>
-    </div>
-  </div>
-</div>
-<!-- /Order Tax -->
+
 
 <!-- Shipping Cost -->
 <div class="modal fade modal-default" id="shipping-cost">
