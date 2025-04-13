@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { Observable, tap } from 'rxjs';
+import { firstValueFrom, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import firebase from 'firebase/compat/app';
 import { HttpClient } from '@angular/common/http';
@@ -71,12 +71,18 @@ export class AuthService {
     }
   }
 
-  loginUser(credentials: any) {
-    return this.http.post(`${this.baseURL}/auth/login`, credentials).subscribe((res: any) => {
-      localStorage.setItem('token', res.token);
+  async loginUser(credentials: any): Promise<void> {
+    try {
+      const res: any = await firstValueFrom(
+        this.http.post(`${this.baseURL}/auth/login`, credentials)
+      );
+      this.setAccessToken(res.token);
       localStorage.setItem('refreshToken', res.refreshToken);
-      console.log('User has been loggedin.')
-    });
+      console.log('User has been logged in.');
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw error; // rethrow for handling in the component
+    }
   }
 
   refreshToken(): Observable<any> {
@@ -101,10 +107,16 @@ export class AuthService {
 
   getDecodedToken(): JwtPayload | null {
     if (!this.decodedToken && this.getAccessToken()) {
-      this.decodedToken = jwtDecode<JwtPayload>(this.getAccessToken()!);
+      try {
+        this.decodedToken = jwtDecode<JwtPayload>(this.getAccessToken()!);
+      } catch (error) {
+        console.error('Failed to decode token:', error);
+        this.logout(); // optional fallback
+      }
     }
     return this.decodedToken;
   }
+
 
   hasRole(role: string): boolean {
     return this.getDecodedToken()?.authorities.includes(role) ?? false;
@@ -116,6 +128,7 @@ export class AuthService {
 
   logout() {
     localStorage.clear();
+    this.decodedToken = null;
   }
 
 }

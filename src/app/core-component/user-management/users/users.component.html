@@ -1,7 +1,5 @@
-
-
 <div *ngIf="!authService.hasPermission('USERS:READ')">
-You do not have access to this page.
+	You do not have access to this page.
 </div>
 
 
@@ -38,8 +36,8 @@ You do not have access to this page.
 		</li>
 	</ul>
 	<div class="page-btn">
-		<a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-units"><i
-				class="ti ti-circle-plus me-2"></i>Add User</a>
+		<a [class.disabled]="!authService.hasRole('USERS:WRITE')" href="javascript:void(0);" class="btn btn-primary"
+			data-bs-toggle="modal" data-bs-target="#add-units"><i class="ti ti-circle-plus me-2"></i>Add User</a>
 	</div>
 </div>
 
@@ -151,14 +149,22 @@ You do not have access to this page.
 								<a class="me-2 p-2 mb-0" href="javascript:void(0);">
 									<i data-feather="eye" class="action feather icon-eye"></i>
 								</a>
-								<a class="me-2 p-2 mb-0" data-bs-toggle="modal" data-bs-target="#edit-units"
-									(click)="setEditUserId(data.id)">
+								<a class="me-2 p-2 mb-0"
+									[attr.data-bs-toggle]="authService.hasRole('USERS:WRITE') ? 'modal' : null"
+									[attr.data-bs-target]="authService.hasRole('USERS:WRITE') ? '#edit-units' : null"
+									[class.disabled]="!authService.hasRole('USERS:WRITE')"
+									(click)="authService.hasRole('USERS:WRITE') && setEditUserId(data.id)">
 									<i data-feather="edit" class="feather icon-edit"></i>
 								</a>
-								<a data-bs-toggle="modal" data-bs-target="#delete-modal" class="p-2 mb-0"
-									href="javascript:void(0);" (click)="setDeleteUserId(data.id)">
+
+								<a class="p-2 mb-0"
+									[attr.data-bs-toggle]="authService.hasRole('USERS:WRITE') ? 'modal' : null"
+									[attr.data-bs-target]="authService.hasRole('USERS:WRITE') ? '#delete-modal' : null"
+									[class.disabled]="!authService.hasRole('USERS:WRITE')"
+									(click)="authService.hasRole('USERS:WRITE') && setDeleteUserId(data.id)">
 									<i data-feather="trash-2" class="feather icon-trash-2"></i>
 								</a>
+
 							</div>
 						</td>
 					</tr>

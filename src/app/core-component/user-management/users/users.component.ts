@@ -115,7 +115,7 @@ export class UsersComponent {
   }
 
   ngOnInit() {
-    console.log('ngOnInit called in users');
+    console.log('ngOnInit called in users, USERS:READ : ', this.authService.hasPermission('USERS:READ'));
     if (this.authService.hasPermission('USERS:READ')) {
       this.fetchRoles();
       this.loadData();
