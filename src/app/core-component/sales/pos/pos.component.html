@@ -300,7 +300,7 @@
                     <i class="ti ti-edit"></i>
                   </a>                 
                 </td>
-                <!-- <td class="text-gray-9 text-end">{{ calculateTax() | currency: 'INR' }}</td> -->
+                <td class="text-gray-9 text-end">{{ calculateTax() | currency: 'INR' }}</td>
               </tr>
               <tr  class="d-flex justify-content-between align-items-center" *ngFor="let line of getTaxBreakdown()">
                 <td class="ps-4">- {{ line.label }}</td>
@@ -607,7 +607,8 @@
             <mat-form-field class="w-100">
               <mat-select 
                 [(ngModel)]="selectedOrderTaxId" 
-                >
+                name="selectedOrderTaxId"
+                (selectionChange)="onTaxSelectionChange($event.value)">
                 
                 <!-- Dynamically loaded tax options -->
                 <mat-option *ngFor="let tax of availableTaxes" [value]="tax.id">

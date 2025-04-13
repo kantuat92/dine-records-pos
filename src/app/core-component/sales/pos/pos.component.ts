@@ -338,6 +338,20 @@ finalizeAddToCart(selectedTaxes: any[]) {
       this.isServiceTaxSelected = false;
     }
   }
+  onTaxSelectionChange(value: string): void {
+    if (value === 'serviceTax') {
+      this.isServiceTaxSelected = true;
+  
+      // Keep existing if already set, or initialize
+      if (!this.customTaxAmount) {
+        this.customTaxAmount = 0;
+      }
+    } else {
+      this.isServiceTaxSelected = false;
+      this.customTaxAmount = null;
+    }
+  }
+  
   prepareTaxModalState() {
     // Case 1: Service Tax applied (separate from normal tax)
     if (this.serviceTaxPercent > 0) {
@@ -366,12 +380,12 @@ finalizeAddToCart(selectedTaxes: any[]) {
   
   
   // Triggered when dropdown selection changes
-  onTaxSelectionChange(value: string | number): void {
-    this.isServiceTaxSelected = (value === 'serviceTax');
-    if (!this.isServiceTaxSelected) {
-      this.customTaxAmount = null;
-    }
-  }
+  // onTaxSelectionChange(value: string | number): void {
+  //   this.isServiceTaxSelected = (value === 'serviceTax');
+  //   if (!this.isServiceTaxSelected) {
+  //     this.customTaxAmount = null;
+  //   }
+  // }
   
   // Called when the user clicks Submit in modal
   // applySelectedTaxToCart(): void {
@@ -427,19 +441,18 @@ finalizeAddToCart(selectedTaxes: any[]) {
   
   getApplicableTaxes(itemId: number, taxes: any[]): any[] {
     if (!this.selectedArea) {
-      return taxes || [];
+      return taxes || []; // If no area is selected, return all taxes
     }
-    
+  
     return (taxes || []).filter(tax => {
-      // If tax has no area restrictions, apply it
+      // If the tax has no area restrictions, apply it
       if (!tax.areaWiseItemsTaxes || tax.areaWiseItemsTaxes.length === 0) {
         return true;
       }
-      
-      // Otherwise check if it applies to selected area
-      return tax.areaWiseItemsTaxes.some((areaTax: { menuItemId: number; areaIds: string | any[]; }) => 
-        areaTax.menuItemId === itemId && 
-        areaTax.areaIds.includes(this.selectedArea.id)
+  
+      // Otherwise, check if the tax applies to the selected area
+      return tax.areaWiseItemsTaxes.some((areaTax: { menuItemId: number; areaIds: number[] }) =>
+        areaTax.menuItemId === itemId && areaTax.areaIds.includes(this.selectedArea.id)
       );
     });
   }
@@ -463,17 +476,17 @@ finalizeAddToCart(selectedTaxes: any[]) {
   }
   calculateTax(): number {
     const standardTax = this.cart.reduce((total, item) => {
-      const itemTax = (item.appliedTaxes || []).reduce((sum: number, tax: { type: string; amount: number; }) => {
-        return sum + (
-          tax.type === 'Percent'
-            ? (item.totalPrice * tax.amount) / 100
-            : tax.amount * item.quantity
-        );
+      const itemTax = (item.appliedTaxes || []).reduce((sum: number, tax: { type: string; amount: number }) => {
+        const taxAmount = tax.type === 'Percent'
+          ? (item.totalPrice * tax.amount) / 100
+          : tax.amount * item.quantity;
+        return sum + taxAmount;
       }, 0);
       return total + itemTax;
     }, 0);
   
-    return standardTax + this.serviceTaxAmount;
+    const totalTax = standardTax + this.serviceTaxAmount;
+    return totalTax;
   }
   
   getTaxDescription(): string {
@@ -487,43 +500,86 @@ finalizeAddToCart(selectedTaxes: any[]) {
     
     return Array.from(taxDescriptions).join(' + ');
   }
-  getTaxBreakdown(): { label: string, value: number }[] {
-    const breakdown: { label: string, value: number }[] = [];
+  // getTaxBreakdown(): { label: string, value: number }[] {
+  //   const breakdown: { label: string, value: number }[] = [];
   
+  //   this.cart.forEach(item => {
+  //     (item.appliedTaxes || []).forEach((tax: { title: string, amount: number, type: string }) => {
+  //       let taxAmount = 0;
+  
+  //       if (tax.type === 'Percent') {
+  //         taxAmount = (item.totalPrice * tax.amount) / 100;
+  //       } else {
+  //         taxAmount = tax.amount * item.quantity;
+  //       }
+  
+  //       const halfAmount = taxAmount / 2;
+  //       const halfRate = tax.amount / 2;
+  
+  //       breakdown.push({
+  //         label: `CGST: ${halfRate}${tax.type === 'Percent' ? '%' : '₹'}`,
+  //         value: parseFloat(halfAmount.toFixed(2))
+  //       });
+  
+  //       breakdown.push({
+  //         label: `SGST: ${halfRate}${tax.type === 'Percent' ? '%' : '₹'}`,
+  //         value: parseFloat(halfAmount.toFixed(2))
+  //       });
+  //     });
+  //   });
+  
+  //   if (this.serviceTaxPercent > 0) {
+  //     breakdown.push({
+  //       label: `Service Tax ${this.serviceTaxPercent}%`,
+  //       value: parseFloat(this.serviceTaxAmount.toFixed(2))
+  //     });
+  //   }
+  //   return breakdown;
+  // }
+
+  getTaxBreakdown(): { label: string, value: number }[] {
+    const taxMap: { [key: string]: { cgst: number, sgst: number, rate: number } } = {};
+  
+    // Iterate through each cart item and its applied taxes
     this.cart.forEach(item => {
       (item.appliedTaxes || []).forEach((tax: { title: string, amount: number, type: string }) => {
         let taxAmount = 0;
   
+        // Calculate the tax amount based on its type (Percent or Fixed)
         if (tax.type === 'Percent') {
           taxAmount = (item.totalPrice * tax.amount) / 100;
         } else {
           taxAmount = tax.amount * item.quantity;
         }
   
-        const halfAmount = taxAmount / 2;
-        const halfRate = tax.amount / 2;
+        const halfAmount = taxAmount / 2; // Split tax into CGST and SGST
+        const halfRate = tax.amount / 2; // Split rate into CGST and SGST
   
-        breakdown.push({
-          label: `CGST: ${halfRate}${tax.type === 'Percent' ? '%' : '₹'}`,
-          value: parseFloat(halfAmount.toFixed(2))
-        });
-  
-        breakdown.push({
-          label: `SGST: ${halfRate}${tax.type === 'Percent' ? '%' : '₹'}`,
-          value: parseFloat(halfAmount.toFixed(2))
-        });
+        // Aggregate CGST and SGST amounts for the same tax title
+        if (taxMap[tax.title]) {
+          taxMap[tax.title].cgst += halfAmount;
+          taxMap[tax.title].sgst += halfAmount;
+        } else {
+          taxMap[tax.title] = { cgst: halfAmount, sgst: halfAmount, rate: halfRate };
+        }
       });
     });
   
-    if (this.serviceTaxPercent > 0) {
+    // Convert the aggregated tax map into an array of breakdown objects
+    const breakdown: { label: string, value: number }[] = [];
+    Object.keys(taxMap).forEach(key => {
       breakdown.push({
-        label: `Service Tax ${this.serviceTaxPercent}%`,
-        value: parseFloat(this.serviceTaxAmount.toFixed(2))
+        label: `CGST: ${taxMap[key].rate}%`,
+        value: parseFloat(taxMap[key].cgst.toFixed(2))
       });
-    }
+      breakdown.push({
+        label: `SGST: ${taxMap[key].rate}%`,
+        value: parseFloat(taxMap[key].sgst.toFixed(2))
+      });
+    });
+  
     return breakdown;
   }
-
 
 // Add this to your component class
     getCurrentTotal(): number {
@@ -842,26 +898,58 @@ changeQuantity(change: number): void {
   // }
 
   onAreaSelect(area: any): void {
-    this.selectedArea = area;
-    
-    // Update taxes for all items in cart based on new area
-    // this.cart = this.cart.map(cartItem => {
-    //   const appliedTaxes = this.getAreaSpecificTaxes(cartItem.itemId, cartItem.originalTaxes || []);
-    //   return {
-    //     ...cartItem,
-    //     appliedTaxes
-    //   };
-    // });
-    this.updateTaxesForAllItems();
+    console.log('Selected Area:', area);
 
+    this.selectedArea = area;
+    this.updateTaxesForAllItems();
     this.cd.detectChanges();
   }
-  updateTaxesForAllItems(): void {
+
+  //working code.
+  updateTaxesForAllItems1(): void {
     this.cart = this.cart.map(item => ({
       ...item,
       appliedTaxes: this.getApplicableTaxes(item.itemId, item.originalTaxes)
     }));
     this.cd.detectChanges();
+  }
+
+  updateTaxesForAllItems(): void {
+    this.cart = this.cart.map(item => {
+      const newTaxes = this.getApplicableTaxes(item.itemId, item.originalTaxes);
+  
+      // Check if the new taxes are different from the currently applied taxes
+      const isTaxDifferent = JSON.stringify(newTaxes) !== JSON.stringify(item.appliedTaxes);
+  
+      if (isTaxDifferent) {
+        // Update the applied taxes and recalculate the total price
+        const updatedItem = {
+          ...item,
+          appliedTaxes: newTaxes,
+          totalPrice: this.calculateItemTotalPrice(item, newTaxes)
+        };
+        return updatedItem;
+      }
+  
+      return item; // No changes if the tax is the same
+    });
+  
+    this.cd.detectChanges();
+  }
+
+  calculateItemTotalPrice(item: any, taxes: any[]): number {
+    let totalPrice = item.price * item.quantity;
+  
+    // Add tax amounts to the total price
+    taxes.forEach((tax: { type: string; amount: number }) => {
+      if (tax.type === 'Percent') {
+        totalPrice += (item.price * item.quantity * tax.amount) / 100;
+      } else {
+        totalPrice += tax.amount * item.quantity;
+      }
+    });
+  
+    return totalPrice;
   }
 
   updateCartTaxes(): void {
