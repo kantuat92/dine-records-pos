@@ -4,7 +4,6 @@ import { Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import {
-  DataService,
   pageSelection,
   apiResultFormat,
   SidebarService,
@@ -17,10 +16,10 @@ import Swal from 'sweetalert2';
 import { Store } from '@ngrx/store';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { UserManagementAPIService } from 'src/app/core/service/api-services/user-management-api.service';
 import { selectRestaurantId } from '../../../core/store/restaurant.selectors';
 import { Subscription } from 'rxjs';
+import { AuthService } from 'src/app/core/service/auth/auth.service';
 
 
 @Component({
@@ -66,14 +65,13 @@ export class UsersComponent {
   private tablePageSizeSub!: Subscription;
 
   constructor(
-    private data: DataService,
     private pagination: PaginationService,
     private router: Router,
     private sidebar: SidebarService,
     private fb: FormBuilder,
-    private http: HttpClient,
     private userManagementService: UserManagementAPIService,
-    private store: Store
+    private store: Store,
+    public authService: AuthService
   ) {
 
     this.store.select(selectRestaurantId).subscribe(id => {
@@ -117,9 +115,11 @@ export class UsersComponent {
   }
 
   ngOnInit() {
-    console.log('ngOnInit called in users');
-    this.fetchRoles();
-    this.loadData();
+    console.log('ngOnInit called in users, USERS:READ : ', this.authService.hasPermission('USERS:READ'));
+    if (this.authService.hasPermission('USERS:READ')) {
+      this.fetchRoles();
+      this.loadData();
+    }
   }
 
   ngOnDestroy() {
@@ -239,7 +239,7 @@ export class UsersComponent {
     }
 
     this.userManagementService.deleteUser(this.deleteUserId).subscribe(
-      () => {        
+      () => {
         this.tableData = this.tableData.filter(user => user.id !== this.deleteUserId);
         this.tableData.forEach((user, index) => user.sNo = index + 1);
         this.serialNumberArray = this.tableData.map((_, index) => index + 1);

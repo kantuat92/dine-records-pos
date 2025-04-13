@@ -1,4 +1,8 @@
-<div class="page-header">
+<div *ngIf="!authService.hasPermission('ROLES:READ')">
+  You do not have access to this page.
+</div>
+
+<div *ngIf="authService.hasPermission('ROLES:READ')" class="page-header">
   <div class="add-item d-flex">
     <div class="page-title">
       <h4>Roles & Permission</h4>
@@ -33,12 +37,12 @@
     </li>
   </ul>
   <div class="page-btn">
-    <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-units"><i
-        class="ti ti-circle-plus me-2"></i> Add New Role</a>
+    <a [class.disabled]="!authService.hasRole('ROLES:WRITE')" href="javascript:void(0);" class="btn btn-primary"
+      data-bs-toggle="modal" data-bs-target="#add-units"><i class="ti ti-circle-plus me-2"></i> Add New Role</a>
   </div>
 </div>
 <!-- /product list -->
-<div class="card table-list-card">
+<div *ngIf="authService.hasPermission('ROLES:READ')" class="card table-list-card">
   <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
     <div class="search-set">
       <div class="search-input">
@@ -115,11 +119,21 @@
                 <a [routerLink]="routes.permissions" (click)="navigateToPermissions(data.id, data.role)"
                   class="me-2 d-flex align-items-center p-2 border rounded"><i class="ti ti-shield"></i></a>
                 <a href="javascript:void(0);" class="me-2 d-flex align-items-center p-2 border rounded"
-                  data-bs-toggle="modal" data-bs-target="#edit_role" (click)="setEditRoleId(data.id)"><i
-                    class="ti ti-edit"></i></a>
-                <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete_modal"
-                  class=" d-flex align-items-center p-2 border rounded" (click)="setDeleteRoleId(data.id)"><i
-                    class="ti ti-trash"></i></a>
+                  [attr.data-bs-toggle]="authService.hasRole('ROLES:WRITE') ? 'modal' : null"
+                  [attr.data-bs-target]="authService.hasRole('ROLES:WRITE') ? '#edit_role' : null"
+                  [class.disabled]="!authService.hasRole('ROLES:WRITE')"
+                  (click)="authService.hasRole('ROLES:WRITE') && setEditRoleId(data.id)">
+                  <i class="ti ti-edit"></i>
+                </a>
+
+                <a href="javascript:void(0);" class="d-flex align-items-center p-2 border rounded"
+                  [attr.data-bs-toggle]="authService.hasRole('ROLES:WRITE') ? 'modal' : null"
+                  [attr.data-bs-target]="authService.hasRole('ROLES:WRITE') ? '#delete_modal' : null"
+                  [class.disabled]="!authService.hasRole('ROLES:WRITE')"
+                  (click)="authService.hasRole('ROLES:WRITE') && setDeleteRoleId(data.id)">
+                  <i class="ti ti-trash"></i>
+                </a>
+
               </div>
             </td>
           </tr>

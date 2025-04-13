@@ -19,6 +19,7 @@ import { UserManagementAPIService } from 'src/app/core/service/api-services/user
 import { Store } from '@ngrx/store';
 import { selectRestaurantId } from '../../../core/store/restaurant.selectors';
 import { Subscription } from 'rxjs';
+import { AuthService } from 'src/app/core/service/auth/auth.service';
 
 interface data {
   value: string;
@@ -84,7 +85,8 @@ export class RolesPermissionsComponent {
     private http: HttpClient,
     private fb: FormBuilder,
     private userManagementService: UserManagementAPIService,
-    private store: Store
+    private store: Store,
+    public authService: AuthService
   ) {
 
     this.store.select(selectRestaurantId).subscribe(id => {
@@ -102,8 +104,11 @@ export class RolesPermissionsComponent {
   }
 
   ngOnInit() {
-    console.log('ngOnInit called in roles-permissions');
-    this.loadData();
+    console.log('ngOnInit called in roles-permissions, ROLES:READ : ', this.authService.hasPermission('ROLES:READ'));
+    if (this.authService.hasPermission('ROLES:READ')) {
+      this.loadData();
+    }
+
   }
 
   ngOnDestroy() {
@@ -214,7 +219,7 @@ export class RolesPermissionsComponent {
         this.tableData.forEach((role, index) => role.sNo = index + 1);
         this.serialNumberArray = this.tableData.map((_, index) => index + 1);
         this.dataSource = new MatTableDataSource<Role>(this.tableData);
-        
+
         this.deleteRoleId = null;
         this.closeButtonForDelete.nativeElement.click();
       },

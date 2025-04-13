@@ -31,7 +31,7 @@ export class SigninComponent {
   errorMessage: string = '';
   constructor(private router: Router, private authService: AuthService,
     private restaurantapiservice: RestaurantApiService,
-    private store: Store, private userManagementService: UserManagementAPIService)
+    private store: Store)
     {
 
     }
@@ -49,7 +49,7 @@ export class SigninComponent {
           'username': this.user.name,
           'password': this.user.password
         };
-        await this.userManagementService.loginUser(loginData);
+        await this.authService.loginUser(loginData);
          // Fetch restaurant ID by making an API call
         this.restaurantapiservice.getRestaurantByUsername(this.user.name).subscribe({
           next: (restaurant) => {
