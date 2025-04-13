@@ -1,4 +1,13 @@
-<div class="page-header">
+
+
+<div *ngIf="!authService.hasPermission('USERS:READ')">
+You do not have access to this page.
+</div>
+
+
+
+
+<div *ngIf="authService.hasPermission('USERS:READ')" class="page-header">
 	<div class="add-item d-flex">
 		<div class="page-title">
 			<h4>User List</h4>
@@ -35,7 +44,7 @@
 </div>
 
 <!-- /product list -->
-<div class="card table-list-card">
+<div *ngIf="authService.hasPermission('USERS:READ')" class="card table-list-card">
 	<div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
 		<div class="search-set">
 			<div class="search-input">

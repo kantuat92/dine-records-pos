@@ -7,18 +7,19 @@ import {
 } from '@angular/common/http';
 import { catchError, Observable, switchMap, throwError } from 'rxjs';
 import { UserManagementAPIService } from '../service/api-services/user-management-api.service';
+import { AuthService } from '../service/auth/auth.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
-    constructor(private userManagementService: UserManagementAPIService) {
+    constructor(private authService: AuthService) {
 
     }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         const isRefreshRequest = req.url.includes('/auth/refresh');
         let cloned;
-        const token = this.userManagementService.getAccessToken();
+        const token = this.authService.getAccessToken();
         if (token && !isRefreshRequest) {
             cloned = req.clone({
                 setHeaders: {
@@ -33,9 +34,9 @@ export class AuthInterceptor implements HttpInterceptor {
                 if (err.status === 401 && !isRefreshRequest) {
                     console.log('Received 401 for URL: ', req.url);
                     console.log('Refreshing the access token');
-                    return this.userManagementService.refreshToken().pipe(
+                    return this.authService.refreshToken().pipe(
                         switchMap(() => {
-                            const newToken = this.userManagementService.getAccessToken();
+                            const newToken = this.authService.getAccessToken();
                             const newReq = req.clone({
                                 setHeaders: { Authorization: `Bearer ${newToken}` }
                             });

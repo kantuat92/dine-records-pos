@@ -73,31 +73,4 @@ export class UserManagementAPIService {
         return this.http.put(url, payload);
     }
 
-    loginUser(credentials: any) {
-        return this.http.post(`${this.baseURL}/auth/login`, credentials).subscribe((res: any) => {
-            localStorage.setItem('token', res.token);
-            localStorage.setItem('refreshToken', res.refreshToken);
-            console.log('User has been loggedin.')
-        });
-    }
-
-    refreshToken(): Observable<any> {
-        const refreshToken = localStorage.getItem('refreshToken');
-        return this.http.post(`${this.baseURL}/auth/refresh`, { refreshToken }).pipe(
-            tap((res: any) => {
-                localStorage.setItem('token', res.token);
-                console.log('Access token has been refreshed.');
-            })
-        );
-    }
-
-
-    getAccessToken() {
-        return localStorage.getItem('token');
-    }
-
-    logout() {
-        localStorage.clear();
-    }
-
 }
