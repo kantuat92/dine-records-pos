@@ -1037,7 +1037,7 @@ export class routes {
     return this.base + '/reset-password-2';
   }
   public static get resetPassword3(): string {
-    return this.base + '/reset-password-3';
+    return this.base + '/reset-password-3/:token';
   }
   public static get twoStepVerification(): string {
     return this.base + '/two-step-verification';

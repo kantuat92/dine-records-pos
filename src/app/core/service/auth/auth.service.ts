@@ -131,4 +131,17 @@ export class AuthService {
     this.decodedToken = null;
   }
 
+  forgotPasswordRequest(payload: any): Observable<string> {
+    return this.http.post(`${this.baseURL}/auth/forgot-password`, payload, {
+      responseType: 'text'
+    }) as Observable<string>;
+  }
+
+  resetPassword(payload: any): Observable<string> {
+    return this.http.post(`${this.baseURL}/auth/reset-password`, payload, {
+      responseType: 'text'
+    }) as Observable<string>;
+  }
+
+
 }
