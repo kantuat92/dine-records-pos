@@ -13,12 +13,7 @@ export class routes {
   public static get forgotPassword(): string {
     return this.base + '/forgot-password';
   }
-  public static get forgotPassword2(): string {
-    return this.base + '/forgot-password-2';
-  }
-  public static get forgotPassword3(): string {
-    return this.base + '/forgot-password-3';
-  }
+
   // auth routes *end*
 
   // error pages routes *start*

@@ -1140,18 +1140,6 @@ export class SidebarService {
                   hasSubRoute: false,
                   showSubRoute: false,
                 },
-                {
-                  menuValue: 'Illustration',
-                  route: routes.forgotPassword2,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
-                {
-                  menuValue: 'Basic',
-                  route: routes.forgotPassword3,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
               ],
             },
             {
@@ -5354,18 +5342,6 @@ export class SidebarService {
                 {
                   tittle: 'Cover',
                   route: routes.forgotPassword,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
-                {
-                  tittle: 'Illustration',
-                  route: routes.forgotPassword2,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
-                {
-                  tittle: 'Basic',
-                  route: routes.forgotPassword3,
                   hasSubRoute: false,
                   showSubRoute: false,
                 },

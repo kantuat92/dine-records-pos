@@ -18,9 +18,7 @@ import { EmailVerification3Component } from './email-verification/email-verifica
 import { TwoStepVerificationComponent } from './two-step-verification/two-step-verification/two-step-verification.component';
 import { TwoStepVerification2Component } from './two-step-verification/two-step-verification-2/two-step-verification-2.component';
 import { TwoStepVerification3Component } from './two-step-verification/two-step-verification-3/two-step-verification-3.component';
-import { ForgotPasswordComponent } from './forgot-password/forgot-password/forgot-password.component';
-import { ForgotPassword2Component } from './forgot-password/forgot-password-2/forgot-password-2.component';
-import { ForgotPassword3Component } from './forgot-password/forgot-password-3/forgot-password-3.component';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { InputOtpModule } from 'primeng/inputotp';
 import { SigninComponent } from './signin/signin.component';
 
@@ -43,9 +41,7 @@ import { SigninComponent } from './signin/signin.component';
     TwoStepVerification2Component,
     TwoStepVerification3Component,
     SigninComponent,
-    ForgotPasswordComponent,
-    ForgotPassword2Component,
-    ForgotPassword3Component
+    ForgotPasswordComponent
   ],
   imports: [
     CommonModule,

@@ -7,12 +7,12 @@ import { AuthService } from 'src/app/core/service/auth/auth.service';
 
 
 @Component({
-  selector: 'app-forgot-password-3',
-  templateUrl: './forgot-password-3.component.html',
-  styleUrl: './forgot-password-3.component.scss',
+  selector: 'app-forgot-password',
+  templateUrl: './forgot-password.component.html',
+  styleUrl: './forgot-password.component.scss',
   standalone: false
 })
-export class ForgotPassword3Component {
+export class ForgotPasswordComponent {
 
 
   public routes = routes;
