@@ -5,12 +5,12 @@ import { routes } from 'src/app/core/helpers/routes';
 import { AuthService } from 'src/app/core/service/auth/auth.service';
 
 @Component({
-  selector: 'app-reset-password-3',
-  templateUrl: './reset-password-3.component.html',
-  styleUrls: ['./reset-password-3.component.scss'],
+  selector: 'app-reset-password',
+  templateUrl: './reset-password.component.html',
+  styleUrls: ['./reset-password.component.scss'],
   standalone: false
 })
-export class ResetPassword3Component implements OnInit {
+export class ResetPasswordComponent implements OnInit {
 
   public routes = routes;
   public password: boolean[] = [false, false, false, false];

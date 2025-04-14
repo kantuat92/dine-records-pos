@@ -4,9 +4,8 @@ import { AuthComponent } from './auth.component';
 import { EmailVerificationComponent } from './email-verification/email-verification/email-verification.component';
 import { EmailVerification2Component } from './email-verification/email-verification-2/email-verification-2.component';
 import { EmailVerification3Component } from './email-verification/email-verification-3/email-verification-3.component';
-import { ResetPassword2Component } from './reset-password/reset-password-2/reset-password-2.component';
-import { ResetPassword3Component } from './reset-password/reset-password-3/reset-password-3.component';
-import { ResetPasswordComponent } from './reset-password/reset-password/reset-password.component';
+
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { TwoStepVerification2Component } from './two-step-verification/two-step-verification-2/two-step-verification-2.component';
 import { TwoStepVerificationComponent } from './two-step-verification/two-step-verification/two-step-verification.component';
@@ -38,15 +37,7 @@ const routes: Routes = [
         component: EmailVerification3Component,
       },
       {
-        path: 'reset-password-2',
-        component: ResetPassword2Component,
-      },
-      {
-        path: 'reset-password-3/:token',
-        component: ResetPassword3Component,
-      },
-      {
-        path: 'reset-password',
+        path: 'reset-password/:token',
         component: ResetPasswordComponent,
       },
       {

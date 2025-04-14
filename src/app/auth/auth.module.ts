@@ -3,9 +3,8 @@ import { CommonModule } from '@angular/common';
 
 import { AuthRoutingModule } from './auth-routing.module';
 import { AuthComponent } from './auth.component';
-import { ResetPassword2Component } from './reset-password/reset-password-2/reset-password-2.component';
-import { ResetPassword3Component } from './reset-password/reset-password-3/reset-password-3.component';
-import { ResetPasswordComponent } from './reset-password/reset-password/reset-password.component';
+
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { RegisterComponent } from './register/register.component';
 import { sharedModule } from '../shared/shared.module';
 import { LockScreenComponent } from './lock-screen/lock-screen.component';
@@ -26,8 +25,6 @@ import { SigninComponent } from './signin/signin.component';
 @NgModule({
   declarations: [
     AuthComponent,
-    ResetPassword2Component,
-    ResetPassword3Component,
     ResetPasswordComponent,
     RegisterComponent,
     LockScreenComponent,

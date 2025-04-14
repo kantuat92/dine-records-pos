@@ -14,6 +14,6 @@ export class TwoStepVerification3Component {
   constructor(private router: Router) {}
 
   navigation() {
-    this.router.navigate([routes.resetPassword3])
+    this.router.navigate([routes.resetPassword])
   }
 }

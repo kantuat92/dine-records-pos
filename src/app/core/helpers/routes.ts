@@ -1025,14 +1025,9 @@ export class routes {
   public static get signIn(): string {
     return this.base + '/signin';
   }
+
   public static get resetPassword(): string {
-    return this.base + '/reset-password';
-  }
-  public static get resetPassword2(): string {
-    return this.base + '/reset-password-2';
-  }
-  public static get resetPassword3(): string {
-    return this.base + '/reset-password-3/:token';
+    return this.base + '/reset-password/:token';
   }
   public static get twoStepVerification(): string {
     return this.base + '/two-step-verification';

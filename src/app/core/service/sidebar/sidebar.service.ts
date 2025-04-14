@@ -1149,20 +1149,8 @@ export class SidebarService {
               showSubRoute: false,
               subMenusTwo: [
                 {
-                  menuValue: 'Cover',
-                  route: routes.resetPassword,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
-                {
-                  menuValue: 'Illustration',
-                  route: routes.resetPassword2,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
-                {
                   menuValue: 'Basic',
-                  route: routes.resetPassword3,
+                  route: routes.resetPassword,
                   hasSubRoute: false,
                   showSubRoute: false,
                 },
@@ -5354,20 +5342,8 @@ export class SidebarService {
               customSubmenuTwo: true,
               subMenusTwo: [
                 {
-                  tittle: 'Cover',
-                  route: routes.resetPassword,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
-                {
-                  tittle: 'Illustration',
-                  route: routes.resetPassword2,
-                  hasSubRoute: false,
-                  showSubRoute: false,
-                },
-                {
                   tittle: 'Basic',
-                  route: routes.resetPassword3,
+                  route: routes.resetPassword,
                   hasSubRoute: false,
                   showSubRoute: false,
                 },
