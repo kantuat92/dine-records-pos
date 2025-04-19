@@ -589,10 +589,9 @@
   </div>
 </div> -->
 
-<div class="modal fade modal-default" id="order-tax">
+<!-- <div class="modal fade modal-default" id="order-tax">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      
+    <div class="modal-content">    
       <div class="modal-header">
         <h5 class="modal-title">Order Tax</h5>
         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
@@ -601,29 +600,23 @@
       </div>
       <form (ngSubmit)="applySelectedTaxToCart()">
         <div class="modal-body pb-1">
-          <!-- Tax Dropdown -->
           <div class="mb-3">
             <label class="form-label">Order Tax <span class="text-danger">*</span></label>
             <mat-form-field class="w-100">
               <mat-select 
                 [(ngModel)]="selectedOrderTaxId" 
                 name="selectedOrderTaxId"
-                (selectionChange)="onTaxSelectionChange($event.value)">
-                
-                <!-- Dynamically loaded tax options -->
+                (selectionChange)="onTaxSelectionChange($event.value)">               
                 <mat-option *ngFor="let tax of availableTaxes" [value]="tax.id">
+                  {{ tax.title }} 
                   ({{ tax.amount }}{{ tax.type === 'Percent' ? '%' : '₹' }})
                 </mat-option>
-
-                <!-- Manual service tax option -->
                 <mat-option value="serviceTax">Service Tax</mat-option>
               </mat-select>
             </mat-form-field>
           </div>
-
-          <!-- Add Tax Amount if Service Tax is selected -->
-          <div class="mb-3" *ngIf="isServiceTaxSelected">
-            <label class="form-label">Add Tax Amount (%)</label>
+\          <div class="mb-3" *ngIf="isServiceTaxSelected">
+            <label class="form-label">Service Tax Amount (%)</label>
             <input 
               class="form-control" 
               type="number" 
@@ -631,19 +624,87 @@
               name="customTaxAmount" 
               placeholder="e.g., 5">
           </div>
-
         </div>
-
         <div class="modal-footer d-flex justify-content-end flex-wrap gap-2">
           <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-md btn-primary" data-bs-dismiss="modal">Submit</button>
         </div>
       </form>
+    </div>
+  </div>
+</div> -->
+<div class="modal fade modal-default" id="order-tax">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Order Tax</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <form (ngSubmit)="applySelectedTaxToCart()">
+        <div class="modal-body pb-1">
+          <!-- Multi-select Tax Dropdown -->
+          <div class="mb-3">
+            <label class="form-label">Standard Taxes <span class="text-danger">*</span></label>
+            <mat-form-field class="w-100">
+              <div class="flex-grow-1">
+              <mat-select 
+                [(ngModel)]="selectedOrderTaxIds" 
+                name="selectedOrderTaxIds"
+                (selectionChange)="onTaxSelectionChange($event.value)">
+                <mat-option *ngFor="let tax of availableTaxes" [value]="tax.id">
+                  {{ tax.title }} 
+                </mat-option>
+              </mat-select>
+            </div>
+            </mat-form-field>
+          </div>
 
+          <!-- Service Tax Checkbox -->
+          <div class="mb-3">
+            <mat-checkbox 
+              [(ngModel)]="isServiceTaxSelected" 
+              name="serviceTaxCheckbox">
+              Service Tax
+            </mat-checkbox>
+          </div>
+
+          <!-- Service Tax Input -->
+          <div class="mb-3" *ngIf="isServiceTaxSelected">
+            <div class="d-flex align-items-center gap-2">
+              <div class="flex-grow-1">
+            <label class="form-label">Service Tax Amount (%)</label>
+            <input 
+              class="form-control" 
+              type="number" 
+              [(ngModel)]="customTaxAmount" 
+              name="customTaxAmount" 
+              placeholder="e.g., 5"
+              >
+          </div>
+            <!-- <button 
+            type="button" 
+            class="btn btn-link text-danger mt-3"
+            (click)="deleteServiceTax()"
+            title="Remove Service Tax">
+            <i class="fas fa-times-circle"></i>
+          </button> -->
+          <a class="btn-icon delete-icon" href="javascript:void(0);"  (click)="deleteServiceTax()" data-bs-dismiss="modal">
+            <i class="ti ti-trash"></i>
+        </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary"  data-bs-dismiss="modal">Apply Taxes</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
-
 <!-- /Order Tax -->
 
 <!-- Payment Completed -->

@@ -122,6 +122,8 @@ export class PosComponent implements AfterViewInit {
   pendingItemToAdd: any = null;
 
   selectedOrderTaxId: number | string | null = null;
+  selectedOrderTaxIds: string[] = [];
+
   customTaxAmount: number | null = null;
   isServiceTaxSelected = false;
   serviceTaxPercent: number = 0; 
@@ -321,62 +323,94 @@ finalizeAddToCart(selectedTaxes: any[]) {
     this.cd.detectChanges();
   }
 
-  prepareTaxModal(): void {
-    if (this.cart.length > 0 && this.cart[0].originalTaxes) {
-      this.availableTaxes = this.cart[0].originalTaxes; // assumes same taxes apply to all items
-    }
+  // prepareTaxModal(): void {
+  //   if (this.cart.length > 0 && this.cart[0].originalTaxes) {
+  //     this.availableTaxes = this.cart[0].originalTaxes; // assumes same taxes apply to all items
+  //   }
   
-    const appliedTax = this.cart[0]?.appliedTaxes?.[0];
+  //   const appliedTax = this.cart[0]?.appliedTaxes?.[0];
   
-    if (appliedTax && appliedTax.title === 'Service Tax') {
-      this.selectedOrderTaxId = 'serviceTax';
-      this.customTaxAmount = appliedTax.amount;
-      this.isServiceTaxSelected = true;
-    } else if (appliedTax) {
-      this.selectedOrderTaxId = appliedTax.id;
-      this.customTaxAmount = null;
-      this.isServiceTaxSelected = false;
-    }
-  }
-  onTaxSelectionChange(value: string): void {
-    if (value === 'serviceTax') {
-      this.isServiceTaxSelected = true;
+  //   if (appliedTax && appliedTax.title === 'Service Tax') {
+  //     this.selectedOrderTaxId = 'serviceTax';
+  //     this.customTaxAmount = this.serviceTaxPercent;;
+  //     this.isServiceTaxSelected = true;
+  //   } else if (appliedTax) {
+  //     this.selectedOrderTaxId = appliedTax.id;
+  //     this.customTaxAmount = null;
+  //     this.isServiceTaxSelected = false;
+  //   }
+  // }
+
+//working code
+  // prepareTaxModal(): void {
+  //   // 🔁 Step 1: Aggregate all unique taxes from all items
+  //   const taxMap: { [id: string]: any } = {};
   
-      // Keep existing if already set, or initialize
-      if (!this.customTaxAmount) {
-        this.customTaxAmount = 0;
-      }
-    } else {
-      this.isServiceTaxSelected = false;
-      this.customTaxAmount = null;
-    }
-  }
+  //   this.cart.forEach(item => {
+  //     (item.originalTaxes || []).forEach((tax: any) => {
+  //       if (!taxMap[tax.id]) {
+  //         taxMap[tax.id] = tax;
+  //       }
+  //     });
+  //   });
   
-  prepareTaxModalState() {
-    // Case 1: Service Tax applied (separate from normal tax)
-    if (this.serviceTaxPercent > 0) {
-      this.selectedOrderTaxId = 'serviceTax';
-      this.customTaxAmount = this.serviceTaxPercent;
-      return;
-    }
+  //   this.availableTaxes = Object.values(taxMap);
   
-    // Case 2: Normal tax applied to items
-    const firstItem = this.cart[0]; // Assume all items have same applied tax
-    const applied = firstItem?.appliedTaxes?.[0];
+  //   // 🔁 Step 2: Detect if "Service Tax" is currently applied
+  //   const appliedTax = this.cart[0]?.appliedTaxes?.[0];
   
-    if (applied) {
-      const matchedTax = this.availableTaxes.find(t => t.id === applied.id);
-      if (matchedTax) {
-        this.selectedOrderTaxId = matchedTax.id;
-        this.customTaxAmount = matchedTax.amount;
-        return;
-      }
-    }
+  //   if (appliedTax && appliedTax.title === 'Service Tax') {
+  //     this.selectedOrderTaxId = 'serviceTax';
+  //     this.customTaxAmount = this.serviceTaxPercent;
+  //     this.isServiceTaxSelected = true;
+  //   } else if (appliedTax) {
+  //     this.selectedOrderTaxId = appliedTax.id;
+  //     this.customTaxAmount = null;
+  //     this.isServiceTaxSelected = false;
+  //   }
+  // }
+
+//deepseep code
+
+prepareTaxModal(): void {
+  // 🔁 Step 1: Aggregate all unique taxes from all items
+  const taxMap: { [id: string]: any } = {};
+  this.cart.forEach(item => {
+    (item.originalTaxes || []).forEach((tax: any) => {
+      if (!taxMap[tax.id]) taxMap[tax.id] = tax;
+    });
+  });
+  this.availableTaxes = Object.values(taxMap);
+
+  // 🔁 Step 2: Initialize existing selections
+  const appliedTax = this.cart[0]?.appliedTaxes?.[0];
+  this.selectedOrderTaxId = appliedTax?.id || null;
+
+  // 🔁 Step 3: Initialize service tax state
+  this.isServiceTaxSelected = this.serviceTaxPercent > 0;
+  this.customTaxAmount = this.serviceTaxPercent || null;
+}
+
+onTaxSelectionChange(value: string): void {
+  // Simply update the selected tax ID
+  this.selectedOrderTaxId = value;
+}
   
-    // Default case
-    this.selectedOrderTaxId = null;
-    this.customTaxAmount = null;
-  }
+  // onTaxSelectionChange(value: string): void {
+  //   if (value === 'serviceTax') {
+  //     this.isServiceTaxSelected = true;
+  
+  //     //  Only set default if there's no value stored
+  //     if (this.customTaxAmount == null) {
+  //       this.customTaxAmount = this.serviceTaxPercent ?? 0;
+  //     }
+  //   } else {
+  //     this.isServiceTaxSelected = false;
+  //     this.customTaxAmount = null;
+  //   }
+  // }
+  
+
   
   
   // Triggered when dropdown selection changes
@@ -419,24 +453,71 @@ finalizeAddToCart(selectedTaxes: any[]) {
   //   this.cd.detectChanges();
   // }
 
-  applySelectedTaxToCart() {
-    if (this.selectedOrderTaxId === 'serviceTax') {
-      // Apply service tax separately
-      this.serviceTaxPercent = this.customTaxAmount ?? 0;
-    } else {
-      // Normal tax selection
-      const selectedTax = this.availableTaxes.find(t => t.id === this.selectedOrderTaxId);
-      if (selectedTax) {
-        this.cart = this.cart.map(item => ({
-          ...item,
-          appliedTaxes: [selectedTax]
-        }));
-      }
+  //working code
+  // applySelectedTaxToCart() {
+  //   if (this.selectedOrderTaxId === 'serviceTax') {
+  //     // Apply service tax separately
+  //     this.serviceTaxPercent = this.customTaxAmount ?? 0;
+  //   } else {
+  //     // Normal tax selection
+  //     const selectedTax = this.availableTaxes.find(t => t.id === this.selectedOrderTaxId);
+  //     if (selectedTax) {
+  //       this.cart = this.cart.map(item => ({
+  //         ...item,
+  //         appliedTaxes: [selectedTax]
+  //       }));
+  //     }
   
-      this.serviceTaxPercent = 0; // Clear service tax if not selected
-    }
+  //     this.serviceTaxPercent = 0; // Clear service tax if not selected
+  //   }
+  
+  //   this.cd.detectChanges();
+  // }
+ 
+  // applySelectedTaxToCart() {
+  //   // Apply standard tax
+  //   const selectedTax = this.availableTaxes.find(t => t.id === this.selectedOrderTaxId);
+  //   if (selectedTax) {
+  //     this.cart = this.cart.map(item => ({
+  //       ...item,
+  //       appliedTaxes: [selectedTax]
+  //     }));
+  //   }
+  
+  //   // Apply service tax independently
+  //   this.serviceTaxPercent = this.isServiceTaxSelected 
+  //     ? (this.customTaxAmount ?? 0)
+  //     : 0;
+  
+  //   this.cd.detectChanges();
+  // }
+
+  applySelectedTaxToCart() {
+    // Apply standard tax
+    const selectedTax = this.availableTaxes.find(t => t.id === this.selectedOrderTaxId);
+    this.cart = this.cart.map(item => ({
+      ...item,
+      appliedTaxes: selectedTax ? [selectedTax] : []
+    }));
+  
+    // Apply service tax independently
+    this.serviceTaxPercent = this.isServiceTaxSelected 
+      ? (this.customTaxAmount ?? 0)
+      : 0;
   
     this.cd.detectChanges();
+  }
+  deleteServiceTax(): void {
+    // Show simple confirmation dialog
+    if (confirm('Are you sure you want to remove the Service Tax?')) {
+      // Clear service tax values
+      this.isServiceTaxSelected = false;
+      this.customTaxAmount = null;
+      this.serviceTaxPercent = 0;
+      
+      // Recalculate taxes
+      this.applySelectedTaxToCart();
+    }
   }
   
   getApplicableTaxes(itemId: number, taxes: any[]): any[] {
@@ -578,6 +659,12 @@ finalizeAddToCart(selectedTaxes: any[]) {
       });
     });
   
+        if (this.serviceTaxPercent > 0) {
+      breakdown.push({
+        label: `Service Tax ${this.serviceTaxPercent}%`,
+        value: parseFloat(this.serviceTaxAmount.toFixed(2))
+      });
+    }
     return breakdown;
   }
 
