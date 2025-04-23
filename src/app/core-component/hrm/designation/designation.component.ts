@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
@@ -14,6 +14,8 @@ import { selectRestaurantId } from '../../../core/store/restaurant.selectors';
 import { Subscription } from 'rxjs';
 import { Department } from 'src/app/core/models/department.model';
 import { HrmApiService } from 'src/app/core/service/api-services/hrm-api.service';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Validators } from 'ngx-editor';
 
 interface data {
   value: string;
@@ -53,6 +55,8 @@ export class DesignationComponent {
   restaurantId: any;
   private tablePageSizeSub!: Subscription;
   departments: Department[] = [];
+  designationForm!: FormGroup;
+  @ViewChild('closeCreateButton') closeCreateButton!: ElementRef<HTMLButtonElement>;
 
 
 
@@ -64,12 +68,19 @@ export class DesignationComponent {
     private router: Router,
     private sidebar: SidebarService,
     private store: Store,
-    private hrmApiService: HrmApiService
+    private hrmApiService: HrmApiService,
+    private fb: FormBuilder
   ) {
 
     this.store.select(selectRestaurantId).subscribe(id => {
       console.log('In designation.component.ts Restaurant id from store: ', id);
       this.restaurantId = id;
+    });
+
+    this.designationForm = this.fb.group({
+      title: ['', Validators.required],
+      departmentId: [null, Validators.required],
+      status: [true]
     });
 
   }
@@ -108,6 +119,30 @@ export class DesignationComponent {
       },
       (error) => {
         console.error('Error fetching departments:', error);
+      }
+    );
+  }
+
+
+  onSubmit(): void {
+    console.log('this.designationForm.invalid: ', this.designationForm.invalid);
+    console.log('this.designationForm: ', this.designationForm);
+    if (this.designationForm.invalid) return;
+
+    const payload = this.designationForm.value;
+
+    this.hrmApiService.createDesignation(payload).subscribe(
+      response => {
+        const newDesignation = {
+          ...response,
+          sNo: this.tableData.length + 1
+        }
+        this.tableData.push(newDesignation);
+        this.designationForm.reset({ status: true });
+        this.closeCreateButton.nativeElement.click();
+      },
+      err => {
+        console.error('Error saving designation', err);
       }
     );
   }

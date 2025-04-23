@@ -32,6 +32,10 @@ export class HrmApiService {
         return this.http.delete(`${this.baseURL}/departments/${id}`);
     }
 
+    createDesignation(designation: any): Observable<any> {
+        return this.http.post(`${this.baseURL}/designations`, designation);
+    }
+
     getDesignations(restaurantId: any): Observable<apiResultFormat> {
         const url = `${this.baseURL}/designations/restaurant/${restaurantId}`;
         return this.http

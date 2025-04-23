@@ -39,36 +39,36 @@
         </div>
       </div>
     </div>
-    
+
   </div>
   <div class="card-body pb-0">
     <div class="table-responsive">
       <table matSort matSortActive="Sno" matSortDirection="asc" matSortDisableClear class="table  datanew">
         <thead class="thead-light">
-          <tr>            
+          <tr>
             <th mat-sort-header="designation">Designation</th>
-            <th mat-sort-header="department">Departments</th>            
-            <th mat-sort-header="created">Created On</th>            
+            <th mat-sort-header="department">Department</th>
+            <th mat-sort-header="created">Created On</th>
             <th mat-sort-header="status">Status</th>
             <th class="no-sort">Action</th>
           </tr>
         </thead>
         <tbody>
           @for (designation of tableData; track designation; let i = $index) {
-          <tr>            
+          <tr>
             <td>
               <span class="text-gray-900">{{designation.title}}</span>
             </td>
             <td>
               {{designation.departmentName}}
             </td>
-            
-            <td>{{designation.createdDate}}</td>
-            
+
+            <td>{{ designation.createdDate | date: 'mediumDate' }}</td>
+
             <td>
               <span class="badge  d-inline-flex align-items-center badge-xs"
-                [ngClass]="designation.status==='Active'?'badge-success':'bg-danger'">
-                <i class="ti ti-point-filled me-1"></i>{{designation.status}}
+                [ngClass]="designation.status ? 'badge-success' : 'bg-danger'">
+                <i class="ti ti-point-filled me-1"></i>{{designation.status ? 'Active' : 'In Active'}}
               </span>
             </td>
             <td class="action-table-data">
@@ -108,50 +108,57 @@
             <div class="page-title">
               <h4>Add Designation</h4>
             </div>
-            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+            <button #closeCreateButton type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <form>
+
+          <form [formGroup]="designationForm" (ngSubmit)="onSubmit()">
             <div class="modal-body">
               <div class="row">
                 <div class="col-lg-12">
                   <div class="mb-3">
                     <label class="form-label">Designation <span class="text-danger"> *</span></label>
-                    <input type="text" class="form-control">
+                    <input type="text" class="form-control" formControlName="title" />
                   </div>
                 </div>
+
                 <div class="col-lg-12">
                   <div class="mb-3">
                     <label class="form-label">Department <span class="text-danger"> *</span></label>
-                    <mat-select class="cuatom-mat-select select" placeholder="Sales">
-                      <mat-option value="1">Select</mat-option>
-                      <mat-option value="1">Sales</mat-option>
-                      <mat-option value="1">Inventory</mat-option>
-                      <mat-option value="1">Finance</mat-option>
+                    <mat-select class="cuatom-mat-select select" formControlName="departmentId"
+                      placeholder="Select Department">
+                      <mat-option *ngFor="let dept of departments" [value]="dept.id">
+                        {{ dept.name }}
+                      </mat-option>
                     </mat-select>
                   </div>
                 </div>
+
                 <div class="input-blocks m-0">
                   <div class="status-toggle modal-status d-flex justify-content-between align-items-center">
                     <span class="status-label">Status</span>
-                    <input type="checkbox" id="user5" class="check" checked>
-                    <label for="user5" class="checktoggle"> </label>
+                    <input type="checkbox" id="designationStatus" class="check" formControlName="status" />
+                    <label for="designationStatus" class="checktoggle"> </label>
                   </div>
                 </div>
               </div>
             </div>
+
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+              <button type="submit" class="btn btn-primary" [disabled]="designationForm.invalid"
+                data-bs-dismiss="modal">Submit</button>
             </div>
           </form>
+
         </div>
       </div>
     </div>
   </div>
 </div>
 <!-- /Add Designation -->
+
 
 
 

@@ -360,7 +360,7 @@ export interface designation {
   createdDate?: string;  
   departmentName?:string;
   sNo?: number;
-  status:string;
+  status:boolean;
   isSelected?: boolean;
 }
 export interface departmentList {
