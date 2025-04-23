@@ -1,7 +1,8 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 import { Department } from "../../models/department.model";
+import { apiResultFormat } from "../../core.index";
 
 
 @Injectable({
@@ -29,6 +30,13 @@ export class HrmApiService {
 
     deleteDepartment(id: number): Observable<any> {
         return this.http.delete(`${this.baseURL}/departments/${id}`);
+    }
+
+    getDesignations(restaurantId: any): Observable<apiResultFormat> {
+        const url = `${this.baseURL}/designations/restaurant/${restaurantId}`;
+        return this.http
+            .get<apiResultFormat>(url)
+            .pipe(map((res: apiResultFormat) => res));
     }
 
 }

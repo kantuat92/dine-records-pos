@@ -9,14 +9,20 @@ import { designation } from 'src/app/shared/model/page.model';
 import { PaginationService, pageSelection, tablePageSize } from 'src/app/shared/shared.index';
 import { SweetalertService } from 'src/app/shared/sweetalert/sweetalert.service';
 import Swal from 'sweetalert2';
+import { Store } from '@ngrx/store';
+import { selectRestaurantId } from '../../../core/store/restaurant.selectors';
+import { Subscription } from 'rxjs';
+import { Department } from 'src/app/core/models/department.model';
+import { HrmApiService } from 'src/app/core/service/api-services/hrm-api.service';
+
 interface data {
   value: string;
 }
 @Component({
-    selector: 'app-designation',
-    templateUrl: './designation.component.html',
-    styleUrl: './designation.component.scss',
-    standalone: false
+  selector: 'app-designation',
+  templateUrl: './designation.component.html',
+  styleUrl: './designation.component.scss',
+  standalone: false
 })
 export class DesignationComponent {
   public selectedValue1 = '';
@@ -29,7 +35,7 @@ export class DesignationComponent {
     { value: 'Oldest' },
   ];
   public routes = routes;
- 
+
   public tableData: Array<designation> = [];
   // pagination variables
   public pageSize = 10;
@@ -39,26 +45,92 @@ export class DesignationComponent {
   dataSource!: MatTableDataSource<designation>;
   public searchDataValue = '';
   //** / pagination variables
+
+
+
+
+
+  restaurantId: any;
+  private tablePageSizeSub!: Subscription;
+  departments: Department[] = [];
+
+
+
+
   constructor(
     private data: DataService,
     private pagination: PaginationService,
     private sweetalert: SweetalertService,
     private router: Router,
-    private sidebar: SidebarService
+    private sidebar: SidebarService,
+    private store: Store,
+    private hrmApiService: HrmApiService
   ) {
-    this.data.getDataTable().subscribe((apiRes: apiResultFormat) => {
-      this.totalData = apiRes.totalData;
-      this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
-        if (this.router.url == this.routes.designation) {
-          this.getTableData({ skip: res.skip, limit: this.totalData  });
-          this.pageSize = res.pageSize;
-        }
-      });
+
+    this.store.select(selectRestaurantId).subscribe(id => {
+      console.log('In designation.component.ts Restaurant id from store: ', id);
+      this.restaurantId = id;
     });
+
   }
 
+  ngOnInit() {
+    console.log('ngOnInit called in designations');
+    this.fetchDepartments();
+    this.loadData();
+
+  }
+
+
+
+  loadData() {
+    if (this.tablePageSizeSub) {
+      this.tablePageSizeSub.unsubscribe();
+    }
+    this.tablePageSizeSub = this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
+      console.log('In tablePageSize subscribe, designations');
+      if (this.router.url == this.routes.designation) {
+        this.getTableData({ skip: res.skip, limit: res.limit });
+        this.pageSize = res.pageSize;
+      }
+    });
+
+    this.searchDataValue = '';
+  }
+
+
+  fetchDepartments() {
+    console.log('restaurantId: ', this.restaurantId);
+    this.hrmApiService.getDepartments(this.restaurantId).subscribe(
+      (response) => {
+        console.log('API Response:', response);
+        this.departments = response;
+      },
+      (error) => {
+        console.error('Error fetching departments:', error);
+      }
+    );
+  }
+
+  ngOnDestroy() {
+    console.log('ngOnDestroy called in users');
+    if (this.tablePageSizeSub) {
+      this.tablePageSizeSub.unsubscribe();
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
   private getTableData(pageOption: pageSelection): void {
-    this.data.getDesignation().subscribe((apiRes: apiResultFormat) => {
+    this.hrmApiService.getDesignations(this.restaurantId).subscribe((apiRes: apiResultFormat) => {
       this.tableData = [];
       this.serialNumberArray = [];
       this.totalData = apiRes.totalData;
@@ -83,7 +155,7 @@ export class DesignationComponent {
     this.sweetalert.deleteBtn();
   }
 
-   
+
   public searchData(value: string): void {
     this.dataSource.filter = value.trim().toLowerCase();
     this.tableData = this.dataSource.filteredData;
@@ -102,7 +174,7 @@ export class DesignationComponent {
     }
   }
 
-  
+
 
   confirmColor() {
     const swalWithBootstrapButtons = Swal.mixin({
@@ -138,7 +210,7 @@ export class DesignationComponent {
         }
       });
   }
- 
+
   selectedList2: data[] = [
     { value: 'Choose Designation' },
     { value: 'UI/UX' },

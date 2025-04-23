@@ -356,10 +356,9 @@ export interface discount {
 
 
 export interface designation {
-  designation?: string;
-  createdOn?: string;
-  members?: string;
-  department?:string;
+  title?: string;
+  createdDate?: string;  
+  departmentName?:string;
   sNo?: number;
   status:string;
   isSelected?: boolean;
