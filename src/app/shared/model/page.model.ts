@@ -356,6 +356,7 @@ export interface discount {
 
 
 export interface designation {
+  id?: any;
   title?: string;
   createdDate?: string;  
   departmentName?:string;

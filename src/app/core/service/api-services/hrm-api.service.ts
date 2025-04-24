@@ -43,4 +43,8 @@ export class HrmApiService {
             .pipe(map((res: apiResultFormat) => res));
     }
 
+    deleteDesignation(designationId: any): Observable<any> {
+        return this.http.delete(`${this.baseURL}/designations/${designationId}`);
+    }
+
 }
