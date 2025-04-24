@@ -54,10 +54,13 @@ export class DesignationComponent {
 
   restaurantId: any;
   deleteDesignationId: any | null = null;
+  editDesignationId: any;
   private tablePageSizeSub!: Subscription;
   departments: Department[] = [];
   designationForm!: FormGroup;
+  editDesignationForm!: FormGroup;
   @ViewChild('closeCreateButton') closeCreateButton!: ElementRef<HTMLButtonElement>;
+  @ViewChild('closeEditButton') closeEditButton!: ElementRef<HTMLButtonElement>;
   @ViewChild('closeDeleteButton') closeDeleteButton!: ElementRef<HTMLButtonElement>;
 
 
@@ -84,6 +87,13 @@ export class DesignationComponent {
       departmentId: [null, Validators.required],
       status: [true]
     });
+
+    this.editDesignationForm = this.fb.group({      
+      title: ['', Validators.required],
+      departmentId: [null, Validators.required],
+      status: [true]
+    });
+
 
   }
 
@@ -115,8 +125,7 @@ export class DesignationComponent {
   fetchDepartments() {
     console.log('restaurantId: ', this.restaurantId);
     this.hrmApiService.getDepartments(this.restaurantId).subscribe(
-      (response) => {
-        console.log('API Response:', response);
+      (response) => {        
         this.departments = response;
       },
       (error) => {
@@ -126,9 +135,7 @@ export class DesignationComponent {
   }
 
 
-  onSubmit(): void {
-    console.log('this.designationForm.invalid: ', this.designationForm.invalid);
-    console.log('this.designationForm: ', this.designationForm);
+  onSubmit(): void {    
     if (this.designationForm.invalid) return;
 
     const payload = this.designationForm.value;
@@ -149,35 +156,72 @@ export class DesignationComponent {
     );
   }
 
+  openEditModal(id: any, designation: designation) {
+    this.editDesignationId = id;
+    this.editDesignationForm.patchValue({      
+      title: designation.title,
+      departmentId: designation.departmentId,
+      status: designation.status,
+    });    
+  }
+
+  onUpdateDesignation() {    
+    if (this.editDesignationForm.invalid) return;
+
+    const updatedDesignation = this.editDesignationForm.value;
+
+    this.hrmApiService.updateDesignatoin(this.editDesignationId, updatedDesignation).subscribe(
+      res => {        
+        const index = this.tableData.findIndex(d => d.id === this.editDesignationId);                
+        if (index !== -1) {
+          this.tableData[index] = {
+            ...this.tableData[index],
+            ...res
+          };
+          this.dataSource = new MatTableDataSource<designation>(this.tableData);          
+        }
+        this.editDesignationId = null;
+        this.editDesignationForm.reset();
+        this.editDesignationForm.patchValue({ status: true });
+        this.closeEditButton.nativeElement.click();
+      },
+      err => {
+        console.error('Error updating designation:', err);
+      }
+    );
+  }
+
+
+
   setDeleteDesignationId(id: any) {
     this.deleteDesignationId = id;
     console.log('deleteDesignationId set to : ', this.deleteDesignationId);
   }
 
   deleteDesignation(): void {
-  
-      if (!this.deleteDesignationId) {
-        alert("deleteDesignationId cannot be null");
-        return;
-      }
-  
-      this.hrmApiService.deleteDesignation(this.deleteDesignationId).subscribe(
-        () => {
-          this.tableData = this.tableData.filter(designation => designation.id !== this.deleteDesignationId);
-          this.tableData.forEach((designation, index) => designation.sNo = index + 1);
-          this.serialNumberArray = this.tableData.map((_, index) => index + 1);
-          this.dataSource = new MatTableDataSource<designation>(this.tableData);
-  
-          this.deleteDesignationId = null;
-          this.closeDeleteButton.nativeElement.click();
-        },
-        (error) => {
-          console.error('Error:', error);
-          alert('Failed to DELETE designation.');
-        }
-      );
+
+    if (!this.deleteDesignationId) {
+      alert("deleteDesignationId cannot be null");
+      return;
     }
-  
+
+    this.hrmApiService.deleteDesignation(this.deleteDesignationId).subscribe(
+      () => {
+        this.tableData = this.tableData.filter(designation => designation.id !== this.deleteDesignationId);
+        this.tableData.forEach((designation, index) => designation.sNo = index + 1);
+        this.serialNumberArray = this.tableData.map((_, index) => index + 1);
+        this.dataSource = new MatTableDataSource<designation>(this.tableData);
+
+        this.deleteDesignationId = null;
+        this.closeDeleteButton.nativeElement.click();
+      },
+      (error) => {
+        console.error('Error:', error);
+        alert('Failed to DELETE designation.');
+      }
+    );
+  }
+
 
   ngOnDestroy() {
     console.log('ngOnDestroy called in designations.');

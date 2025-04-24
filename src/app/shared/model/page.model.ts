@@ -359,6 +359,7 @@ export interface designation {
   id?: any;
   title?: string;
   createdDate?: string;  
+  departmentId?:any;
   departmentName?:string;
   sNo?: number;
   status:boolean;

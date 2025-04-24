@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { map, Observable } from "rxjs";
 import { Department } from "../../models/department.model";
 import { apiResultFormat } from "../../core.index";
+import { designation } from "src/app/shared/model/page.model";
 
 
 @Injectable({
@@ -45,6 +46,10 @@ export class HrmApiService {
 
     deleteDesignation(designationId: any): Observable<any> {
         return this.http.delete(`${this.baseURL}/designations/${designationId}`);
+    }
+
+    updateDesignatoin(id: any, designation: any): Observable<any> {
+        return this.http.put<designation>(`${this.baseURL}/designations/${id}`, designation);
     }
 
 }
