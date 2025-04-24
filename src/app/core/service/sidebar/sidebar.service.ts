@@ -723,7 +723,7 @@ export class SidebarService {
         {
           menuValue: 'Employees',
           icon2: 'user',
-          route: routes.employeesGrid,
+          route: routes.employeesList,
           hasSubRoute: false,
           showSubRoute: false,
         },
@@ -735,7 +735,7 @@ export class SidebarService {
           showSubRoute: false,
         },
         {
-          menuValue: 'Designation',
+          menuValue: 'Designations',
           icon2: 'git-merge',
           route: routes.designation,
           hasSubRoute: false,
@@ -2835,8 +2835,8 @@ export class SidebarService {
           subMenus: [
             {
               menuValue: 'Employees',
-              base: 'employee-grid',
-              route: routes.employeesGrid,
+              base: 'employee-list',
+              route: routes.employeesList,
               hasSubRoute: false,
               showSubRoute: false,
               customSubmenuTwo: false,
@@ -2850,7 +2850,7 @@ export class SidebarService {
               customSubmenuTwo: false,
             },
             {
-              menuValue: 'Designation',
+              menuValue: 'Designations',
               base: 'designation',
               route: routes.designation,
               hasSubRoute: false,
@@ -5575,7 +5575,7 @@ export class SidebarService {
               tittle: 'Employees',
               hasSubRoute: false,
               showSubRoute: false,
-              route: routes.employeesGrid,
+              route: routes.employeesList,
               subRoutes: [],
               customSubmenuTwo: false,
             },
@@ -5588,7 +5588,7 @@ export class SidebarService {
               customSubmenuTwo: false,
             },
             {
-              tittle: 'Designation',
+              tittle: 'Designations',
               hasSubRoute: false,
               showSubRoute: false,
               route: routes.designation,

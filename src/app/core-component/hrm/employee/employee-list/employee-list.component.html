@@ -19,7 +19,7 @@
       <a data-bs-toggle="tooltip" data-bs-placement="top" title="Excel"><img src="assets/img/icons/excel.svg" alt="img"></a>
     </li>
     <li>
-      <a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh"><i  class="ti ti-refresh"></i></a>
+      <a (click)="loadData()" data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh"><i  class="ti ti-refresh"></i></a>
     </li>
     <li>
       <a (click)="toggleCollapse()" [class.active]="isCollapsed"  data-bs-toggle="tooltip" data-bs-placement="top" title="Collapse" id="collapse-header" matTooltip="Collapse"> @if (!isCollapsed) {
@@ -160,9 +160,9 @@
                     <span class="checkmarks"></span>
                   </label>
             </th>
-            <th mat-sort-header="code">ID</th>
+            <th mat-sort-header="code">Emp Code</th>
             <th  mat-sort-header="customer">Employee</th>
-            <th mat-sort-header="compa">Desiignation</th>
+            <th mat-sort-header="compa">Designation</th>
             <th mat-sort-header="email">Email</th>
             <th mat-sort-header="phone">Phone</th>
             <th mat-sort-header="country">Shift</th>
@@ -180,27 +180,26 @@
                     </label>
                   </td>
                   <td>
-                    <a [routerLink]="routes.employeeDetails">{{data.id}}</a>
+                    <a [routerLink]="routes.employeeDetails">{{data.empCode}}</a>
                   </td>
                   <td>
-                    <div class="d-flex align-items-center">
-                      <a [routerLink]="routes.employeeDetails" class="avatar avatar-md"><img src="assets/img/users/{{data.img}}" class="img-fluid" alt="img"></a>
+                    <div class="d-flex align-items-center">                      
                       <div class="ms-2">
-                        <p class="text-dark mb-0"><a [routerLink]="routes.employeeDetails">{{data.employee}}</a></p>
+                        <p class="text-dark mb-0"><a [routerLink]="routes.employeeDetails">{{data.firstName}} {{data.lastName}}</a></p>
                       </div>
                     </div>
                   </td>
                   <td>
-                    {{data.designation}}
+                    {{data.designationId}}
                   </td>
                   <td>
                     {{data.email}}								
                   </td>
-                  <td>{{data.phone}} </td>
+                  <td>{{data.contactNumber}} </td>
                   <td>
-                   {{data.shift}}
+                   {{data.shiftId}}
                   </td>
-                  <td><span class="badge badge-success d-inline-flex align-items-center badge-xs" [ngClass]="data.status==='Active'?'bg-success':'bg-danger'"><i class="ti ti-point-filled me-1 fs-11"></i>{{data.status}}</span></td>
+                  <td><span class="badge badge-success d-inline-flex align-items-center badge-xs" [ngClass]="data.status ? 'bg-success':'bg-danger'"><i class="ti ti-point-filled me-1 fs-11"></i>{{data.status ? 'Active' : 'In Active'}}</span></td>
                   <td class="d-flex">
                     <div class="edit-delete-action d-flex align-items-center">
                       <a class="me-2 p-2 d-flex align-items-center border rounded" [routerLink]="routes.employeeDetails">

@@ -412,15 +412,16 @@ export interface expiredProducts {
 }
 export interface employeeList {
   sNo: number;
-  img: string;
-  employee: string;
+  empCode: string;
+  firstName: string;
+  lastName: string;
   id: string;
-  designation: string;
+  designationId: string;
   employeeID: string;
   email: string;
-  phone: string;
-  shift: string;
-  status: string;
+  contactNumber: string;
+  shiftId: string;
+  status: boolean;
   isSelected?: boolean;
 }
 export interface bankSettingsList {
