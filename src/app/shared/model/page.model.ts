@@ -416,11 +416,11 @@ export interface employeeList {
   firstName: string;
   lastName: string;
   id: string;
-  designationId: string;
+  designationName: string;
   employeeID: string;
   email: string;
   contactNumber: string;
-  shiftId: string;
+  shiftName: string;
   status: boolean;
   isSelected?: boolean;
 }
