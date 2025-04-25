@@ -4,6 +4,7 @@ import { map, Observable } from "rxjs";
 import { Department } from "../../models/department.model";
 import { apiResultFormat } from "../../core.index";
 import { designation, employeeList } from "src/app/shared/model/page.model";
+import { Shift } from "../../models/shift.model";
 
 
 @Injectable({
@@ -56,6 +57,14 @@ export class HrmApiService {
         return this.http.get<apiResultFormat>(`${this.baseURL}/employees/restaurant/${restaurantId}`).pipe(
             map((res: apiResultFormat) => res)
         );
+    }
+
+    deleteEmployee(employeeId: any): Observable<any> {
+        return this.http.delete(`${this.baseURL}/employees/${employeeId}`);
+    }
+
+    getShifts(restaurantId: any) {
+        return this.http.get<Shift[]>(`${this.baseURL}/shifts/restaurant/${restaurantId}`);
     }
 
 }

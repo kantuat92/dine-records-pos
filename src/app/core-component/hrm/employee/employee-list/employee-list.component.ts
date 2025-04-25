@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
@@ -49,6 +49,10 @@ export class EmployeeListComponent {
 
   private tablePageSizeSub!: Subscription;
   restaurantId: any;
+  deleteEmployeeId: any;  
+  @ViewChild('closeDeleteButton') closeDeleteButton!: ElementRef<HTMLButtonElement>;
+
+
 
   constructor(
     private data: DataService,
@@ -115,6 +119,39 @@ export class EmployeeListComponent {
       });
     });
   }
+
+
+
+  setDeleteEmployeeId(id: any) {
+    this.deleteEmployeeId = id;
+    console.log('deleteEmployeeId set to : ', this.deleteEmployeeId);
+  }
+
+  deleteEmployee(): void {
+
+    if (!this.deleteEmployeeId) {
+      alert("deleteEmployeeId cannot be null");
+      return;
+    }
+
+    this.hrmApiService.deleteEmployee(this.deleteEmployeeId).subscribe(
+      () => {
+        this.tableData = this.tableData.filter(employee => employee.id !== this.deleteEmployeeId);
+        this.tableData.forEach((employee, index) => employee.sNo = index + 1);
+        this.serialNumberArray = this.tableData.map((_, index) => index + 1);
+        this.dataSource = new MatTableDataSource<employeeList>(this.tableData);
+
+        this.deleteEmployeeId = null;
+        this.closeDeleteButton.nativeElement.click();
+      },
+      (error) => {
+        console.error('Error:', error);
+        alert('Failed to DELETE employee.');
+      }
+    );
+  }
+
+
 
   public sortData(sort: Sort) {
     const data = this.tableData.slice();
