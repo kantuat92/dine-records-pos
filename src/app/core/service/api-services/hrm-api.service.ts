@@ -45,6 +45,13 @@ export class HrmApiService {
             .pipe(map((res: apiResultFormat) => res));
     }
 
+    getDesignationsByDepartment(departmentId: any): Observable<apiResultFormat> {
+        const url = `${this.baseURL}/designations/department/${departmentId}`;
+        return this.http
+            .get<apiResultFormat>(url)
+            .pipe(map((res: apiResultFormat) => res));
+    }
+
     deleteDesignation(designationId: any): Observable<any> {
         return this.http.delete(`${this.baseURL}/designations/${designationId}`);
     }
@@ -66,5 +73,35 @@ export class HrmApiService {
     getShifts(restaurantId: any) {
         return this.http.get<Shift[]>(`${this.baseURL}/shifts/restaurant/${restaurantId}`);
     }
+
+    public getCountries(): Observable<apiResultFormat> {
+        return this.http.get<apiResultFormat>(`${this.baseURL}/countries`).pipe(
+            map((res: apiResultFormat) => {
+                return res;
+            })
+        )
+    }
+
+    public getStates(countryCode: any): Observable<apiResultFormat> {
+        return this.http.get<apiResultFormat>(`${this.baseURL}/states/country/${countryCode}`).pipe(
+            map((res: apiResultFormat) => {
+                return res;
+            })
+        )
+    }
+
+    public getCities(stateId: any): Observable<apiResultFormat> {
+        return this.http.get<apiResultFormat>(`${this.baseURL}/cities/state/${stateId}`).pipe(
+            map((res: apiResultFormat) => {
+                return res;
+            })
+        )
+    }
+
+    public addEmployee(employeePayload: any): Observable<any> {
+        return this.http.post(`${this.baseURL}/employees`, employeePayload);
+    }
+
+
 
 }

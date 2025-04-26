@@ -26,9 +26,13 @@
     </li>
   </ul>
 </div>
-
-
 <!-- /product list -->
+
+
+
+
+
+
 <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
   <div class="accordion-card-one accordion" id="accordionExample">
     <div class="accordion-item border mb-4">
@@ -59,7 +63,7 @@
 
             <div class="col-lg-4 col-md-6 mb-3">
               <label class="form-label">Date of Birth<span class="text-danger ms-1">*</span></label>
-              <input bsDatepicker class="form-control ps-2" formControlName="dob" placeholder="Select Date">
+              <input bsDatepicker class="form-control ps-2" formControlName="dateOfBirth" placeholder="Select Date">
             </div>
 
             <div class="col-lg-4 col-md-6 mb-3">
@@ -74,7 +78,7 @@
             <div class="col-lg-4 col-md-6 mb-3">
               <label class="form-label">Nationality<span class="text-danger ms-1">*</span></label>
               <mat-select formControlName="nationality" class="custom-mat-select select" placeholder="Choose">
-                <mat-option *ngFor="let country of countries" [value]="country.CountryCode">{{ country.CountryName
+                <mat-option *ngFor="let country of countries" [value]="country.countryCode">{{ country.countryName
                   }}</mat-option>
               </mat-select>
             </div>
@@ -94,7 +98,8 @@
 
             <div class="col-lg-4 col-md-6 mb-3">
               <label class="form-label">Department<span class="text-danger ms-1">*</span></label>
-              <mat-select formControlName="departmentId" class="custom-mat-select select" placeholder="Choose">
+              <mat-select (selectionChange)="onDepartmentChange($event.value)" formControlName="departmentId"
+                class="custom-mat-select select" placeholder="Choose">
                 <mat-option *ngFor="let dept of departments" [value]="dept.id">{{ dept.name }}</mat-option>
               </mat-select>
 
@@ -141,50 +146,47 @@
         </div>
       </div>
       <div id="collapseThree" class="accordion-collapse collapse show" aria-labelledby="headingThree"
-        data-bs-parent="#accordionExample">
+        data-bs-parent="#accordionExample" formGroupName="address">
         <div class="accordion-body border-top">
           <div class="other-info">
             <div class="row">
               <div class="col-lg-4 col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Address</label>
-                  <input type="text" class="form-control">
+                  <input type="text" class="form-control" formControlName="address">
                 </div>
               </div>
               <div class="col-lg-4 col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Country</label>
-                  <mat-select class="custom-mat-select select" placeholder="Choose">
-                    <mat-option value="1">Choose</mat-option>
-                    <mat-option value="1">United Kingdom</mat-option>
-                    <mat-option value="1">USA</mat-option>
+                  <mat-select (selectionChange)="onCountryChange($event.value)" formControlName="country"
+                    class="custom-mat-select select" placeholder="Choose">
+                    <mat-option *ngFor="let country of countries" [value]="country.countryCode">{{ country.countryName
+                      }}</mat-option>
                   </mat-select>
                 </div>
               </div>
               <div class="col-lg-4 col-md-6">
                 <div class="mb-3">
                   <label class="form-label">State</label>
-                  <mat-select class="custom-mat-select select" placeholder="Choose">
-                    <mat-option value="1">Choose</mat-option>
-                    <mat-option value="1">California</mat-option>
-                    <mat-option value="1">Paris</mat-option>
+                  <mat-select (selectionChange)="onStateChange($event.value)" formControlName="state"
+                    class="custom-mat-select select" placeholder="Choose">
+                    <mat-option *ngFor="let st of states" [value]="st.id">{{ st.stateName }}</mat-option>
                   </mat-select>
                 </div>
               </div>
               <div class="col-lg-4 col-md-6">
                 <div class="mb-3">
                   <label class="form-label">City</label>
-                  <mat-select class="custom-mat-select select" placeholder="Choose">
-                    <mat-option value="1">Choose</mat-option>
-                    <mat-option value="1">Los Angeles</mat-option>
-                    <mat-option value="1">New Jersey</mat-option>
+                  <mat-select formControlName="city" class="custom-mat-select select" placeholder="Choose">
+                    <mat-option *ngFor="let c of cities" [value]="c.id">{{ c.cityName }}</mat-option>
                   </mat-select>
                 </div>
               </div>
               <div class="col-lg-4 col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Zipcode</label>
-                  <input type="text" class="form-control">
+                  <input type="text" class="form-control" formControlName="zipcode">
                 </div>
               </div>
             </div>
@@ -197,65 +199,55 @@
         <div class="accordion-button bg-white" data-bs-toggle="collapse" data-bs-target="#collapseFour"
           aria-controls="collapseFour">
           <div class="d-flex align-items-center justify-content-between flex-fill">
-            <h5 class="d-inline-flex align-items-center"><i data-feather="info"
-                class="feather icon-info feather-edit text-primary me-2"></i><span>Emergency Information</span></h5>
+            <h5 class="d-inline-flex align-items-center">
+              <i data-feather="info" class="feather icon-info feather-edit text-primary me-2"></i>
+              <span>Emergency Information</span>
+            </h5>
           </div>
         </div>
       </div>
+
       <div id="collapseFour" class="accordion-collapse collapse show" aria-labelledby="heading4"
         data-bs-parent="#accordionExample">
         <div class="accordion-body border-top">
           <div class="other-info">
-            <div class="row">
-              <div class="col-lg-4 col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Emergency Contact Number 1</label>
-                  <input type="text" class="form-control">
+            <div class="row" formArrayName="emergencyContacts">
+              <div *ngFor="let contact of emergencyContactsFormArray.controls; let i = index" [formGroupName]="i"
+                class="row">
+                <div class="col-lg-4 col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Emergency Contact Number {{i + 1}}</label>
+                    <input type="text" formControlName="contactNumber" class="form-control">
+                  </div>
                 </div>
-              </div>
-              <div class="col-lg-4 col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Relation</label>
-                  <input type="text" class="form-control">
+                <div class="col-lg-4 col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Relation</label>
+                    <input type="text" formControlName="relation" class="form-control">
+                  </div>
                 </div>
-              </div>
-              <div class="col-lg-4 col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Name</label>
-                  <input type="text" class="form-control">
+                <div class="col-lg-4 col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input type="text" formControlName="name" class="form-control">
+                  </div>
                 </div>
-              </div>
-              <div class="col-lg-4 col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Emergency Contact Number 2</label>
-                  <input type="text" class="form-control">
-                </div>
-              </div>
-              <div class="col-lg-4 col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Relation</label>
-                  <input type="text" class="form-control">
-                </div>
-              </div>
-              <div class="col-lg-4 col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Name</label>
-                  <input type="text" class="form-control">
-                </div>
-              </div>
-
+              </div> <!-- end for -->
             </div>
           </div>
         </div>
       </div>
     </div>
+
     <div class="accordion-item border mb-4">
       <div class="accordion-header" id="heading5">
         <div class="accordion-button bg-white" data-bs-toggle="collapse" data-bs-target="#collapseFive"
           aria-controls="collapseFive">
           <div class="d-flex align-items-center justify-content-between flex-fill">
-            <h5 class="d-inline-flex align-items-center"><i
-                class="ti ti-building-bank feather-edit text-primary me-2"></i><span>Bank Information</span></h5>
+            <h5 class="d-inline-flex align-items-center">
+              <i class="ti ti-building-bank feather-edit text-primary me-2"></i>
+              <span>Bank Information</span>
+            </h5>
           </div>
         </div>
       </div>
@@ -263,29 +255,29 @@
         data-bs-parent="#accordionExample">
         <div class="accordion-body border-top">
           <div class="other-info">
-            <div class="row">
+            <div class="row" formGroupName="bankInformation">
               <div class="col-lg-3 col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Bank Name</label>
-                  <input type="text" class="form-control">
+                  <input type="text" class="form-control" formControlName="bankName">
                 </div>
               </div>
               <div class="col-lg-3 col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Account Number</label>
-                  <input type="text" class="form-control">
+                  <input type="text" class="form-control" formControlName="accountNumber">
                 </div>
               </div>
               <div class="col-lg-3 col-md-6">
                 <div class="mb-3">
                   <label class="form-label">IFSC</label>
-                  <input type="text" class="form-control">
+                  <input type="text" class="form-control" formControlName="ifsc">
                 </div>
               </div>
               <div class="col-lg-3 col-md-6">
                 <div class="mb-3">
                   <label class="form-label">Branch</label>
-                  <input type="text" class="form-control">
+                  <input type="text" class="form-control" formControlName="branch">
                 </div>
               </div>
             </div>
@@ -293,6 +285,7 @@
         </div>
       </div>
     </div>
+
     <div class="accordion-item border mb-4">
       <div class="accordion-header" id="heading6">
         <div class="accordion-button bg-white" data-bs-toggle="collapse" data-bs-target="#collapseTwo"
@@ -312,7 +305,8 @@
                 <div class="input-blocks mb-md-0 mb-sm-3">
                   <label>Password</label>
                   <div class="pass-group">
-                    <input [type]="password[0] ? 'text' : 'password' " class="pass-input form-control">
+                    <input formControlName="password" [type]="password[0] ? 'text' : 'password' "
+                      class="pass-input form-control">
                     <span class="fas toggle-password" [ngClass]=" password[0] ? 'fa-eye' : 'fa-eye-slash'"
                       (click)="togglePassword(0)"></span>
                   </div>
@@ -322,7 +316,7 @@
                 <div class="input-blocks mb-0">
                   <label>Confirm Password</label>
                   <div class="pass-group">
-                    <input [type]="password[1] ? 'text' : 'password' " class="pass-input form-control">
+                    <input formControlName="confirmPassword" [type]="password[1] ? 'text' : 'password' " class="pass-input form-control">
                     <span class="fas toggle-password" [ngClass]=" password[1] ? 'fa-eye' : 'fa-eye-slash'"
                       (click)="togglePassword(1)"></span>
                   </div>
