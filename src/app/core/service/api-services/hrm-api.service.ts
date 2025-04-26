@@ -66,6 +66,10 @@ export class HrmApiService {
         );
     }
 
+    getEmployee(employeeId: any): Observable<any> {
+        return this.http.get<any>(`${this.baseURL}/employees/${employeeId}`);        
+    }
+
     deleteEmployee(employeeId: any): Observable<any> {
         return this.http.delete(`${this.baseURL}/employees/${employeeId}`);
     }
@@ -82,16 +86,16 @@ export class HrmApiService {
         )
     }
 
-    public getStates(countryCode: any): Observable<apiResultFormat> {
-        return this.http.get<apiResultFormat>(`${this.baseURL}/states/country/${countryCode}`).pipe(
+    public getStates(countryName: any): Observable<apiResultFormat> {
+        return this.http.get<apiResultFormat>(`${this.baseURL}/states/country/${countryName}`).pipe(
             map((res: apiResultFormat) => {
                 return res;
             })
         )
     }
 
-    public getCities(stateId: any): Observable<apiResultFormat> {
-        return this.http.get<apiResultFormat>(`${this.baseURL}/cities/state/${stateId}`).pipe(
+    public getCities(stateName: any): Observable<apiResultFormat> {
+        return this.http.get<apiResultFormat>(`${this.baseURL}/cities/state/${stateName}`).pipe(
             map((res: apiResultFormat) => {
                 return res;
             })
@@ -100,6 +104,10 @@ export class HrmApiService {
 
     public addEmployee(employeePayload: any): Observable<any> {
         return this.http.post(`${this.baseURL}/employees`, employeePayload);
+    }
+
+    public editEmployee(employeeId: any, employeePayload: any): Observable<any> {
+        return this.http.put(`${this.baseURL}/employees/${employeeId}`, employeePayload);
     }
 
 

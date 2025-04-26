@@ -154,32 +154,32 @@ export class AddEmployeeComponent {
   }
 
 
-  onCountryChange(countryCode: any) {
-    if (countryCode) {
+  onCountryChange(countryName: any) {
+    if (countryName) {
       this.states = [];  // Clear old states
       this.cities = [];  // Also clear old cities when country changes
       this.employeeForm.get('address')?.patchValue({ state: '', city: '' }); // Clear selected state and city
-      this.setStates(countryCode);
+      this.setStates(countryName);
     }
   }
 
-  onStateChange(stateId: any) {
-    if (stateId) {
+  onStateChange(stateName: any) {
+    if (stateName) {
       this.cities = [];  // Clear old cities
       this.employeeForm.get('address')?.patchValue({ city: '' }); // Clear selected city
-      this.setCities(stateId);
+      this.setCities(stateName);
     }
   }
 
 
-  setStates(countryCode: any) {
-    this.hrmApiService.getStates(countryCode).subscribe((apiRes: apiResultFormat) => {
+  setStates(countryName: any) {
+    this.hrmApiService.getStates(countryName).subscribe((apiRes: apiResultFormat) => {
       this.states = apiRes.data.filter((c: any) => c.status === 'Active');
     });
   }
 
-  setCities(stateId: any) {
-    this.hrmApiService.getCities(stateId).subscribe((apiRes: apiResultFormat) => {
+  setCities(stateName: any) {
+    this.hrmApiService.getCities(stateName).subscribe((apiRes: apiResultFormat) => {
       this.cities = apiRes.data.filter((c: any) => c.status === 'Active');
     });
   }

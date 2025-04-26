@@ -105,7 +105,7 @@
                 <a class="me-2 p-2 d-flex align-items-center border rounded" [routerLink]="routes.employeeDetails">
                   <i data-feather="eye" class="feather icon-eye"></i>
                 </a>
-                <a class="me-2 p-2 d-flex align-items-center border rounded" [routerLink]="routes.editEmployee">
+                <a class="me-2 p-2 d-flex align-items-center border rounded" [routerLink]="[routes.editEmployee, data.id]">
                   <i data-feather="edit" class="feather icon-edit"></i>
                 </a>
                 <a (click)="setDeleteEmployeeId(data.id)" data-bs-toggle="modal" data-bs-target="#delete-modal"
