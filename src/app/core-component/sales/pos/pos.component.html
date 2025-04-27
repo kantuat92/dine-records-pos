@@ -236,8 +236,11 @@
                             <td>
                                 <div class="d-flex align-items-center mb-1">
                                     <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">{{ cartItem.itemName }}</a></h6>
-                                    <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
+                                    <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal" (click)="openEditProductModal(cartItem)"
                                     data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
+                                    <ng-container *ngIf="isDiscountAvailable(cartItem.itemId)">
+                                      <i class="ti ti-meat non-veg-icon" ></i>
+                                  </ng-container>
                                 </div>
                                 <div *ngIf="cartItem.variants && cartItem.variants.length > 0">
                                   <p  *ngFor="let variant of cartItem.variants" class ="variants-addons">
@@ -404,7 +407,31 @@
             </div>
           </div>
         </div>
+        <div class="block-section payment-method">
+          <h4>Payment Method</h4>
+          <div class="row align-items-center justify-content-center methods g-3">
+            <div class="col-sm-6 col-md-4">
+              <a href="javascript:void(0);" class="payment-item" data-bs-toggle="modal" data-bs-target="#payment-cash">
+                <i class="ti ti-cash-banknote fs-18"></i>
+                <span>Cash</span>
+              </a>
+            </div>
+            <div class="col-sm-6 col-md-4">
+              <a href="javascript:void(0);" class="payment-item" data-bs-toggle="modal" data-bs-target="#payment-card">
+                <i class="ti ti-credit-card fs-18"></i>
+                <span>Debit Card</span>
+              </a>
+            </div>
+            <div class="col-sm-6 col-md-4">
+              <a href="javascript:void(0);" class="payment-item" data-bs-toggle="modal" data-bs-target="#scan-payment">
+                <i class="ti ti-scan fs-18"></i>
+                <span>Scan</span>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
+ 
       <div class="btn-row d-flex align-items-center justify-content-between gap-3">
         <a href="javascript:void(0);" class="btn btn-white d-flex align-items-center justify-content-center flex-fill m-0" data-bs-toggle="modal" data-bs-target="#print-receipt"><i  class="ti ti-printer me-2"></i>Print Order</a>
         <a href="javascript:void(0);" class="btn btn-secondary d-flex align-items-center justify-content-center flex-fill m-0"><i  class="ti ti-shopping-cart me-2"></i>Place Order</a>
@@ -984,7 +1011,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Edit Product</h5>
+        <h5 class="modal-title">Edit Item</h5>
         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">×</span>
         </button>
@@ -994,54 +1021,25 @@
           <div class="row">
             <div class="col-lg-12">
               <div class="mb-3">
-                <label class="form-label">Product Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" value="Red Nike Laser Show" disabled>
+                <label class="form-label">Item Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" [value]="selectedCartItem?.itemName" disabled>
               </div>
             </div>
-            <div class="col-lg-6 col-sm-12 col-12">
-              <div class="mb-3">
-                <label class="form-label">Product Price <span class="text-danger">*</span></label>
-                <div class="input-icon-start position-relative">
-                  <span class="input-icon-addon text-gray-9">
-                    <i class="ti ti-currency-dollar"></i>
-                  </span>
-                  <input type="text" class="form-control" value="1800">
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-6 col-sm-12 col-12">
-              <div class="mb-3">
-                <label class="form-label">Tax Type <span class="text-danger">*</span></label>
-                <mat-select class="custom-mat-select Select" placeholder="Exclusive">
-                  <mat-option value="1">Exclusive</mat-option>
-                  <mat-option value="1">Inclusive</mat-option>
-                </mat-select>
-              </div>
-            </div>
-            <div class="col-lg-6 col-sm-12 col-12">
-              <div class="mb-3">
-                <label class="form-label">Tax <span class="text-danger">*</span></label>
-                <div class="input-icon-start position-relative">
-                  <span class="input-icon-addon text-gray-9">
-                    <i class="ti ti-percentage"></i>
-                  </span>
-                  <input type="text" class="form-control" value="15">
-                </div>
-              </div>
-            </div>
+            
             <div class="col-lg-6 col-sm-12 col-12">
               <div class="mb-3">
                 <label class="form-label">Discount Type <span class="text-danger">*</span></label>
-                <mat-select class="custom-mat-select Select" placeholder="Percentage">
-                  <mat-option value="1">Percentage</mat-option>
-                  <mat-option value="1">Early payment discounts</mat-option>
+                <mat-select class="custom-mat-select Select" placeholder="Select Discount" [(ngModel)]="selectedDiscountId" name="discountType">
+                  <mat-option *ngFor="let discount of availableDiscounts" [value]="discount.id">
+                    {{ discount.discountName }}
+                  </mat-option>
                 </mat-select>
               </div>
             </div>
             <div class="col-lg-6 col-sm-12 col-12">
               <div class="mb-3">
                 <label class="form-label">Discount <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" value="15">
+                <input type="text" class="form-control" [value]="getSelectedDiscountAmount()" disabled>
               </div>
             </div>
             <div class="col-lg-6 col-sm-12 col-12">

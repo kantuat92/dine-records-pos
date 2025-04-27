@@ -128,6 +128,12 @@ export class PosComponent implements AfterViewInit {
   isServiceTaxSelected = false;
   serviceTaxPercent: number = 0; 
 
+  selectedCartItem: any = null;
+  availableDiscounts: any[] = [];
+  selectedDiscountId: number | null = null;
+  discounts: any[] = [];
+
+
   constructor(
     private data: DataService,
     private pagination: PaginationService,
@@ -392,7 +398,6 @@ prepareTaxModal(): void {
 }
 
 onTaxSelectionChange(value: string): void {
-  // Simply update the selected tax ID
   this.selectedOrderTaxId = value;
 }
   
@@ -1004,10 +1009,8 @@ changeQuantity(change: number): void {
   updateTaxesForAllItems(): void {
     this.cart = this.cart.map(item => {
       const newTaxes = this.getApplicableTaxes(item.itemId, item.originalTaxes);
-  
       // Check if the new taxes are different from the currently applied taxes
       const isTaxDifferent = JSON.stringify(newTaxes) !== JSON.stringify(item.appliedTaxes);
-  
       if (isTaxDifferent) {
         // Update the applied taxes and recalculate the total price
         const updatedItem = {
@@ -1017,7 +1020,6 @@ changeQuantity(change: number): void {
         };
         return updatedItem;
       }
-  
       return item; // No changes if the tax is the same
     });
   
@@ -1051,6 +1053,40 @@ changeQuantity(change: number): void {
       };
     });
   }
+
+  //Discount Modal
+  openEditProductModal(cartItem: any) {
+    const item = this.menuItems.find((menuItem: any) => menuItem.itemId === cartItem.itemId);
+    this.selectedCartItem = cartItem; // Save selected cart item
+    this.availableDiscounts = [];
+
+    // If item is found and it has discountIds
+    if (item && item.discountIds && item.discountIds.length > 0) {
+        item.discountIds.forEach((discountId: any) => {
+            const discount = this.discounts.find((d: any) => d.id === discountId);
+            if (discount) {
+                this.availableDiscounts.push(discount);
+            } 
+        });
+    } 
+    // Set default selected discount if any available
+    this.selectedDiscountId = this.availableDiscounts.length > 0 ? this.availableDiscounts[0].id : null;
+    console.log('Selected Discount ID:', this.selectedDiscountId);
+}
+
+  getSelectedDiscountAmount(): number | null {
+    const discount = this.availableDiscounts.find(d => d.id === this.selectedDiscountId);
+    return discount ? discount.discountAmount : null;
+  }
+
+  isDiscountAvailable(itemId: number): boolean {
+    const item = this.menuItems.find((menuItem: any) => menuItem.itemId === itemId);
+    if (item && item.discountIds && item.discountIds.length > 0) {
+        return true;
+    }
+    return false;
+}
+
   getCategories(restaurantId: string): void {
     this.menuApiService.getCategories(restaurantId).subscribe(
       response => {
@@ -1082,7 +1118,8 @@ changeQuantity(change: number): void {
     // this.toastService.showLoader();
     this.menuApiService.getMenuItemOnCategories(this.restaurantId, category.categoryId, this.orderType).subscribe(
       (response: any) => {
-        this.menuItems = response.content || []; // Assuming 'content' contains the menu items
+        this.menuItems = response.menuItems  || []; 
+        this.discounts = response.discounts || [];
         this.menuItems = this.menuItems.map((item: any) => ({
           ...item,
           isChecked: false,
@@ -1098,7 +1135,8 @@ changeQuantity(change: number): void {
 
 loadAllMenuItems(): void {
   this.menuApiService.getMenuItems(this.restaurantId).subscribe((response: any) => {
-    this.menuItems = response || [];
+    this.menuItems = response.menuItems || [];
+    this.discounts = response.discounts || [];
     // Add default checked state to each menu item
     this.originalMenuItems = [...this.menuItems]; 
 
