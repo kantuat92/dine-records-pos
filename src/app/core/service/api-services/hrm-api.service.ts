@@ -5,6 +5,7 @@ import { Department } from "../../models/department.model";
 import { apiResultFormat } from "../../core.index";
 import { designation, employeeList } from "src/app/shared/model/page.model";
 import { Shift } from "../../models/shift.model";
+import { Attendance } from "src/app/shared/model/attendance.model";
 
 
 @Injectable({
@@ -67,7 +68,7 @@ export class HrmApiService {
     }
 
     getEmployee(employeeId: any): Observable<any> {
-        return this.http.get<any>(`${this.baseURL}/employees/${employeeId}`);        
+        return this.http.get<any>(`${this.baseURL}/employees/${employeeId}`);
     }
 
     deleteEmployee(employeeId: any): Observable<any> {
@@ -110,6 +111,30 @@ export class HrmApiService {
         return this.http.put(`${this.baseURL}/employees/${employeeId}`, employeePayload);
     }
 
+    public getAttendance(restaurantId: any, employeeId: any): Observable<apiResultFormat> {
+        return this.http.get<apiResultFormat>
+            (`${this.baseURL}/attendances/restaurant/${restaurantId}/employee/${employeeId}/current-month`).pipe(
+                map((res: apiResultFormat) => {
+                    return res;
+                })
+            )
+    }
+
+    public clockIn(restaurantId: any, employeeId: any): Observable<Attendance> {
+        const requestBody = {
+            restaurantId: restaurantId,
+            employeeId: employeeId
+        };
+
+        return this.http.post<Attendance>(`${this.baseURL}/attendances`, requestBody);
+    }
+
+    public clockOut(attendanceId: any): Observable<Attendance> {
+        const requestBody = {            
+            id: attendanceId
+        };
+        return this.http.put<Attendance>(`${this.baseURL}/attendances/${attendanceId}/clock-out`, requestBody);
+    }
 
 
 }

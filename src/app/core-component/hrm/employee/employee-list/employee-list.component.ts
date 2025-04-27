@@ -68,8 +68,7 @@ export class EmployeeListComponent {
     });
   }
 
-  ngOnInit() {
-    // this.fetchRoles();
+  ngOnInit() {    
     this.loadData();
 
   }
