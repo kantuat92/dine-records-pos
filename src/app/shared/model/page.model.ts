@@ -767,6 +767,7 @@ export interface leavesadmin {
   isSelected?: boolean;
 }
 export interface leavestype {
+  id: any;
   sNo?: number;
   leaveType: string;
   leaveQuota: string;

@@ -41,8 +41,12 @@ export class LeavesTypeComponent {
 
   leaveTypeForm!: FormGroup;
   @ViewChild('closeButtonForCreate') closeButtonForCreate!: ElementRef<HTMLButtonElement>;
+  @ViewChild('closeButtonForEdit') closeButtonForEdit!: ElementRef<HTMLButtonElement>;
+  @ViewChild('closeButtonForDelete') closeButtonForDelete!: ElementRef<HTMLButtonElement>;
   restaurantId: any;
   private tablePageSizeSub!: Subscription;
+  editLeaveTypeForm!: FormGroup;
+  deleteLeaveTypeId: any;
 
 
 
@@ -65,6 +69,13 @@ export class LeavesTypeComponent {
       leaveType: ['', Validators.required],
       leaveQuota: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
       status: [true] // default value as checked
+    });
+
+    this.editLeaveTypeForm = this.fb.group({
+      id: [null], // hidden field to track editing ID
+      leaveType: ['', Validators.required],
+      leaveQuota: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
+      status: [true]
     });
   }
 
@@ -138,6 +149,75 @@ export class LeavesTypeComponent {
         serialNumberArray: this.serialNumberArray,
       });
     });
+  }
+
+  openEditModal(leave: leavestype): void {
+    this.editLeaveTypeForm.patchValue({
+      id: leave.id,
+      leaveType: leave.leaveType,
+      leaveQuota: leave.leaveQuota,
+      status: leave.status
+    });
+  }
+
+  onEditSubmit(): void {
+    if (this.editLeaveTypeForm.valid) {
+      const editedData = this.editLeaveTypeForm.value;
+      editedData.restaurantId = this.restaurantId;
+      console.log('Saving changes:', editedData);
+      // Call backend service to update record
+
+      this.hrmApiService.editLeaveType(editedData.id, editedData).subscribe(
+        response => {
+          const index = this.tableData.findIndex(leaveType => leaveType.id === editedData.id);
+          if (index !== -1) {
+            this.tableData[index] = {
+              ...this.tableData[index],
+              ...response
+            };
+            this.dataSource = new MatTableDataSource<leavestype>(this.tableData);
+          }
+          this.editLeaveTypeForm.reset();
+          this.editLeaveTypeForm.patchValue({ status: true });
+          this.closeButtonForEdit.nativeElement.click(); // Click the close button
+        },
+        error => {
+          alert('Error editing leave type!');
+          console.error(error);
+        }
+      );
+    } else {
+      this.editLeaveTypeForm.markAllAsTouched();
+    }
+  }
+
+  setDeleteLeaveTypeId(id: any) {
+    this.deleteLeaveTypeId = id;
+    console.log('deleteLeaveTypeId set to : ', this.deleteLeaveTypeId);
+  }
+
+  deleteLeaveType(): void {
+
+    if (!this.deleteLeaveTypeId) {
+      alert("deleteLeaveTypeId cannot be null");
+      return;
+    }
+
+    this.hrmApiService.deleteLeaveType(this.deleteLeaveTypeId).subscribe(
+      () => {
+        this.tableData = this.tableData.filter(leaveType => leaveType.id !== this.deleteLeaveTypeId);
+        this.tableData.forEach((leaveType, index) => leaveType.sNo = index + 1);
+        this.serialNumberArray = this.tableData.map((_, index) => index + 1);
+        this.dataSource = new MatTableDataSource<leavestype>(this.tableData);
+
+        this.deleteLeaveTypeId = null;
+        this.closeButtonForDelete.nativeElement.click();
+      },
+      (error) => {
+        console.error('Error:', error);
+        alert('Failed to DELETE leave type.');
+      }
+    );
   }
 
   public sortData(sort: Sort) {

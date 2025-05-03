@@ -79,7 +79,7 @@ export class HrmApiService {
         return this.http.get<Shift[]>(`${this.baseURL}/shifts/restaurant/${restaurantId}`);
     }
 
-    public getCountries(): Observable<apiResultFormat> {
+    getCountries(): Observable<apiResultFormat> {
         return this.http.get<apiResultFormat>(`${this.baseURL}/countries`).pipe(
             map((res: apiResultFormat) => {
                 return res;
@@ -87,7 +87,7 @@ export class HrmApiService {
         )
     }
 
-    public getStates(countryName: any): Observable<apiResultFormat> {
+    getStates(countryName: any): Observable<apiResultFormat> {
         return this.http.get<apiResultFormat>(`${this.baseURL}/states/country/${countryName}`).pipe(
             map((res: apiResultFormat) => {
                 return res;
@@ -95,7 +95,7 @@ export class HrmApiService {
         )
     }
 
-    public getCities(stateName: any): Observable<apiResultFormat> {
+    getCities(stateName: any): Observable<apiResultFormat> {
         return this.http.get<apiResultFormat>(`${this.baseURL}/cities/state/${stateName}`).pipe(
             map((res: apiResultFormat) => {
                 return res;
@@ -103,15 +103,15 @@ export class HrmApiService {
         )
     }
 
-    public addEmployee(employeePayload: any): Observable<any> {
+    addEmployee(employeePayload: any): Observable<any> {
         return this.http.post(`${this.baseURL}/employees`, employeePayload);
     }
 
-    public editEmployee(employeeId: any, employeePayload: any): Observable<any> {
+    editEmployee(employeeId: any, employeePayload: any): Observable<any> {
         return this.http.put(`${this.baseURL}/employees/${employeeId}`, employeePayload);
     }
 
-    public getAttendance(restaurantId: any, employeeId: any): Observable<apiResultFormat> {
+    getAttendance(restaurantId: any, employeeId: any): Observable<apiResultFormat> {
         return this.http.get<apiResultFormat>
             (`${this.baseURL}/attendances/restaurant/${restaurantId}/employee/${employeeId}/current-month`).pipe(
                 map((res: apiResultFormat) => {
@@ -120,7 +120,7 @@ export class HrmApiService {
             )
     }
 
-    public clockIn(restaurantId: any, employeeId: any): Observable<Attendance> {
+    clockIn(restaurantId: any, employeeId: any): Observable<Attendance> {
         const requestBody = {
             restaurantId: restaurantId,
             employeeId: employeeId
@@ -129,24 +129,32 @@ export class HrmApiService {
         return this.http.post<Attendance>(`${this.baseURL}/attendances`, requestBody);
     }
 
-    public clockOut(attendanceId: any): Observable<Attendance> {
+    clockOut(attendanceId: any): Observable<Attendance> {
         const requestBody = {
             id: attendanceId
         };
         return this.http.put<Attendance>(`${this.baseURL}/attendances/${attendanceId}/clock-out`, requestBody);
     }
 
-    public createLeaveType(payload: any): Observable<any> {
+    createLeaveType(payload: any): Observable<any> {
         return this.http.post(`${this.baseURL}/leave-types`, payload);
     }
 
-    public getLeaveTypes(restaurantId: any): Observable<apiResultFormat> {
+    getLeaveTypes(restaurantId: any): Observable<apiResultFormat> {
         return this.http.get<apiResultFormat>
             (`${this.baseURL}/leave-types/restaurant/${restaurantId}`).pipe(
                 map((res: apiResultFormat) => {
                     return res;
                 })
             )
+    }
+
+    editLeaveType(id: any, payload: any): Observable<any> {
+        return this.http.put(`${this.baseURL}/leave-types/${id}`, payload);
+    }
+
+    deleteLeaveType(id: any): Observable<any> {
+        return this.http.delete(`${this.baseURL}/leave-types/${id}`);
     }
 
 
