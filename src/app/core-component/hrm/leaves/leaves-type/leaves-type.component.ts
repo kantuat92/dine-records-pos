@@ -1,23 +1,29 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { apiResultFormat } from 'src/app/core/core.index';
 import { routes } from 'src/app/core/helpers/routes';
+import { HrmApiService } from 'src/app/core/service/api-services/hrm-api.service';
 import { DataService } from 'src/app/core/service/data/data.service';
 import { SidebarService } from 'src/app/core/service/sidebar/sidebar.service';
+import { selectRestaurantId } from 'src/app/core/store/restaurant.selectors';
 import { PaginationService, pageSelection, tablePageSize } from 'src/app/shared/custom-pagination/pagination.service';
 import { leavestype } from 'src/app/shared/model/page.model';
 import Swal from 'sweetalert2';
+import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
+
 interface data {
   value: string;
 }
 
 @Component({
-    selector: 'app-leaves-type',
-    templateUrl: './leaves-type.component.html',
-    styleUrl: './leaves-type.component.scss',
-    standalone: false
+  selector: 'app-leaves-type',
+  templateUrl: './leaves-type.component.html',
+  styleUrl: './leaves-type.component.scss',
+  standalone: false
 })
 export class LeavesTypeComponent {
   public routes = routes;
@@ -32,25 +38,87 @@ export class LeavesTypeComponent {
   public searchDataValue = '';
   //** / pagination variables
 
+
+  leaveTypeForm!: FormGroup;
+  @ViewChild('closeButtonForCreate') closeButtonForCreate!: ElementRef<HTMLButtonElement>;
+  restaurantId: any;
+  private tablePageSizeSub!: Subscription;
+
+
+
   constructor(
     private data: DataService,
     private pagination: PaginationService,
     private router: Router,
-    private sidebar: SidebarService
+    private sidebar: SidebarService,
+    private fb: FormBuilder,
+    private hrmApiService: HrmApiService,
+    private store: Store
   ) {
-    this.data.getDataTable().subscribe((apiRes: apiResultFormat) => {
-      this.totalData = apiRes.totalData;
-      this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
-        if (this.router.url == this.routes.leavesType) {
-          this.getTableData({ skip: res.skip, limit: this.totalData  });
-          this.pageSize = res.pageSize;
-        }
-      });
+
+    this.store.select(selectRestaurantId).subscribe(id => {
+      console.log('In leaves-type.component.ts Restaurant id from store: ', id);
+      this.restaurantId = id;
+    });
+
+    this.leaveTypeForm = this.fb.group({
+      leaveType: ['', Validators.required],
+      leaveQuota: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
+      status: [true] // default value as checked
     });
   }
 
+  ngOnInit(): void {
+    this.loadData();
+  }
+
+  loadData() {
+
+    if (this.tablePageSizeSub) {
+      this.tablePageSizeSub.unsubscribe();
+    }
+    this.tablePageSizeSub = this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
+      console.log('In tablePageSize subscribe, leave-types');
+      if (this.router.url == this.routes.leavesType) {
+        this.getTableData({ skip: res.skip, limit: res.limit });
+        this.pageSize = res.pageSize;
+      }
+    });
+
+    this.searchDataValue = '';
+  }
+
+  onSubmit(): void {
+    if (this.leaveTypeForm.valid) {
+      const leaveData = this.leaveTypeForm.value;
+      leaveData.restaurantId = this.restaurantId;
+      console.log('Submitting Leave Type:', leaveData);
+
+      this.hrmApiService.createLeaveType(leaveData).subscribe(
+        response => {
+          const newLeaveType: leavestype = {
+            ...response,
+            sNo: this.tableData.length + 1
+          }
+          this.tableData.push(newLeaveType);
+          this.leaveTypeForm.reset();
+          this.leaveTypeForm.patchValue({ status: true });
+          this.closeButtonForCreate.nativeElement.click(); // Click the close button
+        },
+        error => {
+          alert('Error adding leave type!');
+          console.error(error);
+        }
+      );
+
+
+    } else {
+      this.leaveTypeForm.markAllAsTouched();
+    }
+  }
+
   private getTableData(pageOption: pageSelection): void {
-    this.data.getLeavesType().subscribe((apiRes: apiResultFormat) => {
+    this.hrmApiService.getLeaveTypes(this.restaurantId).subscribe((apiRes: apiResultFormat) => {
       this.tableData = [];
       this.serialNumberArray = [];
       this.totalData = apiRes.totalData;
@@ -146,7 +214,7 @@ export class LeavesTypeComponent {
     { value: 'Choose Type' },
     { value: 'Maternity' },
     { value: 'Sick Leave' },
-   
+
   ];
   selectedList3: data[] = [
     { value: 'Choose Status' },

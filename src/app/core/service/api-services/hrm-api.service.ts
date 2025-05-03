@@ -130,10 +130,23 @@ export class HrmApiService {
     }
 
     public clockOut(attendanceId: any): Observable<Attendance> {
-        const requestBody = {            
+        const requestBody = {
             id: attendanceId
         };
         return this.http.put<Attendance>(`${this.baseURL}/attendances/${attendanceId}/clock-out`, requestBody);
+    }
+
+    public createLeaveType(payload: any): Observable<any> {
+        return this.http.post(`${this.baseURL}/leave-types`, payload);
+    }
+
+    public getLeaveTypes(restaurantId: any): Observable<apiResultFormat> {
+        return this.http.get<apiResultFormat>
+            (`${this.baseURL}/leave-types/restaurant/${restaurantId}`).pipe(
+                map((res: apiResultFormat) => {
+                    return res;
+                })
+            )
     }
 
 

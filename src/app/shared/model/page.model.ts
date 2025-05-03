@@ -768,9 +768,9 @@ export interface leavesadmin {
 }
 export interface leavestype {
   sNo?: number;
-  name: string;
+  leaveType: string;
   leaveQuota: string;
-  createdOn: string;
+  createdDate: string;
   status: string;
   isSelected?: boolean;
 }
