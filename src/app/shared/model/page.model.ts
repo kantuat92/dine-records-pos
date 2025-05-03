@@ -483,10 +483,10 @@ export interface file {
 }
 export interface holiday {
   sNo: number;
-  type: string;
-  date: string;
+  holiday: string;
+  fromDate: string;
   description: string;
-  status: string;
+  status: boolean;
   isSelected?: boolean;
 }
 export interface languagesetting {

@@ -157,5 +157,25 @@ export class HrmApiService {
         return this.http.delete(`${this.baseURL}/leave-types/${id}`);
     }
 
+    createHoliday(payload: any): Observable<any> {
+        return this.http.post(`${this.baseURL}/holidays`, payload);
+    }
+
+    getHolidays(restaurantId: any): Observable<apiResultFormat | null> {
+        return this.http.get<apiResultFormat>
+            (`${this.baseURL}/holidays/restaurant/${restaurantId}`).pipe(
+                map((res: apiResultFormat | null) => {
+                    return res ?? null;
+                })
+            )
+    }
+
+    editHoliday(id: any, payload: any): Observable<any> {
+        return this.http.put(`${this.baseURL}/holidays/${id}`, payload);
+    }
+
+    deleteHoliday(id: any): Observable<any> {
+        return this.http.delete(`${this.baseURL}/holidays/${id}`);
+    }
 
 }
