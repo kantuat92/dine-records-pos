@@ -482,9 +482,12 @@ export interface file {
   isSelected?: boolean;
 }
 export interface holiday {
+  id: any,
   sNo: number;
   holiday: string;
   fromDate: string;
+  toDate: string;
+  noOfDays: number;
   description: string;
   status: boolean;
   isSelected?: boolean;

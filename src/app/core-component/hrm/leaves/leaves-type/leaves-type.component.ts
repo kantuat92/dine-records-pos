@@ -165,8 +165,7 @@ export class LeavesTypeComponent {
       const editedData = this.editLeaveTypeForm.value;
       editedData.restaurantId = this.restaurantId;
       console.log('Saving changes:', editedData);
-      // Call backend service to update record
-
+      
       this.hrmApiService.editLeaveType(editedData.id, editedData).subscribe(
         response => {
           const index = this.tableData.findIndex(leaveType => leaveType.id === editedData.id);

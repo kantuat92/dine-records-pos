@@ -98,11 +98,22 @@ export class HolidaysComponent {
       restaurantId: [null],
     });
 
-    // Optional: Auto-calculate noOfDays
+    this.editHolidayForm = this.fb.group({
+      id: [null],
+      holiday: ['', Validators.required],
+      fromDate: [null, Validators.required],
+      toDate: [null, Validators.required],
+      noOfDays: [null],
+      description: ['', Validators.required],
+      status: [true],
+      restaurantId: [null],
+    });
+
     this.holidayForm.get('fromDate')?.valueChanges.subscribe(() => this.calculateNoOfDays());
     this.holidayForm.get('toDate')?.valueChanges.subscribe(() => this.calculateNoOfDays());
 
-
+    this.editHolidayForm.get('fromDate')?.valueChanges.subscribe(() => this.calculateNoOfDays());
+    this.editHolidayForm.get('toDate')?.valueChanges.subscribe(() => this.calculateNoOfDays());
   }
 
   calculateNoOfDays(): void {
@@ -172,11 +183,11 @@ export class HolidaysComponent {
 
   onSubmit(): void {
     if (this.holidayForm.valid) {
-      const leaveData = this.holidayForm.value;
-      leaveData.restaurantId = this.restaurantId;
-      console.log('Submitting holiday:', leaveData);
+      const holiday = this.holidayForm.value;
+      holiday.restaurantId = this.restaurantId;
+      console.log('Submitting holiday:', holiday);
 
-      this.hrmApiService.createHoliday(leaveData).subscribe(
+      this.hrmApiService.createHoliday(holiday).subscribe(
         response => {
           const newHoliday: holiday = {
             ...response,
@@ -188,7 +199,7 @@ export class HolidaysComponent {
           this.closeButtonForCreate.nativeElement.click(); // Click the close button
         },
         error => {
-          alert('Error adding leave type!');
+          alert('Error adding holiday!');
           console.error(error);
         }
       );
@@ -197,6 +208,77 @@ export class HolidaysComponent {
     }
   }
 
+  openEditModal(holiday: holiday): void {
+    this.editHolidayForm.patchValue({
+      id: holiday.id,
+      holiday: holiday.holiday,
+      fromDate: holiday.fromDate ? new Date(holiday.fromDate) : null,
+      toDate: holiday.toDate ? new Date(holiday.toDate) : null,
+      noOfDays: holiday.noOfDays,
+      description: holiday.description,
+      status: holiday.status
+    });
+
+    console.log('editHolidayForm: ', this.editHolidayForm);
+  }
+
+  onEditSubmit(): void {
+    if (this.editHolidayForm.valid) {
+      const editedHoliday = this.editHolidayForm.value;
+      editedHoliday.restaurantId = this.restaurantId;
+
+      console.log('Saving changes:', editedHoliday);
+
+      this.hrmApiService.editHoliday(editedHoliday.id, editedHoliday).subscribe(
+        response => {
+          const index = this.tableData.findIndex(holiday => holiday.id === editedHoliday.id);
+          if (index !== -1) {
+            this.tableData[index] = { ...this.tableData[index], ...response };
+            this.dataSource = new MatTableDataSource<holiday>(this.tableData);
+          }
+          this.editHolidayForm.reset();
+          this.editHolidayForm.patchValue({ status: true });
+          this.closeButtonForEdit.nativeElement.click();
+        },
+        error => {
+          alert('Error editing holiday!');
+          console.error(error);
+        }
+      );
+    } else {
+      this.editHolidayForm.markAllAsTouched();
+    }
+  }
+
+
+  setDeleteHolidayId(id: any) {
+    this.deleteHolidayId = id;
+    console.log('deleteHolidayId set to : ', this.deleteHolidayId);
+  }
+
+  deleteHoliday(): void {
+
+    if (!this.deleteHolidayId) {
+      alert("deleteHolidayId cannot be null");
+      return;
+    }
+
+    this.hrmApiService.deleteHoliday(this.deleteHolidayId).subscribe(
+      () => {
+        this.tableData = this.tableData.filter(holiday => holiday.id !== this.deleteHolidayId);
+        this.tableData.forEach((holiday, index) => holiday.sNo = index + 1);
+        this.serialNumberArray = this.tableData.map((_, index) => index + 1);
+        this.dataSource = new MatTableDataSource<holiday>(this.tableData);
+
+        this.deleteHolidayId = null;
+        this.closeButtonForDelete.nativeElement.click();
+      },
+      (error) => {
+        console.error('Error:', error);
+        alert('Failed to DELETE holiday type.');
+      }
+    );
+  }
 
   public sortData(sort: Sort) {
     const data = this.tableData.slice();
