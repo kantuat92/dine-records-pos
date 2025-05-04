@@ -29,5 +29,437 @@
     font-weight: bold; /* Makes the price bold */
     //font-size: 0.2rem; /* Adjust price font size */
   }
+  .variants-addons {
+    font-size: 0.7rem; /* Smaller font size for variants and add-ons */
+    //margin-left: 20px; /* Indentation to align under the main product */
+    color: #555; /* Optional: Color change for variants/add-ons */
+    margin: 0; /* Remove default margins */
+    padding: 0; /* Remove default padding */
+    line-height: 1.3; /* Reduce line height for tighter spacing */
+  }
+  .variants-addons + .variants-addons {
+    margin-top: 2px; /* Negative margin to reduce space between add-ons */
+  }
   
+  /* For the gap between variants and add-ons (normal spacing) */
+  div[variants] + div[addOns] {
+    margin-top: 8px; /* Maintain normal space between variants and add-ons sections */
+  }
+  
+  /* Left alignment for all items */
+  td > div {
+    text-align: left;
+    margin-left: 0;
+    padding-left: 0;
+  }
+  
+  /* Remove any right alignment */
+  .variants-addons em {
+    display: block;
+    text-align: left;
+    margin-left: 0;
+  }
+  
+  table.table th, table.table td {
+    padding: 8px; /* Ensures consistent padding for all cells */
+  }
+  
+  table.table td {
+    vertical-align: top; /* Keeps all text aligned to the top */
+  }
+  
+  table.table td .variants-addons {
+    padding-left: 20px; /* Ensures proper indentation */
+  }
+  
+  /* Variants Styling */
+/* Option Buttons - for both variants and add-ons */
+.option-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 
+.option-button {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: all 0.3s;
+  background: white;
+  display: flex;
+  align-items: center;
+  min-width: 80px;
+}
+
+.option-button-selected {
+  border-color: #0f1827;
+  background-color: rgba(115, 103, 240, 0.08);
+  color: #23242c;
+  font-weight: 500;
+}
+
+.option-button:hover {
+  border-color: #7367f0;
+}
+
+.option-price {
+  margin-left: 6px;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.option-button-selected .option-price {
+  color: #7367f0;
+}
+
+/* Quantity Selector (unchanged) */
+
+.counter-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-quantity {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e0e0e0;
+  background: white;
+}
+
+.quantity-value {
+  min-width: 30px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.counter-container ::ng-deep {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .btn-quantity {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e0e0e0;
+    background: white;
+    padding: 0;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: #f5f5f5;
+    }
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    i {
+      font-size: 14px;
+    }
+  }
+  .quantity-value {
+    min-width: 30px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 15px;
+  }
+}
+/* Add to Cart Button (unchanged) */
+.btn-add-to-cart {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: #7367f0;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.btn-add-to-cart:disabled {
+  background: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.total-price {
+  font-weight: 600;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #4a4a4a;
+}
+
+.required-asterisk {
+  color: #d65658;
+}
+
+/* Dietary Icons Styling */
+.dietary-icons {
+  display: flex;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.veg-icon {
+  color: #20a03e !important; /* Green color for veg */
+  font-size: 16px;
+}
+
+.non-veg-icon {
+  color: #e61227 !important; /* Red color for non-veg */
+  font-size: 16px;
+}
+
+.ti-star-filled {
+  vertical-align: middle;
+}
+
+
+/* Dropdown styling */
+.table-selection-dropdown {
+  width: 500px;
+  padding: 0;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Area list styling */
+.area-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Table box styling */
+.table-box {
+  width: 80px;
+  height: 80px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.table-box:hover {
+  border-color: #3c55c4;
+  background-color: rgba(115, 103, 240, 0.08);
+}
+
+.table-box.selected {
+  border-color: #7b2a8f;
+  background-color: rgba(115, 103, 240, 0.15);
+}
+
+.table-number {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.table-seats {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+/* Vertical separator */
+/* Compact Area List */  
+ .table-selection-menu {
+  background-color: #1a1d23;
+  border: 1px solid #2d313a;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  max-width: 100vw;
+  width: auto !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Flex container */
+.table-selection-menu .d-flex {
+  flex-direction: column;
+}
+
+/* Header styling */
+.dropdown-header {
+  color: #7ad0ff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.4rem 0.8rem;
+  margin-bottom: 0.5rem;
+  background-color: #252a33;
+}
+
+/* Areas column - prominent */
+.area-column {
+  background-color: #252a33;
+  border-bottom: 1px solid #2d313a;
+  width: 100% !important;
+  padding: 0.8rem !important;
+}
+
+.area-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 6px;
+}
+
+.area-item {
+  color: #d1e8ff;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.6rem !important;
+  margin: 0 !important;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  background-color: #2d313a;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: 1px solid transparent;
+}
+
+.area-item:hover {
+  background-color: #3a4251 !important;
+  border-color: #7ad0ff;
+}
+
+.area-item.active {
+  background-color: #7ad0ff !important;
+  color: #1a1d23 !important;
+  font-weight: 700;
+  border-color: #7ad0ff;
+}
+
+/* Tables grid - exactly 4 per row with gaps */
+.tables-column {
+  background-color: #8e7785;
+  width: 100% !important;
+  //padding: 0.8rem !important;
+}
+
+.table-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px; /* Space between tables horizontally */
+  justify-content: space-between; /* Ensures space between tables */
+}
+
+.table-box {
+  background-color: #252a33;
+  border: 1px solid #2d313a;
+  border-radius: 4px;
+  padding-right: 0.15rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: calc(25% - 8px); /* Adjust width for 4 tables per row with gap */
+}
+
+.table-box:hover {
+  background-color: #2d3542;
+  border-color: #7ad0ff;
+  transform: scale(1.05);
+}
+
+.table-box.selected {
+  background-color: #7ad0ff;
+  border-color: #7ad0ff;
+  color: #1a1d23;
+  font-weight: 700;
+  transform: scale(1.05);
+}
+
+.table-number {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #d1e8ff;
+  line-height: 1;
+}
+
+.table-seats {
+  font-size: 1rem;
+  color: #8a9bb0;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.table-box.selected .table-number,
+.table-box.selected .table-seats {
+  color: #1a1d23;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .table-selection-menu .d-flex {
+    flex-direction: row;
+    min-width: 500px;
+  }
+  
+  .area-column {
+    border-right: 1px solid #2d313a !important;
+    border-bottom: none;
+    width: 35% !important;
+    min-width: 160px;
+  }
+  
+  .area-list {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: none;
+    gap: 4px;
+  }
+  
+  .area-item {
+    text-align: left;
+    padding: 0.4rem 0.8rem !important;
+  }
+  
+  .tables-column {
+    width: 65% !important;
+  }
+
+  /* Maintain 4 columns with responsive gap */
+  .table-grid {
+    grid-template-columns: repeat(4, minmax(50px, 1fr));
+    gap: 10px; /* Slightly larger gap on desktop */
+  }
+  .highlighted {
+    background-color: #f0b6c7 !important; /* light green */
+    transition: background-color 0.5s ease;
+  }
+
+  .tax-breakdown-row {
+    font-size: 8px;
+    line-height: 1; /* Tight line spacing */
+  }
+  
+  .tax-breakdown-label,
+  .tax-breakdown-value {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    vertical-align: middle;
+    color: #6c757d; /* Optional: muted gray */
+  }
+  
+  
+}

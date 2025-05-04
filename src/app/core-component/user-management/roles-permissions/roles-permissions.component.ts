@@ -11,10 +11,16 @@ import {
 } from 'src/app/core/core.index';
 import { HttpClient } from '@angular/common/http';
 import { SidebarService } from 'src/app/core/service/sidebar/sidebar.service';
-import { rolesPermissions } from 'src/app/shared/model/page.model';
+import { Role } from 'src/app/shared/model/page.model';
 import { PaginationService, tablePageSize } from 'src/app/shared/shared.index';
 import Swal from 'sweetalert2';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UserManagementAPIService } from 'src/app/core/service/api-services/user-management-api.service';
+import { Store } from '@ngrx/store';
+import { selectRestaurantId } from '../../../core/store/restaurant.selectors';
+import { Subscription } from 'rxjs';
+import { AuthService } from 'src/app/core/service/auth/auth.service';
+
 interface data {
   value: string;
 }
@@ -49,25 +55,27 @@ export class RolesPermissionsComponent {
     { value: 'Admin' },
     { value: 'Shop Owner' },
   ];
-  // pagination variables
-  public tableData: Array<rolesPermissions> = [];
+
+  public tableData: Array<Role> = [];
   public pageSize = 10;
   public serialNumberArray: Array<number> = [];
   public totalData = 0;
   showFilter = false;
-  dataSource!: MatTableDataSource<rolesPermissions>;
+  dataSource!: MatTableDataSource<Role>;
   public searchDataValue = '';
   roleName: string = '';
   deleteRoleId: number | null = null;
   public currentSearchText = '';
   public currentStatusFilter = 'all';
   public selectedStatus: string = 'Status'; // Default label
+  restaurantId: any;
 
 
   @ViewChild('closeButton') closeButton!: ElementRef<HTMLButtonElement>;
   @ViewChild('closeButtonForEdit') closeButtonForEdit!: ElementRef<HTMLButtonElement>;
   @ViewChild('closeButtonForDelete') closeButtonForDelete!: ElementRef<HTMLButtonElement>;
-  //** / pagination variables
+
+  private tablePageSizeSub!: Subscription;
 
   constructor(
     private data: DataService,
@@ -75,9 +83,18 @@ export class RolesPermissionsComponent {
     private router: Router,
     private sidebar: SidebarService,
     private http: HttpClient,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private userManagementService: UserManagementAPIService,
+    private store: Store,
+    public authService: AuthService
   ) {
-    this.loadData();
+
+    this.store.select(selectRestaurantId).subscribe(id => {
+      console.log('In roles-permissions.component.ts Restaurant id from store: ', id);
+      this.restaurantId = id;
+    });
+
+
     this.editRoleForm = this.fb.group({
       id: [null],
       role: ['', Validators.required],
@@ -86,20 +103,39 @@ export class RolesPermissionsComponent {
 
   }
 
+  ngOnInit() {
+    console.log('ngOnInit called in roles-permissions, ROLES:READ : ', this.authService.hasPermission('ROLES:READ'));
+    if (this.authService.hasPermission('ROLES:READ')) {
+      this.loadData();
+    }
+
+  }
+
+  ngOnDestroy() {
+    console.log('ngOnDestroy called in roles-permissions');
+    if (this.tablePageSizeSub) {
+      this.tablePageSizeSub.unsubscribe();
+    }
+  }
+
   loadData() {
-    this.data.getDataTable().subscribe((apiRes: apiResultFormat) => {
-      this.totalData = apiRes.totalData;
-      this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
-        if (this.router.url == this.routes.rolesPermission) {
-          this.getTableData({ skip: res.skip, limit: this.totalData });
-          this.pageSize = res.pageSize;
-        }
-      });
+
+    if (this.tablePageSizeSub) {
+      this.tablePageSizeSub.unsubscribe();
+    }
+
+    this.tablePageSizeSub = this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
+      if (this.router.url == this.routes.rolesPermission) {
+        console.log('In tablePageSize subscribe, roles-permissions');
+        this.getTableData({ skip: res.skip, limit: res.limit });
+        this.pageSize = res.pageSize;
+      }
     });
+
     this.searchDataValue = '';
   }
 
-  setEditRoleId(roleId: number) {    
+  setEditRoleId(roleId: number) {
     const role = this.tableData.find(u => u.id === roleId);
     if (role) {
       this.editRoleForm.patchValue({
@@ -126,17 +162,15 @@ export class RolesPermissionsComponent {
       return;
     }
 
-    const requestBody = {
-      role: this.roleName,
-      status: true,
-      restaurantId: 1  // Adjust dynamically if needed
-    };
-
-    this.http.post('http://localhost:8080/api/v1/roles', requestBody).subscribe(
+    this.userManagementService.createRole(this.roleName, this.restaurantId).subscribe(
       (response) => {
-        this.roleName = ''; // Clear input field
-        this.loadData();
-        this.closeButton.nativeElement.click(); // Click the close button
+        this.roleName = '';
+        const newRole: Role = {
+          ...response,
+          sNo: this.tableData.length + 1
+        }
+        this.tableData.push(newRole);
+        this.closeButton.nativeElement.click();
       },
       (error) => {
         console.error('Error:', error);
@@ -145,13 +179,23 @@ export class RolesPermissionsComponent {
     );
   }
 
-  editRole() {
+
+  editRole(): void {
     if (this.editRoleForm.valid) {
       const roleData = this.editRoleForm.value;
-      this.http.put(`http://localhost:8080/api/v1/roles/${roleData.id}`, roleData).subscribe(
-        (response) => {          
+
+      this.userManagementService.updateRole(roleData).subscribe(
+        (response) => {
+
+          const index = this.tableData.findIndex(role => role.id === roleData.id);
+          if (index !== -1) {
+            this.tableData[index] = {
+              ...this.tableData[index],
+              ...roleData
+            };
+            this.dataSource = new MatTableDataSource<Role>(this.tableData);
+          }
           this.editRoleForm.reset();
-          this.loadData();
           this.closeButtonForEdit.nativeElement.click(); // Click the close button
         },
         (error) => {
@@ -162,18 +206,22 @@ export class RolesPermissionsComponent {
     }
   }
 
-  deleteRole(): void {
 
+  deleteRole(): void {
     if (!this.deleteRoleId) {
       alert("Role Id cannot be null");
       return;
     }
 
-    this.http.delete(`http://localhost:8080/api/v1/roles/${this.deleteRoleId}`).subscribe(
+    this.userManagementService.deleteRole(this.deleteRoleId).subscribe(
       (response) => {
-        this.deleteRoleId = null; // Clear input field      
-        this.loadData();
-        this.closeButtonForDelete.nativeElement.click(); // Click the close button
+        this.tableData = this.tableData.filter(role => role.id !== this.deleteRoleId);
+        this.tableData.forEach((role, index) => role.sNo = index + 1);
+        this.serialNumberArray = this.tableData.map((_, index) => index + 1);
+        this.dataSource = new MatTableDataSource<Role>(this.tableData);
+
+        this.deleteRoleId = null;
+        this.closeButtonForDelete.nativeElement.click();
       },
       (error) => {
         console.error('Error:', error);
@@ -182,12 +230,13 @@ export class RolesPermissionsComponent {
     );
   }
 
+
   private getTableData(pageOption: pageSelection): void {
-    this.data.getRolesPermissions().subscribe((apiRes: apiResultFormat) => {
+    this.userManagementService.getRoles(this.restaurantId).subscribe((apiRes: apiResultFormat) => {
       this.tableData = [];
       this.serialNumberArray = [];
       this.totalData = apiRes.totalData;
-      apiRes.data.map((res: rolesPermissions, index: number) => {
+      apiRes.data.map((res: Role, index: number) => {
         const serialNumber = index + 1;
         if (index >= pageOption.skip && serialNumber <= pageOption.limit) {
           res.sNo = serialNumber;
@@ -197,14 +246,14 @@ export class RolesPermissionsComponent {
       });
 
 
-      this.dataSource = new MatTableDataSource<rolesPermissions>(this.tableData);
-      this.dataSource.filterPredicate = (data: rolesPermissions, filter: string) => {
+      this.dataSource = new MatTableDataSource<Role>(this.tableData);
+      this.dataSource.filterPredicate = (data: Role, filter: string) => {
         const filterObj = JSON.parse(filter);
         const matchesStatus =
           filterObj.status === 'all' || data.status.toString().toLowerCase() === filterObj.status;
-          const matchesSearch = data.role.toLowerCase().includes(filterObj.search);
+        const matchesSearch = data.role.toLowerCase().includes(filterObj.search);
 
-        
+
         return matchesStatus && matchesSearch;
       };
 
@@ -250,9 +299,9 @@ export class RolesPermissionsComponent {
     this.dataSource.filter = JSON.stringify(filterObj);
     this.tableData = this.dataSource.filteredData;
   }
-  
-  
-  
+
+
+
 
   confirmColor() {
     const swalWithBootstrapButtons = Swal.mixin({
@@ -303,7 +352,13 @@ export class RolesPermissionsComponent {
       });
     }
   }
-  
-  
+
+  navigateToPermissions(roleId: number, roleName: string) {
+    this.router.navigate([routes.permissions], {
+      state: { roleId: roleId, roleName: roleName, restaurantId: this.restaurantId }
+    });
+  }
+
+
 
 }

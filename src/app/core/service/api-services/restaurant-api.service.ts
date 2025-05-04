@@ -20,4 +20,10 @@ export class RestaurantApiService {
     console.log(`Fetching restaurant data for email: ${email}`);
     return this.http.get<any>(url);
   }
+
+  getRestaurantByUsername(username: string): Observable<any> {
+    const url = `${this.baseUrl}/restaurants/by-username?username=${encodeURIComponent(username)}`;
+    console.log(`Fetching restaurant data for username: ${username}`);
+    return this.http.get<any>(url);
+  }
 }

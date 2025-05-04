@@ -9,18 +9,11 @@
             <owl-carousel-o [options]="posCategories5">
               <ng-template carouselSlide>
                 <li id="all" (click)="openTab()" [ngClass]="{'active':istab}">
-                  <!-- <a href="javascript:void(0);">
-                    <img src="assets/img/products/pos-product-01.png" alt="Categories">
-                  </a> -->
                   <h6><a href="javascript:void(0);">All</a></h6>
                 </li>
               </ng-template>
-              <!-- Loop through categories dynamically -->
               <ng-template carouselSlide *ngFor="let category of categories">
                 <li (click)="getMenuItemOnCategories(category)" [ngClass]="{'active': selectedCategory === category}">
-                  <!-- <a href="javascript:void(0);">
-                    <img [src]="category.logoImageUrl" alt="Category">
-                  </a> -->
                   <h6><a href="javascript:void(0);">{{ category.categoryName }}</a></h6>
                 </li>
               </ng-template>
@@ -30,19 +23,21 @@
         </div>
         <div class="tab-content-wrap" #menuSection>
           <div class="d-flex align-items-center justify-content-between flex-wrap mb-2">
-            <div class="mb-3">
-              <h5 class="mb-1">Welcome,  Wesley Adrian</h5>
-              <p>December 24, 2024</p>
+            <div class="input-icon-start search-pos position-relative mb-2 me-3">
+              <span class="input-icon-addon">
+                <i class="ti ti-search"></i>
+              </span>
+              <input type="text" class="form-control" placeholder="Search with Menu Items">
             </div>
             <div class="d-flex align-items-center flex-wrap mb-2">
               <div class="input-icon-start search-pos position-relative mb-2 me-3">
                 <span class="input-icon-addon">
                   <i class="ti ti-search"></i>
                 </span>
-                <input type="text" class="form-control" placeholder="Search with Items or Code">
+                <input type="text" class="form-control" placeholder="Search with Code">
               </div>
               <a href="javascript:void(0);" class="btn btn-sm btn-dark mb-2 me-2"><i class="ti ti-tag me-1"></i>View All Brands</a>
-              <a href="javascript:void(0);" class="btn btn-sm btn-primary mb-2"><i class="ti ti-star me-1"></i>Favourites</a>
+              <a href="javascript:void(0);" class="btn btn-sm btn-primary mb-2" (click)="showFavorites()"><i class="ti ti-star me-1"></i>Favourites</a>
             </div>
           </div>
           <div class="pos-products">
@@ -50,17 +45,33 @@
               <div  class="tab_content"  data-tab="all" [ngClass]="{'active':istab}">
                 <div class="row g-3">
                   <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4 col-xxl-3" *ngFor="let item of menuItems">
-                    <div class="product-info card mb-0" (click)="addToCart(item)">
-                      <h6 class="product-name"><a href="javascript:void(0);">
-                       
+                    <!-- <div class="product-info card mb-0" (click)="handleMenuItemClick(item)"
+                    [attr.data-bs-toggle]="item.variants && item.variants.length > 0 ? 'modal' : null"
+                    [attr.data-bs-target]="item.variants && item.variants.length > 0 ? '#variantModal' : null"
+                    style="cursor: pointer;"> -->
+                    <div class="product-info card mb-0"
+                    (click)="handleMenuItemClick(item)"
+                    [ngClass]="{'highlighted': item.highlight}"
+                    [attr.data-bs-toggle]="(item.variants?.length > 0 || (!selectedArea && item.taxes?.length > 1)) ? 'modal' : null"
+                    [attr.data-bs-target]="item.variants?.length > 0 ? '#variantModal' : ((!selectedArea && item.taxes?.length > 1) ? '#taxModal' : null)"
+                    style="cursor: pointer;">
+                      <h6 class="product-name"><a href="javascript:void(0);"> 
                         <span class="product-name"> {{ item.itemName }}</span>
+                        <i *ngIf="item.setAsFavorite === 'true'" 
+                          class="ti ti-star-filled text-warning ms-1"
+                         style="font-size: 14px;"></i>
                       </a></h6>
                       <div class="d-flex align-items-center justify-content-between price">
                         <p class="text-teal fs-14 mb-0">{{ item.basePrice | currency: 'INR' }}</p>
-                      <!-- <div class="qty-item m-0">
-                        <button (click)="addToCart(item)" class="btn btn-primary btn-sm">Add to Cart</button>
-                      </div> -->
-                    </div>
+                        <div class="dietary-icons">
+                          <span *ngIf="item.dietary?.includes('Veg')" >
+                            <i class="ti ti-leaf veg-icon"></i> 
+                          </span>
+                          <span *ngIf="item.dietary?.includes('Non Veg')" >
+                            <i class="ti ti-meat non-veg-icon"></i> 
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -94,20 +105,60 @@
             </button>
           </li>
         </ul>
-        <div class="card-body">
-          <div class="order-head d-flex align-items-center justify-content-between w-100">
-            <div>
-              <h3>Order List</h3>
-            </div>
+        <div class="card-body" style="padding-top:0.25rem; padding-bottom:0.25rem; margin-top:0; margin-bottom:0.5rem">
+          
+          <div class="customer-info block-section"style="padding-top:0.25rem; padding-bottom:0.25rem; margin-top:0; margin-bottom:0.5rem" >
+            <!-- <h5 class="mb-2">Customer Information</h5> -->
             <div class="d-flex align-items-center gap-2">
-              <span class="badge badge-dark fs-10 fw-medium badge-xs">#ORD123</span>
-              <a class="link-danger fs-16" href="javascript:void(0);"><i class="ti ti-trash-x-filled"></i></a>
+              <!-- <div class="class = avatar avatar-xl avatar-rounded">
+                <img src="assets/img/users/dinnertable4.png" class="rounded-circle dreams_chat" alt="image">
+            </div> -->
+
+          <!-- Table Image with Dropdown -->
+          <div class="avatar avatar-xl avatar-rounded position-relative">
+            <img src="assets/img/users/dinnertable4.png" 
+                 class="rounded-circle dreams_chat cursor-pointer" 
+                 alt="image"
+                 id="tableDropdownTrigger"
+                 data-bs-toggle="dropdown"
+                 aria-expanded="false">
+            
+            <div class="dropdown-menu table-selection-menu p-0" aria-labelledby="tableDropdownTrigger">
+              <div class="d-flex">
+                <!-- Areas Column -->
+                <div class="area-column p-2">
+                  <h6 class="dropdown-header px-2 mb-1">Select Area</h6>
+                  <div class="area-list">
+                    <a *ngFor="let area of areas" 
+                       href="javascript:void(0)" 
+                       class="dropdown-item area-item"
+                       [class.active]="selectedArea?.id === area.id"
+                       (click)="selectArea(area); $event.stopPropagation()">
+                      {{ area.areaName }}
+                    </a>
+                  </div>
+                </div>
+                
+                <!-- Tables Grid -->
+                <div class="tables-column p-2">
+                  <h6 class="dropdown-header px-2 mb-1">
+                    {{ selectedArea ? selectedArea.areaName + ' Tables' : 'Select Area' }}
+                  </h6>
+                  <div class="table-grid">
+                    <div *ngFor="let table of filteredTables"
+                         class="table-box text-center"
+                         [class.selected]="selectedTable?.id === table.id"
+                         (click)="selectTable(table); closeDropdown(); $event.stopPropagation()" >
+                      <div class="table-number">{{ table.tableNumber }}</div>
+                      <div class="table-seats">{{ table.numberOfPersons }} <i class="ti ti-user"></i></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="customer-info block-section">
-            <h5 class="mb-2">Customer Information</h5>
-            <div class="d-flex align-items-center gap-2">
-              <div class="flex-grow-1">
+        
+              <!-- <div class="flex-grow-1">
                 <mat-select class="custom-mat-select select" placeholder="Walk in Customer">
                   <mat-option value="1">Walk in Customer</mat-option>
                   <mat-option value="1">John</mat-option>
@@ -115,9 +166,19 @@
                   <mat-option value="1">Ana</mat-option>
                   <mat-option value="1">Elza</mat-option>
                 </mat-select>
-              </div>
+              </div> -->
+         
+            <div class="d-inline-flex align-items-center">
+              <span class="title-icon bg-soft-orange fs-16 me-2"><i class="ti ti-users"></i></span>
+          </div>
+          <div class="d-inline-flex align-items-center">
+            <span class="btn  btn-icon bg-soft-orange fs-20 me-2"><i class="ti ti-users"></i></span>
+        </div>
+   
               <a href="javascript:void(0);" class="btn btn-teal btn-icon fs-20" data-bs-toggle="modal" data-bs-target="#create"><i class="ti ti-user-plus"></i></a>
               <a href="javascript:void(0);" class="btn btn-info btn-icon fs-20" data-bs-toggle="modal" data-bs-target="#barcode"><i class="ti ti-scan"></i></a>
+
+              
             </div>
             <!-- <div class="customer-item border border-orange bg-orange-100 d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3">
               <div>
@@ -131,13 +192,26 @@
               <a href="javascript:void(0);" class="close-icon"><i class="ti ti-x"></i></a>
             </div> -->
           </div>
+       
+          <div class="order-head d-flex align-items-center justify-content-between w-100">
+            <div>
+              <small class="text-muted">{{ selectedArea?.areaName }}</small>
+              <h3>{{ selectedTable?.tableNumber }}</h3>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge badge-dark fs-10 fw-medium badge-xs">#ORD123</span>
+              <a class="link-danger fs-16" href="javascript:void(0);"><i class="ti ti-trash-x-filled"></i></a>
+            </div>
+          </div>
           <div class="product-added block-section">
             <div class="head-text d-flex align-items-center justify-content-between mb-3">
               <div class="d-flex align-items-center">
                 <h5 class="me-2">Order Details</h5>
-                <div class="badge bg-light text-gray-9 fs-12 fw-semibold py-2 border rounded">Items : <span class="text-teal">3</span></div>
+                <div class="badge bg-light text-gray-9 fs-12 fw-semibold py-2 border rounded">Items : <span class="text-teal">{{ cart.length }}</span></div>
               </div>
-              <a href="javascript:void(0);" class="d-flex align-items-center clear-icon fs-10 fw-medium">Clear all</a>
+              <a href="javascript:void(0);" class="d-flex align-items-center clear-icon fs-10 fw-medium" data-bs-toggle="modal" 
+              data-bs-target="#delete"
+              (click)="prepareClearAll()">Clear all</a>
             </div>
             <div class="product-wrap">
               <div class="empty-cart" *ngIf="cart.length === 0">
@@ -162,20 +236,26 @@
                             <td>
                                 <div class="d-flex align-items-center mb-1">
                                     <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">{{ cartItem.itemName }}</a></h6>
-                                    <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
+                                    <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal" (click)="openEditProductModal(cartItem)"
                                     data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
+                                    <ng-container *ngIf="isDiscountAvailable(cartItem.itemId)">
+                                      <i class="ti ti-meat non-veg-icon" ></i>
+                                  </ng-container>
                                 </div>
-                                <p class="fst-italic fw-light">
-                                variants:
-                                - size: large
-                                - ice: less </p> <br>
-                                <!-- add-ons:
-                                - size: large
-                                - ice: less <br> 
-                                Addons:
-                                - sauce: peri peri large
-                                - ice: less  -->
-                              
+                                <div *ngIf="cartItem.variants && cartItem.variants.length > 0">
+                                  <p  *ngFor="let variant of cartItem.variants" class ="variants-addons">
+                                    <em>
+                                      - {{ variant.variantName }}: {{ variant.selectedOption }} (₹{{ variant.price }})
+                                    </em>                                 
+                                  </p>
+                                </div>
+                                  <div *ngIf="cartItem.addOns && cartItem.addOns.length > 0">
+                                    <p *ngFor="let addOn of cartItem.addOns"class ="variants-addons">
+                                      <em>
+                                        - {{ addOn.name }} (₹{{ addOn.price | number: '1.2-2' }})
+                                      </em>
+                                    </p>
+                                    </div>
                               </td>
                             <td>
                                 <div class="qty-item  m-0">
@@ -184,98 +264,12 @@
                             </td>
                             <td class="fw-bold">{{ cartItem.totalPrice | currency: 'INR' }}</td>
                             <td class="text-end">
-                                <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
+                                <a class="btn-icon delete-icon" href="javascript:void(0);"  (click)="prepareDeleteItem(cartItem)" data-bs-toggle="modal" data-bs-target="#delete">
                                     <i class="ti ti-trash"></i>
                                 </a>
                             </td>
                         </tr>
-                        <!-- <tr>
-                          <td>
-                              <div class="d-flex align-items-center mb-1">
-                                  <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">Iphone 11S</a></h6>
-                                  <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
-                                  data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
-                              </div>
-                              Price : $400 <br>
-                              Variants:
-                              - size: large
-                              - ice: less
-                            </td>
-                          <td>
-                              <div class="qty-item  m-0">
-                                  <app-common-counter-2 [value]="4"></app-common-counter-2>
-                              </div>
-                          </td>
-                          <td class="fw-bold">$400</td>
-                          <td class="text-end">
-                              <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
-                                  <i class="ti ti-trash"></i>
-                              </a>
-                          </td>
-                      </tr> -->
-                        <!-- <tr>
-                            <td>
-                                <div class="d-flex align-items-center mb-1">
-                                    <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">Samsung Galaxy S21</a></h6>
-                                    <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
-                                    data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
-                                </div>
-                                Price : $400
-                            </td>
-                            <td>
-                                <div class="qty-item m-0">
-                                    <app-common-counter-2 [value]="1"></app-common-counter-2>
-                                </div>
-                            </td>
-                            <td class="fw-bold">$400</td>
-                            <td class="text-end">
-                                <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
-                                    <i class="ti ti-trash"></i>
-                                </a>
-                            </td>
-                        </tr> -->
-                        <!-- <tr>
-                            <td>
-                                <div class="d-flex align-items-center mb-1">
-                                    <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">Red Boot Shoes</a></h6>
-                                    <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
-                                    data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
-                                </div>
-                                Price : $600
-                            </td>
-                            <td>
-                                <div class="qty-item m-0">
-                                    <app-common-counter-2 [value]="3"></app-common-counter-2>
-                                </div>
-                            </td>
-                            <td class="fw-bold">$600</td>
-                            <td class="text-end">
-                                <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
-                                    <i class="ti ti-trash"></i>
-                                </a>
-                            </td>
-                        </tr> -->
-                        <!-- <tr>
-                            <td>
-                                <div class="d-flex align-items-center mb-1">
-                                    <h6 class="fs-16 fw-medium"><a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#products">Bracelet</a></h6>
-                                    <a href="javascript:void(0);" class="ms-2 edit-icon"  data-bs-toggle="modal"
-                                    data-bs-target="#edit-product"><i class="ti ti-edit"></i></a>
-                                </div>
-                                Price : $1400
-                            </td>
-                            <td>
-                                <div class="qty-item m-0">
-                                    <app-common-counter-2 [value]="1"></app-common-counter-2>
-                                </div>
-                            </td>
-                            <td class="fw-bold">$1400</td>
-                            <td class="text-end">
-                                <a class="btn-icon delete-icon" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete">
-                                    <i class="ti ti-trash"></i>
-                                </a>
-                            </td>
-                        </tr> -->
+
                     </tbody>
                 </table>
                 </div>
@@ -298,12 +292,25 @@
             <h5 class="mb-3">Payment Summary</h5>
             <table class="table table-responsive table-borderless">
               <tr class="d-flex justify-content-between align-items-center">
+                <td class="fw-bold border-bottom border-dashed">Sub Total</td>
+                <td class="text-gray-9 text-end border-bottom border-dashed">{{ calculateItemsTotal() | currency: 'INR' }}</td>
+              </tr>
+              <tr class="d-flex justify-content-between align-items-center">
                 <td>Shipping<a href="javascript:void(0);" class="ms-3 link-default"  data-bs-toggle="modal" data-bs-target="#shipping-cost"><i class="ti ti-edit"></i></a></td>
                 <td class="text-gray-9 text-end">$40.21</td>
               </tr>
-              <tr class="d-flex justify-content-between align-items-center">
-                <td>Tax<a href="javascript:void(0);" class="ms-3 link-default"  data-bs-toggle="modal" data-bs-target="#order-tax"><i class="ti ti-edit"></i></a></td>
-                <td class="text-gray-9 text-end">$25</td>
+              <tr class="d-flex justify-content-between align-items-center" *ngIf="calculateTax() > 0">
+                <td>
+                   Tax
+                  <a href="javascript:void(0);" class="ms-3 link-default" data-bs-toggle="modal" data-bs-target="#order-tax">
+                    <i class="ti ti-edit"></i>
+                  </a>                 
+                </td>
+                <td class="text-gray-9 text-end">{{ calculateTax() | currency: 'INR' }}</td>
+              </tr>
+              <tr  class="d-flex justify-content-between align-items-center" *ngFor="let line of getTaxBreakdown()">
+                <td class="ps-4">- {{ line.label }}</td>
+                <td class="text-end text-gray-9">{{ line.value | currency: 'INR' }}</td>
               </tr>
               <tr class="d-flex justify-content-between align-items-center">
                 <td>Coupon<a href="javascript:void(0);" class="ms-3 link-default"  data-bs-toggle="modal" data-bs-target="#coupon-code"><i class="ti ti-edit"></i></a></td>
@@ -322,13 +329,13 @@
                 </td>
                 <td class="text-gray-9 text-end">+0.11</td>
               </tr>
-              <tr class="d-flex justify-content-between align-items-center">
+              <!-- <tr class="d-flex justify-content-between align-items-center">
                 <td>Sub Total</td>
-                <td class="text-gray-9 text-end">$60,454</td>
-              </tr>
+                <td class="text-gray-9 text-end">{{ calculateSubTotal() | currency: 'INR' }}</td>
+              </tr> -->
               <tr class="d-flex justify-content-between align-items-center">
                 <td class="fw-bold border-top border-dashed">Total Payable</td>
-                <td class="text-gray-9 fw-bold text-end border-top border-dashed">$56590</td>
+                <td class="text-gray-9 fw-bold text-end border-top border-dashed">{{ calculateSubTotal() | currency: 'INR' }}</td>
               </tr>
             </table>
           </div>
@@ -400,7 +407,31 @@
             </div>
           </div>
         </div>
+        <div class="block-section payment-method">
+          <h4>Payment Method</h4>
+          <div class="row align-items-center justify-content-center methods g-3">
+            <div class="col-sm-6 col-md-4">
+              <a href="javascript:void(0);" class="payment-item" data-bs-toggle="modal" data-bs-target="#payment-cash">
+                <i class="ti ti-cash-banknote fs-18"></i>
+                <span>Cash</span>
+              </a>
+            </div>
+            <div class="col-sm-6 col-md-4">
+              <a href="javascript:void(0);" class="payment-item" data-bs-toggle="modal" data-bs-target="#payment-card">
+                <i class="ti ti-credit-card fs-18"></i>
+                <span>Debit Card</span>
+              </a>
+            </div>
+            <div class="col-sm-6 col-md-4">
+              <a href="javascript:void(0);" class="payment-item" data-bs-toggle="modal" data-bs-target="#scan-payment">
+                <i class="ti ti-scan fs-18"></i>
+                <span>Scan</span>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
+ 
       <div class="btn-row d-flex align-items-center justify-content-between gap-3">
         <a href="javascript:void(0);" class="btn btn-white d-flex align-items-center justify-content-center flex-fill m-0" data-bs-toggle="modal" data-bs-target="#print-receipt"><i  class="ti ti-printer me-2"></i>Print Order</a>
         <a href="javascript:void(0);" class="btn btn-secondary d-flex align-items-center justify-content-center flex-fill m-0"><i  class="ti ti-shopping-cart me-2"></i>Place Order</a>
@@ -422,6 +453,282 @@
   </div>
 </div>
 
+
+<!-- Variants and addons -->
+
+<div class="modal fade modal-default pos-modal" id="variantModal" aria-labelledby="variantModalLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+          <h5 class="me-4">{{selectedItem?.itemName}}</h5>
+          <!-- <span class="badge bg-teal">₹{{getCurrentTotal() | number: '1.2-2'}}</span> -->
+          <span class="badge bg-teal">₹{{selectedItem?.basePrice}}</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                ></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-12">
+            <!-- Variants Section -->
+            <div *ngIf="selectedItem?.variants?.length > 0" class="mb-4">
+              <h6 class="section-title">Select Size <span class="required-asterisk">*</span></h6>
+              <div class="option-buttons">
+                <button
+                  *ngFor="let variant of selectedItem.variants"
+                  type="button"
+                  class="option-button"
+                  [ngClass]="{'option-button-selected': selectedVariant?.id === variant.id}"
+                  (click)="selectVariant(variant)"
+                >
+                  {{ variant.variantName }}
+                  <span *ngIf="variant.price > 0" class="option-price">+₹{{ variant.price | number: '1.2-2' }}</span>
+                </button>
+              </div>
+              <div *ngIf="selectedItem?.variants?.length > 0 && !selectedVariant" class="text-danger mt-1">
+                <i class="ti ti-alert-circle"></i> Please select a size
+              </div>
+            </div>
+
+            <!-- Add-ons Section -->
+            <div *ngIf="selectedItem?.addOns?.length > 0" class="mb-4">
+              <h6 class="section-title">Add Extras</h6>
+              <div class="option-buttons">
+                <button
+                  *ngFor="let addOn of selectedItem.addOns"
+                  type="button"
+                  class="option-button"
+                  [ngClass]="{'option-button-selected': selectedAddOns[addOn.id]}"
+                  (click)="toggleAddOn(addOn)"
+                >
+                  {{ addOn.name }}
+                  <span *ngIf="addOn.price > 0" class="option-price">+₹{{ addOn.price | number: '1.2-2' }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Quantity Selector -->
+            <div class="quantity-selector mb-4">
+              <h6 class="section-title">Quantity</h6>
+              <div class="d-flex align-items-center gap-3">
+                <button type="button" 
+                        class="btn btn-quantity" 
+                        (click)="changeQuantity(-1)"
+                        [disabled]="quantity <= 1">
+                  <i class="ti ti-minus"></i>
+                </button>
+                <span class="quantity-value">{{ quantity }}</span>
+                <button type="button" 
+                        class="btn btn-quantity" 
+                        (click)="changeQuantity(1)">
+                  <i class="ti ti-plus"></i>
+                </button>
+              </div>
+            </div>
+            <!-- Add to Cart Button -->
+            <button class="btn btn-add-to-cart w-100" 
+                    (click)="addVariantToCartFinal()"
+                    [disabled]="(selectedItem?.variants?.length > 0 && !selectedVariant)" data-bs-dismiss="modal">
+              <span *ngIf="!isItemInCart(); else updateText">Add to Cart</span>
+              <ng-template #updateText>Update Cart</ng-template>
+              <span class="total-price">₹{{getCurrentTotal() | number: '1.2-2'}}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Hidden button to trigger Bootstrap tax modal -->
+<button id="taxModalTrigger" type="button" data-bs-toggle="modal" data-bs-target="#taxModal" hidden></button>
+
+<!-- Add Tax Selection Modal -->
+<div class="modal fade" id="taxModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="success-wrap text-center">
+          <form>
+            <div class="icon-success bg-warning-transparent text-warning mb-2">
+              <i class="ti ti-alert-circle"></i>
+            </div>
+            <h3 class="mb-2">Tax Selection Required</h3>
+            <p class="fs-16 mb-3">You have not selected a table. Please select a tax to apply:</p>
+
+            <select class="form-select mb-3" [(ngModel)]="selectedTax" name="taxSelect">
+              <option [ngValue]="null" disabled>Select a tax rate</option>
+              <option *ngFor="let tax of availableTaxes" [ngValue]="tax">
+                {{ tax.title }} ({{ tax.amount }}{{ tax.type === 'Percent' ? '%' : '₹' }})
+              </option>
+            </select>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">
+                Cancel
+              </button>
+              <button type="button" class="btn btn-md btn-primary"
+                      [disabled]="!selectedTax"
+                      data-bs-dismiss="modal"
+                      (click)="finalizeAddToCart([selectedTax])">
+                Apply Tax
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Order Tax -->
+<!-- <div class="modal fade modal-default" id="order-tax">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Order Tax</h5>
+         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+           <span aria-hidden="true">×</span>
+         </button>
+       </div>
+       <form action="pos.html">
+        <div class="modal-body pb-1">
+          <div class="mb-3">
+            <label class="form-label">Order Tax <span class="text-danger">*</span></label>
+            <mat-select class="custom-mat-select Select" placeholder="Select">
+              <mat-option value="1">Select</mat-option>
+              <mat-option value="1">No Tax</mat-option>
+              <mat-option value="1">&#64;10</mat-option>
+              <mat-option value="1">&#64;15</mat-option>
+              <mat-option value="1">VAT</mat-option>
+              <mat-option value="1">SLTAX</mat-option>
+            </mat-select>
+          </div>
+
+          <div class="mb-3">
+            <label for="username" class="form-label">Add Tax Amount</label>
+            <input class="form-control" type="text" id="username" required="">
+        </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-end flex-wrap gap-2">
+          <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-md btn-primary" data-bs-dismiss="modal">Submit</button>
+        </div>
+       </form>
+    </div>
+  </div>
+</div> -->
+
+<!-- <div class="modal fade modal-default" id="order-tax">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">    
+      <div class="modal-header">
+        <h5 class="modal-title">Order Tax</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <form (ngSubmit)="applySelectedTaxToCart()">
+        <div class="modal-body pb-1">
+          <div class="mb-3">
+            <label class="form-label">Order Tax <span class="text-danger">*</span></label>
+            <mat-form-field class="w-100">
+              <mat-select 
+                [(ngModel)]="selectedOrderTaxId" 
+                name="selectedOrderTaxId"
+                (selectionChange)="onTaxSelectionChange($event.value)">               
+                <mat-option *ngFor="let tax of availableTaxes" [value]="tax.id">
+                  {{ tax.title }} 
+                  ({{ tax.amount }}{{ tax.type === 'Percent' ? '%' : '₹' }})
+                </mat-option>
+                <mat-option value="serviceTax">Service Tax</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+\          <div class="mb-3" *ngIf="isServiceTaxSelected">
+            <label class="form-label">Service Tax Amount (%)</label>
+            <input 
+              class="form-control" 
+              type="number" 
+              [(ngModel)]="customTaxAmount" 
+              name="customTaxAmount" 
+              placeholder="e.g., 5">
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-end flex-wrap gap-2">
+          <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-md btn-primary" data-bs-dismiss="modal">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> -->
+<div class="modal fade modal-default" id="order-tax">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Order Tax</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <form (ngSubmit)="applySelectedTaxToCart()">
+        <div class="modal-body pb-1">
+          <!-- Multi-select Tax Dropdown -->
+          <div class="mb-3">
+            <label class="form-label">Standard Taxes <span class="text-danger">*</span></label>
+            <mat-form-field class="w-100">
+              <div class="flex-grow-1">
+              <mat-select 
+                [(ngModel)]="selectedOrderTaxIds" 
+                name="selectedOrderTaxIds"
+                (selectionChange)="onTaxSelectionChange($event.value)">
+                <mat-option *ngFor="let tax of availableTaxes" [value]="tax.id">
+                  {{ tax.title }} 
+                </mat-option>
+              </mat-select>
+            </div>
+            </mat-form-field>
+          </div>
+
+          <!-- Service Tax Checkbox -->
+          <div class="mb-3">
+            <mat-checkbox 
+              [(ngModel)]="isServiceTaxSelected" 
+              name="serviceTaxCheckbox">
+              Service Tax
+            </mat-checkbox>
+          </div>
+
+          <!-- Service Tax Input -->
+          <div class="mb-3" *ngIf="isServiceTaxSelected">
+            <div class="d-flex align-items-center gap-2">
+              <div class="flex-grow-1">
+            <label class="form-label">Service Tax Amount (%)</label>
+            <input 
+              class="form-control" 
+              type="number" 
+              [(ngModel)]="customTaxAmount" 
+              name="customTaxAmount" 
+              placeholder="e.g., 5"
+              >
+          </div>
+          <a class="btn-icon delete-icon" href="javascript:void(0);"  (click)="deleteServiceTax()" data-bs-dismiss="modal">
+            <i class="ti ti-trash"></i>
+        </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary"  data-bs-dismiss="modal">Apply Taxes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- /Order Tax -->
 
 <!-- Payment Completed -->
 <div class="modal fade modal-default" id="payment-completed" aria-labelledby="payment-completed">
@@ -704,7 +1011,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Edit Product</h5>
+        <h5 class="modal-title">Edit Item</h5>
         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">×</span>
         </button>
@@ -714,54 +1021,25 @@
           <div class="row">
             <div class="col-lg-12">
               <div class="mb-3">
-                <label class="form-label">Product Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" value="Red Nike Laser Show" disabled>
+                <label class="form-label">Item Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" [value]="selectedCartItem?.itemName" disabled>
               </div>
             </div>
-            <div class="col-lg-6 col-sm-12 col-12">
-              <div class="mb-3">
-                <label class="form-label">Product Price <span class="text-danger">*</span></label>
-                <div class="input-icon-start position-relative">
-                  <span class="input-icon-addon text-gray-9">
-                    <i class="ti ti-currency-dollar"></i>
-                  </span>
-                  <input type="text" class="form-control" value="1800">
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-6 col-sm-12 col-12">
-              <div class="mb-3">
-                <label class="form-label">Tax Type <span class="text-danger">*</span></label>
-                <mat-select class="custom-mat-select Select" placeholder="Exclusive">
-                  <mat-option value="1">Exclusive</mat-option>
-                  <mat-option value="1">Inclusive</mat-option>
-                </mat-select>
-              </div>
-            </div>
-            <div class="col-lg-6 col-sm-12 col-12">
-              <div class="mb-3">
-                <label class="form-label">Tax <span class="text-danger">*</span></label>
-                <div class="input-icon-start position-relative">
-                  <span class="input-icon-addon text-gray-9">
-                    <i class="ti ti-percentage"></i>
-                  </span>
-                  <input type="text" class="form-control" value="15">
-                </div>
-              </div>
-            </div>
+            
             <div class="col-lg-6 col-sm-12 col-12">
               <div class="mb-3">
                 <label class="form-label">Discount Type <span class="text-danger">*</span></label>
-                <mat-select class="custom-mat-select Select" placeholder="Percentage">
-                  <mat-option value="1">Percentage</mat-option>
-                  <mat-option value="1">Early payment discounts</mat-option>
+                <mat-select class="custom-mat-select Select" placeholder="Select Discount" [(ngModel)]="selectedDiscountId" name="discountType">
+                  <mat-option *ngFor="let discount of availableDiscounts" [value]="discount.id">
+                    {{ discount.discountName }}
+                  </mat-option>
                 </mat-select>
               </div>
             </div>
             <div class="col-lg-6 col-sm-12 col-12">
               <div class="mb-3">
                 <label class="form-label">Discount <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" value="15">
+                <input type="text" class="form-control" [value]="getSelectedDiscountAmount()" disabled>
               </div>
             </div>
             <div class="col-lg-6 col-sm-12 col-12">
@@ -796,11 +1074,17 @@
               <i class="ti ti-trash"></i>
             </div>
             <h3 class="mb-2">Are you Sure!</h3>
-            <p class="fs-16 mb-3">The current order will be deleted as no payment has been made so far.
+            <p class="fs-16 mb-3"> <span *ngIf="isClearingAll">All items</span>
+              <span *ngIf="!isClearingAll">This item</span>
+              will be deleted as no payment has been made so far.
             </p>
             <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
-              <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">No, Cancel</button>
-              <button type="submit" class="btn btn-md btn-primary" data-bs-dismiss="modal">Yes, Delete</button>
+              <button type="button" 
+                    class="btn btn-md btn-secondary" 
+                    data-bs-dismiss="modal">No, Cancel</button>
+            <button type="button" 
+                    class="btn btn-md btn-primary" data-bs-dismiss="modal"
+                    (click)="confirmDeletion()">Yes, Delete</button>
             </div>
           </form>
         </div>
@@ -1771,39 +2055,7 @@
 
 
 
-<!-- Order Tax -->
-<div class="modal fade modal-default" id="order-tax">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Order Tax</h5>
-         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-           <span aria-hidden="true">×</span>
-         </button>
-       </div>
-       <form action="pos.html">
-        <div class="modal-body pb-1">
-          <div class="mb-3">
-            <label class="form-label">Order Tax <span class="text-danger">*</span></label>
-            <mat-select class="custom-mat-select Select" placeholder="Select">
-              <mat-option value="1">Select</mat-option>
-              <mat-option value="1">No Tax</mat-option>
-              <mat-option value="1">&#64;10</mat-option>
-              <mat-option value="1">&#64;15</mat-option>
-              <mat-option value="1">VAT</mat-option>
-              <mat-option value="1">SLTAX</mat-option>
-            </mat-select>
-          </div>
-        </div>
-        <div class="modal-footer d-flex justify-content-end flex-wrap gap-2">
-          <button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-md btn-primary" data-bs-dismiss="modal">Submit</button>
-        </div>
-       </form>
-    </div>
-  </div>
-</div>
-<!-- /Order Tax -->
+
 
 <!-- Shipping Cost -->
 <div class="modal fade modal-default" id="shipping-cost">
@@ -2864,7 +3116,7 @@
         <div class="d-flex align-items-center">
           <h5 class="me-4">Product Details</h5>
         </div>
-        <button type="button" class="close" (click)="closeModal()">
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">×</span>
         </button>
       </div>

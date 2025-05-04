@@ -6,22 +6,14 @@ export class routes {
     return this.base;
   }
   // auth routes *start*
-  
-  public static get signIn(): string {
-    return this.base + '/signin';
-  }
+
   public static get signUp(): string {
     return this.base + '/signup';
   }
   public static get forgotPassword(): string {
     return this.base + '/forgot-password';
   }
-  public static get forgotPassword2(): string {
-    return this.base + '/forgot-password-2';
-  }
-  public static get forgotPassword3(): string {
-    return this.base + '/forgot-password-3';
-  }
+
   // auth routes *end*
 
   // error pages routes *start*
@@ -363,7 +355,7 @@ export class routes {
     return this.content + '/faq';
   }
 
-  
+
 
   public static get newCountry(): string {
     return this.places + '/new-country';
@@ -577,12 +569,6 @@ export class routes {
   public static get register(): string {
     return this.base + '/register';
   }
-  public static get register2(): string {
-    return this.base + '/register-2';
-  }
-  public static get register3(): string {
-    return this.base + '/register-3';
-  }
 
   // base ui pages routes starts
 
@@ -787,7 +773,7 @@ export class routes {
   public static get attendanceAdmin(): string {
     return this.attendance + '/attendance-admin';
   }
- 
+
   public static get attendanceEmployee(): string {
     return this.attendance + '/attendance-employee';
   }
@@ -1036,20 +1022,12 @@ export class routes {
   public static get purchaseReturns(): string {
     return this.purchase + '/purchase-returns';
   }
-  public static get signIn2(): string {
-    return this.base + '/signin-2';
+  public static get signIn(): string {
+    return this.base + '/signin';
   }
-  public static get signIn3(): string {
-    return this.base + '/signin-3';
-  }
+
   public static get resetPassword(): string {
-    return this.base + '/reset-password';
-  }
-  public static get resetPassword2(): string {
-    return this.base + '/reset-password-2';
-  }
-  public static get resetPassword3(): string {
-    return this.base + '/reset-password-3';
+    return this.base + '/reset-password/:token';
   }
   public static get twoStepVerification(): string {
     return this.base + '/two-step-verification';

@@ -36,6 +36,7 @@ export class AppComponent {
       if (event instanceof NavigationEnd) {
         this.spinner.hide();
       }
-    });
+    });  
   }
+  
 }

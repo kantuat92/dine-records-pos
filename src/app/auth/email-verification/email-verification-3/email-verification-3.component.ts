@@ -12,8 +12,8 @@ export class EmailVerification3Component {
   public routes = routes;
   value : any
       constructor(private router: Router) {}
-    
+
       navigation() {
-        this.router.navigate([routes.resetPassword3])
+        this.router.navigate([routes.resetPassword])
       }
 }

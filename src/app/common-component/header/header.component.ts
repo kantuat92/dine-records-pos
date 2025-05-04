@@ -57,7 +57,9 @@ export class HeaderComponent  {
 
 
 
-  public logout(): void {
+  public logout(event: Event): void {
+    event.preventDefault();
+    console.log('Logout called');
     this.webStorage.Logout();
   }
 

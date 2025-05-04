@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
@@ -9,14 +9,22 @@ import { designation } from 'src/app/shared/model/page.model';
 import { PaginationService, pageSelection, tablePageSize } from 'src/app/shared/shared.index';
 import { SweetalertService } from 'src/app/shared/sweetalert/sweetalert.service';
 import Swal from 'sweetalert2';
+import { Store } from '@ngrx/store';
+import { selectRestaurantId } from '../../../core/store/restaurant.selectors';
+import { Subscription } from 'rxjs';
+import { Department } from 'src/app/core/models/department.model';
+import { HrmApiService } from 'src/app/core/service/api-services/hrm-api.service';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Validators } from 'ngx-editor';
+
 interface data {
   value: string;
 }
 @Component({
-    selector: 'app-designation',
-    templateUrl: './designation.component.html',
-    styleUrl: './designation.component.scss',
-    standalone: false
+  selector: 'app-designation',
+  templateUrl: './designation.component.html',
+  styleUrl: './designation.component.scss',
+  standalone: false
 })
 export class DesignationComponent {
   public selectedValue1 = '';
@@ -29,7 +37,7 @@ export class DesignationComponent {
     { value: 'Oldest' },
   ];
   public routes = routes;
- 
+
   public tableData: Array<designation> = [];
   // pagination variables
   public pageSize = 10;
@@ -39,26 +47,201 @@ export class DesignationComponent {
   dataSource!: MatTableDataSource<designation>;
   public searchDataValue = '';
   //** / pagination variables
+
+
+
+
+
+  restaurantId: any;
+  deleteDesignationId: any | null = null;
+  editDesignationId: any;
+  private tablePageSizeSub!: Subscription;
+  departments: Department[] = [];
+  designationForm!: FormGroup;
+  editDesignationForm!: FormGroup;
+  @ViewChild('closeCreateButton') closeCreateButton!: ElementRef<HTMLButtonElement>;
+  @ViewChild('closeEditButton') closeEditButton!: ElementRef<HTMLButtonElement>;
+  @ViewChild('closeDeleteButton') closeDeleteButton!: ElementRef<HTMLButtonElement>;
+
+
+
+
   constructor(
     private data: DataService,
     private pagination: PaginationService,
     private sweetalert: SweetalertService,
     private router: Router,
-    private sidebar: SidebarService
+    private sidebar: SidebarService,
+    private store: Store,
+    private hrmApiService: HrmApiService,
+    private fb: FormBuilder
   ) {
-    this.data.getDataTable().subscribe((apiRes: apiResultFormat) => {
-      this.totalData = apiRes.totalData;
-      this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
-        if (this.router.url == this.routes.designation) {
-          this.getTableData({ skip: res.skip, limit: this.totalData  });
-          this.pageSize = res.pageSize;
-        }
-      });
+
+    this.store.select(selectRestaurantId).subscribe(id => {
+      console.log('In designation.component.ts Restaurant id from store: ', id);
+      this.restaurantId = id;
     });
+
+    this.designationForm = this.fb.group({
+      title: ['', Validators.required],
+      departmentId: [null, Validators.required],
+      status: [true]
+    });
+
+    this.editDesignationForm = this.fb.group({      
+      title: ['', Validators.required],
+      departmentId: [null, Validators.required],
+      status: [true]
+    });
+
+
   }
 
+  ngOnInit() {
+    console.log('ngOnInit called in designations');
+    this.fetchDepartments();
+    this.loadData();
+
+  }
+
+
+
+  loadData() {
+    if (this.tablePageSizeSub) {
+      this.tablePageSizeSub.unsubscribe();
+    }
+    this.tablePageSizeSub = this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
+      console.log('In tablePageSize subscribe, designations');
+      if (this.router.url == this.routes.designation) {
+        this.getTableData({ skip: res.skip, limit: res.limit });
+        this.pageSize = res.pageSize;
+      }
+    });
+
+    this.searchDataValue = '';
+  }
+
+
+  fetchDepartments() {
+    console.log('restaurantId: ', this.restaurantId);
+    this.hrmApiService.getDepartments(this.restaurantId).subscribe(
+      (response) => {        
+        this.departments = response;
+      },
+      (error) => {
+        console.error('Error fetching departments:', error);
+      }
+    );
+  }
+
+
+  onSubmit(): void {    
+    if (this.designationForm.invalid) return;
+
+    const payload = this.designationForm.value;
+
+    this.hrmApiService.createDesignation(payload).subscribe(
+      response => {
+        const newDesignation = {
+          ...response,
+          sNo: this.tableData.length + 1
+        }
+        this.tableData.push(newDesignation);
+        this.designationForm.reset({ status: true });
+        this.closeCreateButton.nativeElement.click();
+      },
+      err => {
+        console.error('Error saving designation', err);
+      }
+    );
+  }
+
+  openEditModal(id: any, designation: designation) {
+    this.editDesignationId = id;
+    this.editDesignationForm.patchValue({      
+      title: designation.title,
+      departmentId: designation.departmentId,
+      status: designation.status,
+    });    
+  }
+
+  onUpdateDesignation() {    
+    if (this.editDesignationForm.invalid) return;
+
+    const updatedDesignation = this.editDesignationForm.value;
+
+    this.hrmApiService.updateDesignatoin(this.editDesignationId, updatedDesignation).subscribe(
+      res => {        
+        const index = this.tableData.findIndex(d => d.id === this.editDesignationId);                
+        if (index !== -1) {
+          this.tableData[index] = {
+            ...this.tableData[index],
+            ...res
+          };
+          this.dataSource = new MatTableDataSource<designation>(this.tableData);          
+        }
+        this.editDesignationId = null;
+        this.editDesignationForm.reset();
+        this.editDesignationForm.patchValue({ status: true });
+        this.closeEditButton.nativeElement.click();
+      },
+      err => {
+        console.error('Error updating designation:', err);
+      }
+    );
+  }
+
+
+
+  setDeleteDesignationId(id: any) {
+    this.deleteDesignationId = id;
+    console.log('deleteDesignationId set to : ', this.deleteDesignationId);
+  }
+
+  deleteDesignation(): void {
+
+    if (!this.deleteDesignationId) {
+      alert("deleteDesignationId cannot be null");
+      return;
+    }
+
+    this.hrmApiService.deleteDesignation(this.deleteDesignationId).subscribe(
+      () => {
+        this.tableData = this.tableData.filter(designation => designation.id !== this.deleteDesignationId);
+        this.tableData.forEach((designation, index) => designation.sNo = index + 1);
+        this.serialNumberArray = this.tableData.map((_, index) => index + 1);
+        this.dataSource = new MatTableDataSource<designation>(this.tableData);
+
+        this.deleteDesignationId = null;
+        this.closeDeleteButton.nativeElement.click();
+      },
+      (error) => {
+        console.error('Error:', error);
+        alert('Failed to DELETE designation.');
+      }
+    );
+  }
+
+
+  ngOnDestroy() {
+    console.log('ngOnDestroy called in designations.');
+    if (this.tablePageSizeSub) {
+      this.tablePageSizeSub.unsubscribe();
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
   private getTableData(pageOption: pageSelection): void {
-    this.data.getDesignation().subscribe((apiRes: apiResultFormat) => {
+    this.hrmApiService.getDesignations(this.restaurantId).subscribe((apiRes: apiResultFormat) => {
       this.tableData = [];
       this.serialNumberArray = [];
       this.totalData = apiRes.totalData;
@@ -83,7 +266,7 @@ export class DesignationComponent {
     this.sweetalert.deleteBtn();
   }
 
-   
+
   public searchData(value: string): void {
     this.dataSource.filter = value.trim().toLowerCase();
     this.tableData = this.dataSource.filteredData;
@@ -102,7 +285,7 @@ export class DesignationComponent {
     }
   }
 
-  
+
 
   confirmColor() {
     const swalWithBootstrapButtons = Swal.mixin({
@@ -138,7 +321,7 @@ export class DesignationComponent {
         }
       });
   }
- 
+
   selectedList2: data[] = [
     { value: 'Choose Designation' },
     { value: 'UI/UX' },

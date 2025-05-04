@@ -15,8 +15,17 @@ import { AngularFireModule }              from '@angular/fire/compat';
 import { environment } from 'src/environments/environment';
 import { restaurantReducer } from './core/store/restaurant.reducer';
 import { metaReducers } from './core/store/restaurant.meta-reducer';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './core/interceptor/auth.interceptor';
 
 @NgModule({
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
   declarations: [AppComponent, LoaderComponent],
   imports: [BrowserModule, AppRoutingModule, sharedModule, BrowserAnimationsModule,
     AngularFireModule.initializeApp(environment.firebaseConfig), StoreModule.forRoot({}, {}),

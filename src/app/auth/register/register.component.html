@@ -1,0 +1,203 @@
+<div class="account-content">
+    <div class="row login-wrapper m-0">
+        <div class="col-lg-6 p-0">
+            <div class="login-content">
+
+
+                <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+                    <div class="login-userset">
+                        <!-- Logos -->
+                        <div class="login-logo logo-normal">
+                            <img src="assets/img/logo.svg" alt="img" />
+                        </div>
+                        <a [routerLink]="routes.index" class="login-logo logo-white">
+                            <img src="assets/img/logo-white.svg" alt="Img" />
+                        </a>
+
+                        <!-- Headings -->
+                        <div class="login-userheading">
+                            <h3>Register</h3>
+                            <h4>Onboard New Restaurant</h4>
+                        </div>
+
+                        <!-- Username -->
+                        <div class="mb-3">
+                            <label class="form-label">User Name <span class="text-danger"> *</span></label>
+                            <div class="input-group">
+                                <input type="text" class="form-control border-end-0" placeholder="Enter your user name"
+                                    formControlName="userName" />
+                                <span class="input-group-text border-start-0"><i class="ti ti-user"></i></span>
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="form-label">Email <span class="text-danger"> *</span></label>
+                            <div class="input-group">
+                                <input type="email" class="form-control border-end-0"
+                                    placeholder="Enter your email address" formControlName="email" />
+                                <span class="input-group-text border-start-0"><i class="ti ti-mail"></i></span>
+                            </div>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-3">
+                            <label class="form-label">Password <span class="text-danger"> *</span></label>
+                            <div class="pass-group">
+                                <input [type]="passwordVisible[1] ? 'text' : 'password'" class="pass-input form-control"
+                                    placeholder="Create a password" formControlName="password" />
+                                <span class="ti toggle-password text-gray-9"
+                                    [ngClass]="passwordVisible[1] ? 'ti-eye' : 'ti-eye-off'"
+                                    (click)="togglePassword(1)"></span>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="mb-3">
+                            <label class="form-label">Confirm Password <span class="text-danger"> *</span></label>
+                            <div class="pass-group">
+                                <input [type]="passwordVisible[2] ? 'text' : 'password'" class="pass-input form-control"
+                                    placeholder="Re-enter password" formControlName="confirmPassword" />
+                                <span class="ti toggle-password text-gray-9"
+                                    [ngClass]="passwordVisible[2] ? 'ti-eye' : 'ti-eye-off'"
+                                    (click)="togglePassword(2)"></span>
+                            </div>
+                        </div>
+
+                        <!-- Restaurant Name -->
+                        <div class="mb-3">
+                            <label class="form-label">Restaurant Name <span class="text-danger"> *</span></label>
+                            <input type="text" class="form-control" placeholder="Enter restaurant name"
+                                formControlName="restaurantName" />
+                        </div>
+
+                        <!-- GSTN -->
+                        <div class="mb-3">
+                            <label class="form-label">GSTN <span class="text-danger"> *</span></label>
+                            <input type="text" class="form-control" placeholder="Enter GSTN (e.g., 22AAAAA0000A1Z5)"
+                                formControlName="gstn" />
+                        </div>
+
+                        <!-- Address Line 1 -->
+                        <div class="mb-3">
+                            <label class="form-label">Address Line 1 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Enter address line 1"
+                                formControlName="addressLine1" />
+                        </div>
+
+                        <!-- Address Line 2 -->
+                        <div class="mb-3">
+                            <label class="form-label">Address Line 2</label>
+                            <input type="text" class="form-control" placeholder="Enter address line 2"
+                                formControlName="addressLine2" />
+                        </div>
+
+
+                        <!-- Country -->
+                        <div class="mb-3">
+                            <label class="form-label">Country <span class="text-danger">*</span></label>
+                            <select class="form-select" formControlName="country">
+                                <option value="" disabled>Select your country</option>
+                                <option *ngFor="let country of countries" [value]="country.CountryCode">
+                                    {{ country.CountryName }}
+                                </option>
+                            </select>
+                        </div>
+
+
+                        <!-- Phone -->
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" formControlName="phoneNumber"
+                                    placeholder="Enter your phone number" />
+                                <span class="input-group-text"><i class="ti ti-phone"></i></span>
+                            </div>
+                        </div>
+
+                        <!-- Checkbox -->
+                        <div class="form-login authentication-check">
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="custom-control custom-checkbox justify-content-start">
+                                        <label class="checkboxs ps-4 mb-0 pb-0 line-height-1">
+                                            <input type="checkbox" formControlName="consent" />
+                                            <span class="checkmarks"></span>
+                                            I agree to the <a href="javascript:void(0);" class="text-primary">Terms &
+                                                Privacy</a>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Success Card -->
+                        <div *ngIf="successMessage" class="alert alert-success" role="alert">
+                            {{ successMessage }}
+                        </div>
+
+                        <!-- Error Card -->
+                        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+                            {{ errorMessage }}
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="form-login">
+                            <button type="submit" class="btn btn-login" [disabled]="registerForm.invalid">Sign
+                                Up</button>
+                        </div>
+
+                        <!-- Sign In Link -->
+                        <div class="signinform">
+                            <h4>Already have an account ? <a [routerLink]="routes.signIn" class="hover-a">Sign In
+                                    Instead</a></h4>
+                        </div>
+
+                        <!-- OR Divider -->
+                        <div class="form-setlogin or-text">
+                            <h4>OR</h4>
+                        </div>
+
+                        <!-- Social Logins -->
+                        <div class="mt-2">
+                            <div class="d-flex align-items-center justify-content-center flex-wrap">
+                                <div class="text-center me-2 flex-fill">
+                                    <a href="javascript:void(0);"
+                                        class="br-10 p-2 btn btn-info d-flex align-items-center justify-content-center">
+                                        <img class="img-fluid m-1" src="assets/img/icons/facebook-logo.svg"
+                                            alt="Facebook" />
+                                    </a>
+                                </div>
+                                <div class="text-center me-2 flex-fill">
+                                    <a href="javascript:void(0);"
+                                        class="btn btn-white br-10 p-2 border d-flex align-items-center justify-content-center">
+                                        <img class="img-fluid m-1" src="assets/img/icons/google-logo.svg"
+                                            alt="Google" />
+                                    </a>
+                                </div>
+                                <div class="text-center flex-fill">
+                                    <a href="javascript:void(0);"
+                                        class="bg-dark br-10 p-2 btn btn-dark d-flex align-items-center justify-content-center">
+                                        <img class="img-fluid m-1" src="assets/img/icons/apple-logo.svg" alt="Apple" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="my-4 d-flex justify-content-center align-items-center copyright-text">
+                            <p>Copyright &copy; 2025 DreamsPOS</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Image Section -->
+        <div class="col-lg-6 p-0">
+            <div class="login-img">
+                <img src="assets/img/authentication/authentication-02.svg" alt="img" />
+            </div>
+        </div>
+    </div>
+</div>

@@ -26,6 +26,7 @@ interface data {
 export class PosComponent implements AfterViewInit {
 
   @ViewChild('menuSection', { static: false }) menuSection: ElementRef | undefined;
+  @ViewChild('variantModal') variantModal: ElementRef | undefined;
 
   
   istab=true;
@@ -65,7 +66,7 @@ export class PosComponent implements AfterViewInit {
 				}
 			}
   };
-  quantity: number = 4;
+  quantity: number = 1;
   increment() {
     this.quantity++;
   }
@@ -96,10 +97,42 @@ export class PosComponent implements AfterViewInit {
   selectedCategory: any = null;
   menuItems: any = [];
   categories: any = [];
+  itemQuantity: number = 1;
   filteredCategories: any = [];
   orderType = 'baseMenu';
   selectedItem: any;
   selectedVariant: any; 
+  selectedVariantOptions: { [key: string]: { optionName: string; price: number } } = {};
+  selectedAddOns: { [id: number]: any } = {}; 
+  currentItemToDelete: any = null;
+  isClearingAll: boolean = false;
+  showOnlyFavorites: boolean = false;
+  originalMenuItems: any[] = [];
+
+  showTableDropdown = false;
+  areas: any[] = [];
+  tables: any[] = [];
+  selectedArea: any = null;
+  selectedTable: any = null;
+  filteredTables: any[] = [];
+
+  showTaxModal: boolean = false;
+  availableTaxes: any[] = [];
+  selectedTax: any = null;
+  pendingItemToAdd: any = null;
+
+  selectedOrderTaxId: number | string | null = null;
+  selectedOrderTaxIds: string[] = [];
+
+  customTaxAmount: number | null = null;
+  isServiceTaxSelected = false;
+  serviceTaxPercent: number = 0; 
+
+  selectedCartItem: any = null;
+  availableDiscounts: any[] = [];
+  selectedDiscountId: number | null = null;
+  discounts: any[] = [];
+
 
   constructor(
     private data: DataService,
@@ -146,112 +179,913 @@ export class PosComponent implements AfterViewInit {
       if (this.restaurantId) {
         this.getCategories(this.restaurantId);
         this.loadAllMenuItems();
-      } else {
+        this.loadAreasAndTables();
+
+        }
+        else {
         this.errorMessage = 'No restaurant ID found.';
       }
     });
   }
 
-  // addToCart(item: any): void {
-  //   const existingItemIndex = this.cart.findIndex(cartItem => cartItem.itemId === item.itemId);
-  //   if (existingItemIndex >= 0) {
-  //     this.cart = this.cart.map((cartItem, index) => {
-  //       if (index === existingItemIndex) {
-  //         return {
-  //           ...cartItem,
-  //           quantity: cartItem.quantity + 1,
-  //           totalPrice: (cartItem.quantity + 1) * cartItem.price
-  //         };
-  //       }
-  //       return cartItem;
-  //     });
-  //   } else {
-  //     this.cart = [...this.cart, {
-  //       itemId: item.itemId,
-  //       itemName: item.itemName,
-  //       price: item.basePrice,
-  //       quantity: 1,
-  //       totalPrice: item.basePrice
-  //     }];
+
+  
+//current working code
+  handleMenuItemClick1(item: any): void {
+    this.selectedItem = item;
+    this.quantity = 1;
+    this.selectedVariant = null;
+    this.selectedAddOns = {}; // Reset selected add-ons
+    this.itemQuantity = 1; // Reset quantity in modal
+    this.cd.detectChanges();
+    const hasVariantsOrAddOns = (item.variants && item.variants.length > 0) || (item.addOns && item.addOns.length > 0);
+    if (!hasVariantsOrAddOns) {
+      this.addToCart(item, null, []); // Call addToCart with empty addOns array
+    }
+  }
+
+  handleMenuItemClick(item: any): void {
+    this.selectedItem = item;
+    this.quantity = 1;
+    this.selectedVariant = null;
+    this.selectedAddOns = {}; 
+    this.itemQuantity = 1; 
+    this.cd.detectChanges();
+    item.highlight = true;
+
+    const hasVariantsOrAddOns =
+      (item.variants && item.variants.length > 0) ||
+      (item.addOns && item.addOns.length > 0);
+  
+    const hasMultipleTaxes = item.taxes && item.taxes.length > 1;
+
+    if (!hasVariantsOrAddOns) {
+      if (!this.selectedArea && hasMultipleTaxes) {
+        this.availableTaxes = item.taxes;
+        this.pendingItemToAdd = item;
+        this.selectedTax = null;
+        return;
+      }
+        this.addToCart(item, null, []); 
+    }
+  }
+  
+
+finalizeAddToCart(selectedTaxes: any[]) {
+  if (!this.pendingItemToAdd) return;
+
+  const item = { ...this.pendingItemToAdd };
+  item.taxes = selectedTaxes;
+  this.addToCart(item);
+}
+
+  closeDropdown(): void {
+    const dropdown = document.getElementById('tableDropdownTrigger');
+    if (dropdown) {
+      dropdown.setAttribute('aria-expanded', 'false');
+      dropdown.classList.remove('show');
+      const menu = dropdown.nextElementSibling as HTMLElement;
+      if (menu) {
+        menu.classList.remove('show');
+      }
+    }
+  }
+
+
+  //working code
+  addToCart(item: any, selectedVariant: any = null, selectedAddOns: any[] = []): void {
+    const finalItem = selectedVariant ? { ...item, basePrice: parseFloat(selectedVariant.price) } : item;
+    const finalVariants = selectedVariant ? [{ variantName: 'Size', selectedOption: selectedVariant.variantName, price: parseFloat(selectedVariant.price) }] : [];
+
+    // Calculate total add-ons price
+    const addOnsPrice = selectedAddOns.reduce((sum, addOn) => sum + parseFloat(addOn.price), 0);
+    
+    // Calculate base price (item price + add-ons price)
+    const basePrice = parseFloat(finalItem.basePrice) + addOnsPrice;
+
+    // let applicableTaxes = [];
+    // if (this.selectedArea && item.taxes) {
+    //   applicableTaxes = item.taxes.filter((tax: any) => {
+    //     return tax.areaWiseItemsTaxes.some((areaTax: any) => 
+    //       areaTax.menuItemId === item.itemId && 
+    //       areaTax.areaIds.includes(this.selectedArea.id)
+    //     );
+    //   });
+    // }
+    const originalTaxes = item.taxes || [];
+  
+    // Determine which taxes to apply initially
+    // const appliedTaxes = this.selectedArea 
+    //   ? this.getAreaSpecificTaxes(item.itemId, originalTaxes)
+    //   : originalTaxes;
+      const appliedTaxes = this.getApplicableTaxes(item.itemId, originalTaxes);
+
+
+    // if (applicableTaxes.length > 0) {
+    //   finalItem.taxes = applicableTaxes;
+    // }
+    // Check if the item already exists in the cart
+    const existingItemIndex = this.cart.findIndex(
+        cartItem =>
+            cartItem.itemId === finalItem.itemId &&
+            this.areVariantsEqual(cartItem.variants, finalVariants) &&
+            this.areAddOnsEqual(cartItem.addOns, selectedAddOns)
+    );
+
+    if (existingItemIndex >= 0) {
+        this.cart = this.cart.map((cartItem, index) =>
+            index === existingItemIndex
+                ? {
+                    ...cartItem,
+                    quantity: cartItem.quantity + this.quantity,
+                    totalPrice: (cartItem.quantity + this.quantity) * basePrice,
+                    originalTaxes,  // Store all original taxes
+                    appliedTaxes    // Store currently applied taxes                    
+                }
+                : cartItem
+        );
+    } else {
+        this.cart = [
+            ...this.cart,
+            {
+                itemId: finalItem.itemId,
+                itemName: finalItem.itemName,
+                price: basePrice,
+                quantity: this.quantity,
+                totalPrice: basePrice * this.quantity,
+                variants: finalVariants,
+                addOns: selectedAddOns.map(addOn => ({
+                    id: addOn.id,
+                    name: addOn.name,
+                    price: parseFloat(addOn.price)
+                })),
+                originalTaxes,  // Store all original taxes
+                appliedTaxes    // Store currently applied taxes
+                }
+        ];
+    }
+    this.quantity = 1;
+  // this.closeVariantModal();
+    this.cd.detectChanges();
+  }
+
+  // prepareTaxModal(): void {
+  //   if (this.cart.length > 0 && this.cart[0].originalTaxes) {
+  //     this.availableTaxes = this.cart[0].originalTaxes; // assumes same taxes apply to all items
+  //   }
+  
+  //   const appliedTax = this.cart[0]?.appliedTaxes?.[0];
+  
+  //   if (appliedTax && appliedTax.title === 'Service Tax') {
+  //     this.selectedOrderTaxId = 'serviceTax';
+  //     this.customTaxAmount = this.serviceTaxPercent;;
+  //     this.isServiceTaxSelected = true;
+  //   } else if (appliedTax) {
+  //     this.selectedOrderTaxId = appliedTax.id;
+  //     this.customTaxAmount = null;
+  //     this.isServiceTaxSelected = false;
   //   }
   // }
 
-  addToCart(item: any): void {
-    if (item.variants && item.variants.length > 0) {
-      this.selectedItem = item;
-      this.selectedVariant = null; 
-      this.quantity = 1;
-    } else {
-      // If no variants, directly add the item to the cart
-      const existingItemIndex = this.cart.findIndex(cartItem => cartItem.itemId === item.itemId);
+//working code
+  // prepareTaxModal(): void {
+  //   // 🔁 Step 1: Aggregate all unique taxes from all items
+  //   const taxMap: { [id: string]: any } = {};
   
-      if (existingItemIndex >= 0) {
-        // If the item is already in the cart, increment the quantity and update total price
-        this.cart = this.cart.map((cartItem, index) => {
-          if (index === existingItemIndex) {
-            return {
-              ...cartItem,
-              quantity: cartItem.quantity + 1,
-              totalPrice: (cartItem.quantity + 1) * cartItem.price
-            };
-          }
-          return cartItem;
-        });
-      } else {
-        // If the item is not found, add it to the cart with quantity 1
-        this.cart = [...this.cart, {
-          itemId: item.itemId,
-          itemName: item.itemName,
-          price: item.basePrice,
-          quantity: 1,
-          totalPrice: item.basePrice
-        }];
-      }
-    }
-  }
+  //   this.cart.forEach(item => {
+  //     (item.originalTaxes || []).forEach((tax: any) => {
+  //       if (!taxMap[tax.id]) {
+  //         taxMap[tax.id] = tax;
+  //       }
+  //     });
+  //   });
   
+  //   this.availableTaxes = Object.values(taxMap);
+  
+  //   // 🔁 Step 2: Detect if "Service Tax" is currently applied
+  //   const appliedTax = this.cart[0]?.appliedTaxes?.[0];
+  
+  //   if (appliedTax && appliedTax.title === 'Service Tax') {
+  //     this.selectedOrderTaxId = 'serviceTax';
+  //     this.customTaxAmount = this.serviceTaxPercent;
+  //     this.isServiceTaxSelected = true;
+  //   } else if (appliedTax) {
+  //     this.selectedOrderTaxId = appliedTax.id;
+  //     this.customTaxAmount = null;
+  //     this.isServiceTaxSelected = false;
+  //   }
+  // }
+
+//deepseep code
+
+prepareTaxModal(): void {
+  // 🔁 Step 1: Aggregate all unique taxes from all items
+  const taxMap: { [id: string]: any } = {};
+  this.cart.forEach(item => {
+    (item.originalTaxes || []).forEach((tax: any) => {
+      if (!taxMap[tax.id]) taxMap[tax.id] = tax;
+    });
+  });
+  this.availableTaxes = Object.values(taxMap);
+
+  // 🔁 Step 2: Initialize existing selections
+  const appliedTax = this.cart[0]?.appliedTaxes?.[0];
+  this.selectedOrderTaxId = appliedTax?.id || null;
+
+  // 🔁 Step 3: Initialize service tax state
+  this.isServiceTaxSelected = this.serviceTaxPercent > 0;
+  this.customTaxAmount = this.serviceTaxPercent || null;
+}
+
+onTaxSelectionChange(value: string): void {
+  this.selectedOrderTaxId = value;
+}
+  
+  // onTaxSelectionChange(value: string): void {
+  //   if (value === 'serviceTax') {
+  //     this.isServiceTaxSelected = true;
+  
+  //     //  Only set default if there's no value stored
+  //     if (this.customTaxAmount == null) {
+  //       this.customTaxAmount = this.serviceTaxPercent ?? 0;
+  //     }
+  //   } else {
+  //     this.isServiceTaxSelected = false;
+  //     this.customTaxAmount = null;
+  //   }
+  // }
+  
+
+  
+  
+  // Triggered when dropdown selection changes
+  // onTaxSelectionChange(value: string | number): void {
+  //   this.isServiceTaxSelected = (value === 'serviceTax');
+  //   if (!this.isServiceTaxSelected) {
+  //     this.customTaxAmount = null;
+  //   }
+  // }
+  
+  // Called when the user clicks Submit in modal
+  // applySelectedTaxToCart(): void {
+  //   let newTax: any = null;
+  
+  //   if (this.selectedOrderTaxId === 'serviceTax') {
+  //     if (!this.customTaxAmount || this.customTaxAmount <= 0) return;
+  
+  //     newTax = {
+  //       title: 'Service Tax',
+  //       type: 'Percent',
+  //       amount: this.customTaxAmount
+  //     };
+  //   } else {
+  //     newTax = this.availableTaxes.find(tax => tax.id === this.selectedOrderTaxId);
+  //     if (!newTax) return;
+  //   }
+  
+  //   // Apply selected tax to all cart items
+  //   this.cart = this.cart.map(item => {
+  //     const updatedItem = { ...item };
+  
+  //     const itemTotal = updatedItem.price * updatedItem.quantity;
+  
+  //     updatedItem.appliedTaxes = [newTax];
+  //     updatedItem.totalPrice = itemTotal;
+  
+  //     return updatedItem;
+  //   });
+  
+  //   this.cd.detectChanges();
+  // }
+
+  //working code
+  // applySelectedTaxToCart() {
+  //   if (this.selectedOrderTaxId === 'serviceTax') {
+  //     // Apply service tax separately
+  //     this.serviceTaxPercent = this.customTaxAmount ?? 0;
+  //   } else {
+  //     // Normal tax selection
+  //     const selectedTax = this.availableTaxes.find(t => t.id === this.selectedOrderTaxId);
+  //     if (selectedTax) {
+  //       this.cart = this.cart.map(item => ({
+  //         ...item,
+  //         appliedTaxes: [selectedTax]
+  //       }));
+  //     }
+  
+  //     this.serviceTaxPercent = 0; // Clear service tax if not selected
+  //   }
+  
+  //   this.cd.detectChanges();
+  // }
  
-  changeQuantity(change: number): void {
-    this.quantity = Math.max(1, this.quantity + change); // Ensure minimum quantity is 1
+  // applySelectedTaxToCart() {
+  //   // Apply standard tax
+  //   const selectedTax = this.availableTaxes.find(t => t.id === this.selectedOrderTaxId);
+  //   if (selectedTax) {
+  //     this.cart = this.cart.map(item => ({
+  //       ...item,
+  //       appliedTaxes: [selectedTax]
+  //     }));
+  //   }
+  
+  //   // Apply service tax independently
+  //   this.serviceTaxPercent = this.isServiceTaxSelected 
+  //     ? (this.customTaxAmount ?? 0)
+  //     : 0;
+  
+  //   this.cd.detectChanges();
+  // }
+
+  applySelectedTaxToCart() {
+    // Apply standard tax
+    const selectedTax = this.availableTaxes.find(t => t.id === this.selectedOrderTaxId);
+    this.cart = this.cart.map(item => ({
+      ...item,
+      appliedTaxes: selectedTax ? [selectedTax] : []
+    }));
+  
+    // Apply service tax independently
+    this.serviceTaxPercent = this.isServiceTaxSelected 
+      ? (this.customTaxAmount ?? 0)
+      : 0;
+  
+    this.cd.detectChanges();
   }
+  deleteServiceTax(): void {
+    // Show simple confirmation dialog
+    if (confirm('Are you sure you want to remove the Service Tax?')) {
+      // Clear service tax values
+      this.isServiceTaxSelected = false;
+      this.customTaxAmount = null;
+      this.serviceTaxPercent = 0;
+      
+      // Recalculate taxes
+      this.applySelectedTaxToCart();
+    }
+  }
+  
+  getApplicableTaxes(itemId: number, taxes: any[]): any[] {
+    if (!this.selectedArea) {
+      return taxes || []; // If no area is selected, return all taxes
+    }
+  
+    return (taxes || []).filter(tax => {
+      // If the tax has no area restrictions, apply it
+      if (!tax.areaWiseItemsTaxes || tax.areaWiseItemsTaxes.length === 0) {
+        return true;
+      }
+  
+      // Otherwise, check if the tax applies to the selected area
+      return tax.areaWiseItemsTaxes.some((areaTax: { menuItemId: number; areaIds: number[] }) =>
+        areaTax.menuItemId === itemId && areaTax.areaIds.includes(this.selectedArea.id)
+      );
+    });
+  }
+
+  get serviceTaxAmount(): number {
+    const subtotal = this.cart.reduce((sum, item) => sum + item.totalPrice, 0);
+    return (this.serviceTaxPercent / 100) * subtotal;
+  }
+  //working code
+  calculateTax1(): number {
+    return this.cart.reduce((total, item) => {
+      const itemTax = (item.appliedTaxes || []).reduce((sum: number, tax: { type: string; amount: number; }) => {
+        return sum + (
+          tax.type === 'Percent' 
+            ? (item.totalPrice * tax.amount) / 100
+            : tax.amount * item.quantity
+        );
+      }, 0);
+      return total + itemTax;
+    }, 0);
+  }
+  calculateTax(): number {
+    const standardTax = this.cart.reduce((total, item) => {
+      const itemTax = (item.appliedTaxes || []).reduce((sum: number, tax: { type: string; amount: number }) => {
+        const taxAmount = tax.type === 'Percent'
+          ? (item.totalPrice * tax.amount) / 100
+          : tax.amount * item.quantity;
+        return sum + taxAmount;
+      }, 0);
+      return total + itemTax;
+    }, 0);
+  
+    const totalTax = standardTax + this.serviceTaxAmount;
+    return totalTax;
+  }
+  
+  getTaxDescription(): string {
+    const taxDescriptions = new Set<string>();
+    
+    this.cart.forEach(item => {
+      (item.appliedTaxes || []).forEach((tax: { title: any; amount: any; type: string; }) => {
+        taxDescriptions.add(`${tax.title} (${tax.amount}${tax.type === 'Percent' ? '%' : '₹'})`);
+      });
+    });
+    
+    return Array.from(taxDescriptions).join(' + ');
+  }
+  // getTaxBreakdown(): { label: string, value: number }[] {
+  //   const breakdown: { label: string, value: number }[] = [];
+  
+  //   this.cart.forEach(item => {
+  //     (item.appliedTaxes || []).forEach((tax: { title: string, amount: number, type: string }) => {
+  //       let taxAmount = 0;
+  
+  //       if (tax.type === 'Percent') {
+  //         taxAmount = (item.totalPrice * tax.amount) / 100;
+  //       } else {
+  //         taxAmount = tax.amount * item.quantity;
+  //       }
+  
+  //       const halfAmount = taxAmount / 2;
+  //       const halfRate = tax.amount / 2;
+  
+  //       breakdown.push({
+  //         label: `CGST: ${halfRate}${tax.type === 'Percent' ? '%' : '₹'}`,
+  //         value: parseFloat(halfAmount.toFixed(2))
+  //       });
+  
+  //       breakdown.push({
+  //         label: `SGST: ${halfRate}${tax.type === 'Percent' ? '%' : '₹'}`,
+  //         value: parseFloat(halfAmount.toFixed(2))
+  //       });
+  //     });
+  //   });
+  
+  //   if (this.serviceTaxPercent > 0) {
+  //     breakdown.push({
+  //       label: `Service Tax ${this.serviceTaxPercent}%`,
+  //       value: parseFloat(this.serviceTaxAmount.toFixed(2))
+  //     });
+  //   }
+  //   return breakdown;
+  // }
+
+  getTaxBreakdown(): { label: string, value: number }[] {
+    const taxMap: { [key: string]: { cgst: number, sgst: number, rate: number } } = {};
+  
+    // Iterate through each cart item and its applied taxes
+    this.cart.forEach(item => {
+      (item.appliedTaxes || []).forEach((tax: { title: string, amount: number, type: string }) => {
+        let taxAmount = 0;
+  
+        // Calculate the tax amount based on its type (Percent or Fixed)
+        if (tax.type === 'Percent') {
+          taxAmount = (item.totalPrice * tax.amount) / 100;
+        } else {
+          taxAmount = tax.amount * item.quantity;
+        }
+  
+        const halfAmount = taxAmount / 2; // Split tax into CGST and SGST
+        const halfRate = tax.amount / 2; // Split rate into CGST and SGST
+  
+        // Aggregate CGST and SGST amounts for the same tax title
+        if (taxMap[tax.title]) {
+          taxMap[tax.title].cgst += halfAmount;
+          taxMap[tax.title].sgst += halfAmount;
+        } else {
+          taxMap[tax.title] = { cgst: halfAmount, sgst: halfAmount, rate: halfRate };
+        }
+      });
+    });
+  
+    // Convert the aggregated tax map into an array of breakdown objects
+    const breakdown: { label: string, value: number }[] = [];
+    Object.keys(taxMap).forEach(key => {
+      breakdown.push({
+        label: `CGST: ${taxMap[key].rate}%`,
+        value: parseFloat(taxMap[key].cgst.toFixed(2))
+      });
+      breakdown.push({
+        label: `SGST: ${taxMap[key].rate}%`,
+        value: parseFloat(taxMap[key].sgst.toFixed(2))
+      });
+    });
+  
+        if (this.serviceTaxPercent > 0) {
+      breakdown.push({
+        label: `Service Tax ${this.serviceTaxPercent}%`,
+        value: parseFloat(this.serviceTaxAmount.toFixed(2))
+      });
+    }
+    return breakdown;
+  }
+
+// Add this to your component class
+    getCurrentTotal(): number {
+      if (!this.selectedItem) return 0;
+      
+      const basePrice = this.selectedVariant 
+        ? parseFloat(this.selectedVariant.price) 
+        : parseFloat(this.selectedItem.basePrice);
+        
+      const addOnsTotal = Object.values(this.selectedAddOns)
+        .reduce((sum, addOn) => sum + parseFloat(addOn.price), 0);
+        
+      return (basePrice + addOnsTotal) * this.quantity;
+    }
+
+  isItemInCart(): boolean {
+    if (!this.selectedItem) return false;
+    
+    const finalVariants = this.selectedVariant 
+      ? [{ variantName: 'Size', selectedOption: this.selectedVariant.variantName, price: parseFloat(this.selectedVariant.price) }] 
+      : [];
+      
+    const selectedAddOnArray = Object.values(this.selectedAddOns);
+    
+    return this.cart.some(
+      item => 
+        item.itemId === this.selectedItem.itemId &&
+        this.areVariantsEqual(item.variants, finalVariants) &&
+        this.areAddOnsEqual(item.addOns, selectedAddOnArray)
+    );
+  }
+
+  areVariantsEqual(variants1: any[], variants2: any[]): boolean {
+    if (!variants1 && !variants2) return true;
+    if (!variants1 || !variants2 || variants1.length !== variants2.length) return false;
+    for (const v1 of variants1) {
+      const found = variants2.find(v2 => v1.variantName === v2.variantName && v1.selectedOption === v2.selectedOption);
+      if (!found) return false;
+    }
+    return true;
+  }
+  areAddOnsEqual(addOns1: any[], addOns2: any[]): boolean {
+    if (!addOns1 && !addOns2) return true;
+    if (!addOns1 || !addOns2 || addOns1.length !== addOns2.length) return false;
+    // Compare based on ID to handle potential order differences
+    const sortedAddOns1 = [...addOns1].sort((a, b) => a.id - b.id);
+    const sortedAddOns2 = [...addOns2].sort((a, b) => a.id - b.id);
+    for (let i = 0; i < sortedAddOns1.length; i++) {
+      if (sortedAddOns1[i].id !== sortedAddOns2[i].id) {
+        return false;
+      }
+    }
+    return true;
+  }
+  selectVariantOption(variant: any, option: any): void {
+    this.selectedVariantOptions[variant.variantName] = { optionName: option.optionName, price: option.price };
+  }
+
+
+  selectVariant(variant: any): void {
+    this.selectedVariant = variant;
+  }
+
+// working code.
+// addVariantToCartFinal(): void {
+//   if (this.selectedItem) {
+//     const selectedAddOnArray = Object.values(this.selectedAddOns);
+//     this.addToCart(this.selectedItem, this.selectedVariant, selectedAddOnArray);
+//     }
+// }
+
+addVariantToCartFinal(): void {
+  if (!this.selectedItem) return;
+
+  const selectedAddOnArray = Object.values(this.selectedAddOns);
+  const hasMultipleTaxes = this.selectedItem.taxes && this.selectedItem.taxes.length > 1;
+
+  // 🚨 If area not selected and multiple taxes exist, defer to tax modal
+  if (!this.selectedArea && hasMultipleTaxes) {
+    this.pendingItemToAdd = {
+      ...this.selectedItem,
+      selectedVariant: this.selectedVariant,
+      selectedAddOns: selectedAddOnArray,
+      quantity: this.quantity
+    };
+    this.availableTaxes = this.selectedItem.taxes;
+    this.selectedTax = null;
+
+    const taxModalTrigger = document.getElementById('taxModalTrigger');
+    if (taxModalTrigger) {
+      taxModalTrigger.click();
+    }
+
+    return;
+  }
+
+  // ✅ Normal flow
+  this.addToCart(this.selectedItem, this.selectedVariant, selectedAddOnArray);
+}
+
+
+toggleAddOn(addOn: any): void {
+  if (this.selectedAddOns[addOn.id]) {
+    delete this.selectedAddOns[addOn.id];
+  } else {
+    this.selectedAddOns[addOn.id] = addOn;
+  }
+}
+
+clearCart(): void {
+  this.cart = [];
+  this.cd.detectChanges();
+}
+
+deleteCartItem(itemToDelete: any): void {
+  this.cart = this.cart.filter(item => item !== itemToDelete);
+  this.cd.detectChanges();
+}
+
+prepareClearAll(): void {
+  this.isClearingAll = true;
+  this.currentItemToDelete = null;
+}
+
+prepareDeleteItem(item: any): void {
+  this.isClearingAll = false;
+  this.currentItemToDelete = item;
+}
+
+confirmDeletion(): void {
+  if (this.isClearingAll) {
+    this.cart = []; 
+    this.selectedArea = null; 
+    this.selectedTable = null; 
+    this.filteredTables = []; 
+  } else {
+    // Remove specific item
+    this.cart = this.cart.filter(item => item !== this.currentItemToDelete);
+  }
+}
+
+
+
+changeQuantity(change: number): void {
+  const newQuantity = this.quantity + change;
+  this.quantity = Math.max(1, newQuantity);
+  this.cd.detectChanges();
+  console.log('Current quantity:', this.quantity);
+}
+
+  selectedVariantOptionsValid(): boolean {
+    if (!this.selectedItem?.variants) {
+        return true; // No variants, so it's valid
+    }
+    for (const variant of this.selectedItem.variants) {
+        if (!this.selectedVariantOptions[variant.variantName]) {
+            return false; // A variant doesn't have an option selected
+        }
+    }
+    return true;
+  }
+  
   addVariantToCart(): void {
-    if (this.selectedItem && this.selectedVariant) {
-      const existingItemIndex = this.cart.findIndex(cartItem => cartItem.itemId === this.selectedItem.itemId);
-
-      if (existingItemIndex >= 0) {
-        // If item already in cart, update quantity and price
-        this.cart[existingItemIndex].quantity += 1;
-        this.cart[existingItemIndex].totalPrice = this.cart[existingItemIndex].quantity * this.cart[existingItemIndex].price;
-      } else {
-        // If item is not in the cart, add with selected variant price
-        this.cart.push({
-          itemId: this.selectedItem.itemId,
-          itemName: this.selectedItem.itemName,
-          price: this.selectedVariant.price,
-          quantity: 1,
-          totalPrice: this.selectedVariant.price
-        });
-      }
-      this.closeModal();
-
+    if (this.selectedItem && this.selectedVariantOptionsValid()) {
+        const selectedVariants: any[] = [];
+        for (const variantName in this.selectedVariantOptions) {
+            if (this.selectedVariantOptions.hasOwnProperty(variantName)) {
+                const option = this.selectedVariantOptions[variantName];
+                const variantData = this.selectedItem.variants.find((v: any) => v.variantName === variantName);
+                selectedVariants.push({ variantName: variantName, selectedOption: option.optionName, price: option.price });
+            }
+        }
+        this.addToCart(this.selectedItem, selectedVariants);
     }
   }
 
-  closeModal(): void {
-    this.selectedItem = null;  // Reset selected item
-    this.selectedVariant = null;  // Reset selected variant
-  }
-
+ 
   updateQuantity(cartItem: any, newQuantity: number): void {
-    const existingItemIndex = this.cart.findIndex(item => item.itemId === cartItem.itemId);
-    if (existingItemIndex >= 0) {
-      // Prevent setting quantity to 0
-      if (newQuantity > 0) {
-        this.cart[existingItemIndex].quantity = newQuantity;
-        this.cart[existingItemIndex].totalPrice = this.cart[existingItemIndex].quantity * this.cart[existingItemIndex].price;
-      }
-    }
+    this.cart = this.cart.map(item => {
+        if (item.itemId === cartItem.itemId && this.areVariantsEqual(item.variants, cartItem.variants)) {
+            return {
+                ...item,
+                quantity: newQuantity,
+                totalPrice: newQuantity * item.price
+            };
+        }
+        return item;
+    });
+    this.cd.detectChanges();
   }
+
+  updateQuantitycurrent(cartItem: any, newQuantity: number): void {
+    cartItem.quantity = newQuantity;
+    cartItem.totalPrice = (cartItem.price + (cartItem.addOns || []).reduce((sum: number, addOn: { price: string; }) => sum + parseFloat(addOn.price), 0)) * newQuantity;
+  }
+
+  // calculateTax(): number {
+  //  // if (!this.selectedArea) return 0;
+  
+  //   let totalTax = 0;
+  
+  //   this.cart.forEach(cartItem => {
+  //     if (cartItem.taxes && cartItem.taxes.length > 0) {
+  //       cartItem.taxes.forEach((tax: any) => {
+  //         // Calculate tax amount based on type (Percent/Fixed)
+  //         if (tax.type === 'Percent') {
+  //           totalTax += (cartItem.totalPrice * tax.amount) / 100;
+  //         } else if (tax.type === 'Fixed') {
+  //           totalTax += tax.amount * cartItem.quantity;
+  //         }
+  //       });
+  //     }
+  //   });
+  
+  //   return totalTax;
+  // }
+  // getTaxDescription(): string {
+  //   const uniqueTaxes = new Set<string>();
+    
+  //   this.cart.forEach(item => {
+  //     if (item.taxes && item.taxes.length > 0) {
+  //       item.taxes.forEach((tax: { title: any; amount: any; type: string; }) => {
+  //         uniqueTaxes.add(`${tax.title} (${tax.amount}${tax.type === 'Percent' ? '%' : '₹'})`);
+  //       });
+  //     }
+  //   });
+    
+  //   return Array.from(uniqueTaxes).join(' + ');
+  // }
+
+ 
+  
+  // getAreaSpecificTaxes(itemId: number, taxes: any[]): any[] {
+  //   if (!this.selectedArea || !taxes) return taxes || [];
+    
+  //   return taxes.filter(tax => {
+  //     // Check if tax has area restrictions
+  //     if (!tax.areaWiseItemsTaxes || tax.areaWiseItemsTaxes.length === 0) {
+  //       return true; // Apply tax if no area restrictions
+  //     }
+      
+  //     return tax.areaWiseItemsTaxes.some((areaTax: { menuItemId: number; areaIds: string | any[]; }) => 
+  //       areaTax.menuItemId === itemId && 
+  //       areaTax.areaIds.includes(this.selectedArea.id)
+  //     );
+  //   });
+  // }
+  getAreaSpecificTaxes(itemId: number, taxes: any[]): any[] {
+    if (!this.selectedArea || !taxes) return taxes || [];
+    
+    return taxes.filter(tax => {
+      // If tax has no area restrictions, apply it everywhere
+      if (!tax.areaWiseItemsTaxes || tax.areaWiseItemsTaxes.length === 0) {
+        return true;
+      }
+      
+      // Otherwise check if it applies to current area
+      return tax.areaWiseItemsTaxes.some((areaTax: { menuItemId: number; areaIds: string | any[]; }) => 
+        areaTax.menuItemId === itemId && 
+        areaTax.areaIds.includes(this.selectedArea.id)
+      );
+    });
+  }
+  calculateSubTotal(): number {
+    const itemTotal = this.cart.reduce((total, cartItem) => total + cartItem.totalPrice, 0);
+    const taxTotal = this.calculateTax();
+    return itemTotal + taxTotal;
+  }
+
+  calculateItemsTotal(): number {
+    return this.cart.reduce((total, cartItem) => total + cartItem.totalPrice, 0);
+  }
+  
+  // getTaxDescription(): string {
+  //   //if (!this.selectedArea) return '';
+  //   const taxDescriptions: string[] = [];
+  //   this.cart.forEach(cartItem => {
+  //     if (cartItem.taxes && cartItem.taxes.length > 0) {
+  //       cartItem.taxes.forEach((tax: any) => {
+  //         const description = `${tax.title} (${tax.amount}${tax.type === 'Percent' ? '%' : '₹'})`;
+  //         if (!taxDescriptions.includes(description)) {
+  //           taxDescriptions.push(description);
+  //         }
+  //       });
+  //     }
+  //   });
+  //   return taxDescriptions.join(' + ');
+  // }
+
+
+
+  // onAreaSelect(area: any): void {
+  //   this.selectedArea = area;
+    
+  //   // Update taxes for all items in cart when area changes
+  //   this.cart = this.cart.map(cartItem => {
+  //     let applicableTaxes = [];
+  //     if (this.menuItems) {
+  //       const originalItem = this.menuItems.find((item: { itemId: any; }) => item.itemId === cartItem.itemId);
+  //       if (originalItem && originalItem.taxes) {
+  //         applicableTaxes = originalItem.taxes.filter((tax: any) => {
+  //           return tax.areaWiseItemsTaxes.some((areaTax: any) => 
+  //             areaTax.menuItemId === cartItem.itemId && 
+  //             areaTax.areaIds.includes(this.selectedArea.id)
+  //           );
+  //         });
+  //       }
+  //     }
+  //     return {
+  //       ...cartItem,
+  //       taxes: applicableTaxes
+  //     };
+  //   });
+    
+  //   this.cd.detectChanges();
+  // }
+
+  onAreaSelect(area: any): void {
+    console.log('Selected Area:', area);
+
+    this.selectedArea = area;
+    this.updateTaxesForAllItems();
+    this.cd.detectChanges();
+  }
+
+  //working code.
+  updateTaxesForAllItems1(): void {
+    this.cart = this.cart.map(item => ({
+      ...item,
+      appliedTaxes: this.getApplicableTaxes(item.itemId, item.originalTaxes)
+    }));
+    this.cd.detectChanges();
+  }
+
+  updateTaxesForAllItems(): void {
+    this.cart = this.cart.map(item => {
+      const newTaxes = this.getApplicableTaxes(item.itemId, item.originalTaxes);
+      // Check if the new taxes are different from the currently applied taxes
+      const isTaxDifferent = JSON.stringify(newTaxes) !== JSON.stringify(item.appliedTaxes);
+      if (isTaxDifferent) {
+        // Update the applied taxes and recalculate the total price
+        const updatedItem = {
+          ...item,
+          appliedTaxes: newTaxes,
+          totalPrice: this.calculateItemTotalPrice(item, newTaxes)
+        };
+        return updatedItem;
+      }
+      return item; // No changes if the tax is the same
+    });
+  
+    this.cd.detectChanges();
+  }
+
+  calculateItemTotalPrice(item: any, taxes: any[]): number {
+    let totalPrice = item.price * item.quantity;
+  
+    // Add tax amounts to the total price
+    taxes.forEach((tax: { type: string; amount: number }) => {
+      if (tax.type === 'Percent') {
+        totalPrice += (item.price * item.quantity * tax.amount) / 100;
+      } else {
+        totalPrice += tax.amount * item.quantity;
+      }
+    });
+  
+    return totalPrice;
+  }
+
+  updateCartTaxes(): void {
+    this.cart = this.cart.map(cartItem => {
+      const appliedTaxes = this.selectedArea
+        ? this.getAreaSpecificTaxes(cartItem.itemId, cartItem.originalTaxes || [])
+        : cartItem.originalTaxes || [];
+      
+      return {
+        ...cartItem,
+        appliedTaxes
+      };
+    });
+  }
+
+  //Discount Modal
+  openEditProductModal(cartItem: any) {
+    const item = this.menuItems.find((menuItem: any) => menuItem.itemId === cartItem.itemId);
+    this.selectedCartItem = cartItem; // Save selected cart item
+    this.availableDiscounts = [];
+
+    // If item is found and it has discountIds
+    if (item && item.discountIds && item.discountIds.length > 0) {
+        item.discountIds.forEach((discountId: any) => {
+            const discount = this.discounts.find((d: any) => d.id === discountId);
+            if (discount) {
+                this.availableDiscounts.push(discount);
+            } 
+        });
+    } 
+    // Set default selected discount if any available
+    this.selectedDiscountId = this.availableDiscounts.length > 0 ? this.availableDiscounts[0].id : null;
+    console.log('Selected Discount ID:', this.selectedDiscountId);
+}
+
+  getSelectedDiscountAmount(): number | null {
+    const discount = this.availableDiscounts.find(d => d.id === this.selectedDiscountId);
+    return discount ? discount.discountAmount : null;
+  }
+
+  isDiscountAvailable(itemId: number): boolean {
+    const item = this.menuItems.find((menuItem: any) => menuItem.itemId === itemId);
+    if (item && item.discountIds && item.discountIds.length > 0) {
+        return true;
+    }
+    return false;
+}
 
   getCategories(restaurantId: string): void {
     this.menuApiService.getCategories(restaurantId).subscribe(
@@ -278,11 +1112,14 @@ export class PosComponent implements AfterViewInit {
   }
   getMenuItemOnCategories(category: any) {
     console.log('order type: ' + this.orderType);
+    //this.showOnlyFavorites = false; 
      this.selectedCategory = category;
+
     // this.toastService.showLoader();
     this.menuApiService.getMenuItemOnCategories(this.restaurantId, category.categoryId, this.orderType).subscribe(
       (response: any) => {
-        this.menuItems = response.content || []; // Assuming 'content' contains the menu items
+        this.menuItems = response.menuItems  || []; 
+        this.discounts = response.discounts || [];
         this.menuItems = this.menuItems.map((item: any) => ({
           ...item,
           isChecked: false,
@@ -298,8 +1135,11 @@ export class PosComponent implements AfterViewInit {
 
 loadAllMenuItems(): void {
   this.menuApiService.getMenuItems(this.restaurantId).subscribe((response: any) => {
-    this.menuItems = response || [];
+    this.menuItems = response.menuItems || [];
+    this.discounts = response.discounts || [];
     // Add default checked state to each menu item
+    this.originalMenuItems = [...this.menuItems]; 
+
     this.menuItems = this.menuItems.map((item: any) => ({
       ...item,
       isChecked: false,
@@ -319,6 +1159,56 @@ scrollToMenuItems(): void {
     this.menuSection.nativeElement.scrollIntoView({ behavior: 'smooth' });
   }
 }
+
+showFavorites(): void {
+  this.showOnlyFavorites = !this.showOnlyFavorites;
+  
+  if (this.showOnlyFavorites) {
+    this.menuItems = this.originalMenuItems.filter(item => item.setAsFavorite === "true");
+  } else {
+    this.menuItems = [...this.originalMenuItems];
+  }
+  
+  // Reset tab states if needed
+  this.istab = true;
+  this.selectedCategory = null;
+}
+
+
+toggleTableDropdown(): void {
+  this.showTableDropdown = !this.showTableDropdown;
+  if (this.showTableDropdown && !this.areas.length) {
+    this.loadAreasAndTables();
+  }
+}
+
+// Load data
+loadAreasAndTables(): void {
+  this.menuApiService.getAreasByRestaurantId(this.restaurantId).subscribe(areas => {
+    this.areas = areas;
+  });
+  
+  this.menuApiService.getTablesByRestaurantId(this.restaurantId).subscribe(tables => {
+    this.tables = tables;
+  });
+}
+
+// Select area
+selectArea(area: any): void {
+  this.selectedArea = area;
+  this.filteredTables = this.tables.filter(table => 
+    area.tableIds.includes(table.id)
+  );
+}
+
+// Select table
+selectTable(table: any): void {
+  this.selectedTable = table;
+  this.showTableDropdown = false;
+  // You can emit an event or store the selected table as needed
+}
+
+
 
   private getTableData(pageOption: pageSelection): void {
     this.data.getPosPurchase().subscribe((apiRes: apiResultFormat) => {
@@ -502,6 +1392,15 @@ scrollToMenuItems(): void {
       });
     });
     checkActiveElements();
+
+    const modalElement = document.getElementById('order-tax');
+  if (modalElement) {
+    modalElement.addEventListener('shown.bs.modal', () => {
+      this.prepareTaxModal();
+    });
   }
+  }
+
+  
 
 }

@@ -356,12 +356,13 @@ export interface discount {
 
 
 export interface designation {
-  designation?: string;
-  createdOn?: string;
-  members?: string;
-  department?:string;
+  id?: any;
+  title?: string;
+  createdDate?: string;  
+  departmentId?:any;
+  departmentName?:string;
   sNo?: number;
-  status:string;
+  status:boolean;
   isSelected?: boolean;
 }
 export interface departmentList {
@@ -411,15 +412,16 @@ export interface expiredProducts {
 }
 export interface employeeList {
   sNo: number;
-  img: string;
-  employee: string;
+  empCode: string;
+  firstName: string;
+  lastName: string;
   id: string;
-  designation: string;
+  designationName: string;
   employeeID: string;
   email: string;
-  phone: string;
-  shift: string;
-  status: string;
+  contactNumber: string;
+  shiftName: string;
+  status: boolean;
   isSelected?: boolean;
 }
 export interface bankSettingsList {
@@ -480,11 +482,14 @@ export interface file {
   isSelected?: boolean;
 }
 export interface holiday {
+  id: any,
   sNo: number;
-  type: string;
-  date: string;
+  holiday: string;
+  fromDate: string;
+  toDate: string;
+  noOfDays: number;
   description: string;
-  status: string;
+  status: boolean;
   isSelected?: boolean;
 }
 export interface languagesetting {
@@ -578,7 +583,7 @@ export interface fileShared {
   img2: string;
   isSelected?: boolean;
 }
-export interface rolesPermissions {
+export interface Role {
   sNo: number;
   id: number;
   role: string;
@@ -712,7 +717,8 @@ export interface salesInvoice {
   status: string;
   img: string;
 }
-export interface users {
+
+export interface user {
   sNo: number;
   id: number;
   img: string;
@@ -764,10 +770,11 @@ export interface leavesadmin {
   isSelected?: boolean;
 }
 export interface leavestype {
+  id: any;
   sNo?: number;
-  name: string;
+  leaveType: string;
   leaveQuota: string;
-  createdOn: string;
+  createdDate: string;
   status: string;
   isSelected?: boolean;
 }

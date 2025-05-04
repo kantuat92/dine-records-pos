@@ -210,7 +210,7 @@
         </div>
       </div>
     </li>
-    
+
     <li class="nav-item pos-nav">
       <a [routerLink]="routes.pos" class="btn btn-dark btn-md d-inline-flex align-items-center">
         <i class="ti ti-device-laptop me-1"></i>POS
@@ -247,7 +247,7 @@
       </a>
     </li>
 
-    
+
     <!-- Notifications -->
     <li class="nav-item dropdown nav-item-box">
       <a href="javascript:void(0);" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
@@ -347,7 +347,7 @@
         <a class="dropdown-item" [routerLink]="routes.salesReport"><i class="ti ti-file-text me-2"></i>Reports</a>
         <a class="dropdown-item" [routerLink]="routes.generalSettings"><i class="ti ti-settings-2 me-2"></i>Settings</a>
         <hr class="my-2">
-        <a class="dropdown-item logout pb-0" [routerLink]="routes.signIn"><i class="ti ti-logout me-2"></i>Logout</a>
+        <a class="dropdown-item logout pb-0" (click)="logout($event)"><i class="ti ti-logout me-2"></i>Logout</a>
       </div>
     </li>
   </ul>
@@ -360,7 +360,7 @@
     <div class="dropdown-menu dropdown-menu-right">
       <a class="dropdown-item" [routerLink] = "routes.profile">My Profile</a>
       <a class="dropdown-item" [routerLink] = "routes.generalSettings">Settings</a>
-      <a class="dropdown-item" [routerLink] = "routes.signIn">Logout</a>
+      <a class="dropdown-item" (click)="logout($event)">Logout</a>
     </div>
   </div>
   <!-- /Mobile Menu -->
@@ -371,7 +371,7 @@
 
 <!-- Pos Header -->
 <div class="header pos-header" *ngIf="page==='pos' || page === 'pos-2' || page === 'pos-3' || page === 'pos-4' || page === 'pos-5'">
-			
+
   <!-- Logo -->
    <div class="header-left active">
     <a [routerLink]="routes.index" class="logo logo-normal">
@@ -385,7 +385,7 @@
     </a>
   </div>
   <!-- /Logo -->
-  
+
   <a id="mobile_btn" class="mobile_btn d-none" href="#sidebar">
     <span class="bar-icon">
       <span></span>
@@ -393,7 +393,7 @@
       <span></span>
     </span>
   </a>
-  
+
   <!-- Header Menu -->
   <ul class="nav user-menu">
 
@@ -402,7 +402,7 @@
       <span class="bg-teal text-white d-inline-flex align-items-center"><img src="assets/img/icons/clock-icon.svg" alt="img" class="me-2">09:25:32</span>
     </li>
     <!-- /Search -->
-    
+
     <li class="nav-item pos-nav">
       <a [routerLink]="routes.index" class="btn btn-purple btn-md d-inline-flex align-items-center">
         <i class="ti ti-world me-1"></i>Dashboard
@@ -438,7 +438,7 @@
       </div>
     </li>
     <!-- /Select Store -->
-    
+
     <li class="nav-item nav-item-box">
       <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#calculator" class="bg-orange border-orange text-white"><i class="ti ti-calculator"></i></a>
     </li>
@@ -485,20 +485,20 @@
             Profile</a>
           <a class="dropdown-item" [routerLink]="routes.generalSettings"><i class="me-2" data-feather="settings"></i>Settings</a>
           <hr class="m-0">
-          <a class="dropdown-item logout pb-0" [routerLink]="routes.signIn"><img src="assets/img/icons/log-out.svg" class="me-2" alt="img">Logout</a>
+          <a class="dropdown-item logout pb-0" (click)="logout($event)"><img src="assets/img/icons/log-out.svg" class="me-2" alt="img">Logout</a>
         </div>
       </div>
     </li>
   </ul>
   <!-- /Header Menu -->
-  
+
   <!-- Mobile Menu -->
   <div class="dropdown mobile-user-menu">
     <a href="javascript:void(0);" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
     <div class="dropdown-menu dropdown-menu-right">
       <a class="dropdown-item" [routerLink]="routes.profile" >My Profile</a>
       <a class="dropdown-item" [routerLink]="routes.generalSettings" >Settings</a>
-      <a class="dropdown-item" [routerLink]="routes.signIn" >Logout</a>
+      <a class="dropdown-item" (click)="logout($event)" >Logout</a>
     </div>
   </div>
   <!-- /Mobile Menu -->
@@ -517,7 +517,7 @@
 									<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 										<span aria-hidden="true">×</span>
 									</button>
-								</div>							
+								</div>
 								<div>
 									<input class="input" type="text" [(ngModel)]="inputValue"
                   (keydown)="onKeyPress($event)" placeholder="0" readonly>
@@ -536,24 +536,24 @@
                   <button class="btn btn-number" (click)="addValue('8')">8</button>
                   <button class="btn btn-number" (click)="addValue('5')">5</button>
                   <button class="btn btn-number" (click)="addValue('2')">2</button>
-                  <button class="btn btn-number" (click)="addValue('0')">0</button>								
+                  <button class="btn btn-number" (click)="addValue('0')">0</button>
 								</div>
 								<div class="text-center">
-                  
+
                   <button class="btn btn-expression" (click)="addValue('%')">%</button>
                   <button class="btn btn-number" (click)="addValue('9')">9</button>
                   <button class="btn btn-number" (click)="addValue('6')">6</button>
                   <button class="btn btn-number" (click)="addValue('3')">3</button>
-                  <button class="btn btn-number" (click)="addValue('.')">.</button>								
+                  <button class="btn btn-number" (click)="addValue('.')">.</button>
 								</div>
 								<div class="text-center">
                   <button class="btn btn-clear" (click)="backspace()"><i class="ti ti-backspace"></i></button>
                   <button class="btn btn-expression" (click)="addValue('*')">x</button>
                   <button class="btn btn-expression" (click)="addValue('-')">-</button>
                   <button class="btn btn-expression" (click)="addValue('+')">+</button>
-                  <button class="btn btn-clear" (click)="solve()">=</button>						
+                  <button class="btn btn-clear" (click)="solve()">=</button>
 								</div>
-							</div>							
+							</div>
 						</div>
 					</div>
 				</div>
