@@ -158,7 +158,7 @@ export class AttendanceEmployeeComponent {
   clockInForToday(): void {
     this.hrmApiService.clockIn(this.restaurantId, this.employeeId).subscribe(
       (newAttendance: Attendance) => {
-        this.tableData.push(newAttendance);
+        this.tableData.unshift(newAttendance);
         this.isClockedIn = true;
       },
       (error) => {

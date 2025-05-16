@@ -16,10 +16,10 @@ interface data {
 }
 
 @Component({
-    selector: 'app-leaves-employee',
-    templateUrl: './leaves-employee.component.html',
-    styleUrl: './leaves-employee.component.scss',
-    standalone: false
+  selector: 'app-leaves-employee',
+  templateUrl: './leaves-employee.component.html',
+  styleUrl: './leaves-employee.component.scss',
+  standalone: false
 })
 export class LeavesEmployeeComponent implements OnInit, OnDestroy {
   initChecked = false;
@@ -44,7 +44,7 @@ export class LeavesEmployeeComponent implements OnInit, OnDestroy {
       this.totalData = apiRes.totalData;
       this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
         if (this.router.url == this.routes.leavesEmployee) {
-          this.getTableData({ skip: res.skip, limit: this.totalData  });
+          this.getTableData({ skip: res.skip, limit: this.totalData });
           this.pageSize = res.pageSize;
         }
       });
@@ -127,7 +127,7 @@ export class LeavesEmployeeComponent implements OnInit, OnDestroy {
       });
   }
 
-  
+
   public filter = false;
   openFilter() {
     this.filter = !this.filter;
@@ -167,25 +167,25 @@ export class LeavesEmployeeComponent implements OnInit, OnDestroy {
     { value: 'Choose Status' },
     { value: 'Approved' },
     { value: 'Rejected' },
-    
+
   ];
   selectedList5: data[] = [
     { value: 'Choose' },
     { value: 'Sick Leave' },
     { value: 'Paternity' },
-    
+
   ];
   selectedList6: data[] = [
     { value: 'Full Day' },
     { value: 'Sick Leave' },
     { value: 'Half Day' },
-    
+
   ];
   selectedList7: data[] = [
     { value: 'Full Day' },
     { value: 'Sick Leave' },
     { value: 'Half Day' },
-    
+
   ];
   editor!: Editor;
   editor1!: Editor;
