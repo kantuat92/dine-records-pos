@@ -279,7 +279,12 @@ finalizeAddToCart(selectedTaxes: any[]) {
     //   ? this.getAreaSpecificTaxes(item.itemId, originalTaxes)
     //   : originalTaxes;
       const appliedTaxes = this.getApplicableTaxes(item.itemId, originalTaxes);
-
+      let hasActiveDiscount = false;
+      if (item.discountIds && item.discountIds.length > 0) {
+        hasActiveDiscount = item.discountIds.some((discountId: any) =>
+          this.discounts.find((d: any) => d.id === discountId && d.status === true)
+        );
+      }
 
     // if (applicableTaxes.length > 0) {
     //   finalItem.taxes = applicableTaxes;
@@ -299,8 +304,9 @@ finalizeAddToCart(selectedTaxes: any[]) {
                     ...cartItem,
                     quantity: cartItem.quantity + this.quantity,
                     totalPrice: (cartItem.quantity + this.quantity) * basePrice,
-                    originalTaxes,  // Store all original taxes
-                    appliedTaxes    // Store currently applied taxes                    
+                    originalTaxes, 
+                    appliedTaxes ,
+                    hasActiveDiscount                    
                 }
                 : cartItem
         );
@@ -320,7 +326,8 @@ finalizeAddToCart(selectedTaxes: any[]) {
                     price: parseFloat(addOn.price)
                 })),
                 originalTaxes,  // Store all original taxes
-                appliedTaxes    // Store currently applied taxes
+                appliedTaxes,
+                hasActiveDiscount    // Store currently applied taxes
                 }
         ];
     }
@@ -379,7 +386,7 @@ finalizeAddToCart(selectedTaxes: any[]) {
 //deepseep code
 
 prepareTaxModal(): void {
-  // 🔁 Step 1: Aggregate all unique taxes from all items
+  // Step 1: Aggregate all unique taxes from all items
   const taxMap: { [id: string]: any } = {};
   this.cart.forEach(item => {
     (item.originalTaxes || []).forEach((tax: any) => {
@@ -388,11 +395,11 @@ prepareTaxModal(): void {
   });
   this.availableTaxes = Object.values(taxMap);
 
-  // 🔁 Step 2: Initialize existing selections
+  // Step 2: Initialize existing selections
   const appliedTax = this.cart[0]?.appliedTaxes?.[0];
   this.selectedOrderTaxId = appliedTax?.id || null;
 
-  // 🔁 Step 3: Initialize service tax state
+  // Step 3: Initialize service tax state
   this.isServiceTaxSelected = this.serviceTaxPercent > 0;
   this.customTaxAmount = this.serviceTaxPercent || null;
 }
@@ -560,11 +567,28 @@ onTaxSelectionChange(value: string): void {
       return total + itemTax;
     }, 0);
   }
+
+  // working code2
+  // calculateTax(): number {
+  //   const standardTax = this.cart.reduce((total, item) => {
+  //     const itemTax = (item.appliedTaxes || []).reduce((sum: number, tax: { type: string; amount: number }) => {
+  //       const taxAmount = tax.type === 'Percent'
+  //         ? (item.totalPrice * tax.amount) / 100
+  //         : tax.amount * item.quantity;
+  //       return sum + taxAmount;
+  //     }, 0);
+  //     return total + itemTax;
+  //   }, 0);
+  
+  //   const totalTax = standardTax + this.serviceTaxAmount;
+  //   return totalTax;
+  // }
   calculateTax(): number {
     const standardTax = this.cart.reduce((total, item) => {
+      const discountedTotal = this.getDiscountedItemTotal(item);
       const itemTax = (item.appliedTaxes || []).reduce((sum: number, tax: { type: string; amount: number }) => {
         const taxAmount = tax.type === 'Percent'
-          ? (item.totalPrice * tax.amount) / 100
+          ? (discountedTotal * tax.amount) / 100
           : tax.amount * item.quantity;
         return sum + taxAmount;
       }, 0);
@@ -574,7 +598,6 @@ onTaxSelectionChange(value: string): void {
     const totalTax = standardTax + this.serviceTaxAmount;
     return totalTax;
   }
-  
   getTaxDescription(): string {
     const taxDescriptions = new Set<string>();
     
@@ -922,56 +945,56 @@ changeQuantity(change: number): void {
     });
   }
   // working code for total payable
+  // calculateTotalPayable(): number {
+  //   const itemTotal = this.cart.reduce((total, cartItem) => total + cartItem.totalPrice, 0);
+  //   const taxTotal = this.calculateTax();
+  //   return itemTotal + taxTotal;
+  // }
   calculateTotalPayable(): number {
-    const itemTotal = this.cart.reduce((total, cartItem) => total + cartItem.totalPrice, 0);
+    const itemTotal = this.cart.reduce((total, cartItem) => total + this.getDiscountedItemTotal(cartItem), 0);
     const taxTotal = this.calculateTax();
     return itemTotal + taxTotal;
   }
-  // calculateTotalPayable(): number {
-  //   let itemTotal = this.cart.reduce((total, cartItem) => total + cartItem.totalPrice, 0);
-  //   const taxTotal = this.calculateTax();
-  
-  //   // Find any item with an "Add on Total" discount
-  //   const totalDiscountItem = this.cart.find(
-  //     item => item.appliedDiscount && item.appliedDiscount.addDiscountOn === 'Add on Total'
-  //   );
-  //   if (totalDiscountItem) {
-  //     const discount = totalDiscountItem.appliedDiscount;
-  //     if (discount.discountType === 'Percentage') {
-  //       itemTotal = itemTotal - (itemTotal * discount.discountAmount) / 100;
-  //     } else if (discount.discountType === 'Fixed') {
-  //       itemTotal = itemTotal - discount.discountAmount;
-  //     }
-  //     if (itemTotal < 0) itemTotal = 0;
-  //   }
-  
-  //   return itemTotal + taxTotal;
-  // }
-  
   // working code for subtotal amount
-  calculateItemsTotal(): number {
-    return this.cart.reduce((total, cartItem) => total + cartItem.totalPrice, 0);
-  }
   // calculateItemsTotal(): number {
-  //   let total = 0;
-  //   for (const cartItem of this.cart) {
-  //     let itemTotal = cartItem.totalPrice;
-  //     // Check if this item has an applied discount and it's "Add on Core"
-  //     if (
-  //       cartItem.appliedDiscount &&
-  //       cartItem.appliedDiscount.addDiscountOn === 'Add on Core'
-  //     ) {
-  //       if (cartItem.appliedDiscount.discountType === 'Percentage') {
-  //         itemTotal = itemTotal - (itemTotal * cartItem.appliedDiscount.discountAmount) / 100;
-  //       } else if (cartItem.appliedDiscount.discountType === 'Fixed') {
-  //         itemTotal = itemTotal - cartItem.appliedDiscount.discountAmount;
-  //       }
-  //       if (itemTotal < 0) itemTotal = 0;
-  //     }
-  //     total += itemTotal;
-  //   }
-  //   return total;
+  //   return this.cart.reduce((total, cartItem) => total + cartItem.totalPrice, 0);
   // }
+
+// Update the calculateItemsTotal method to remove the "Add on Core" condition check
+// calculateItemsTotal(): number {
+//   let total = 0;
+//   for (const cartItem of this.cart) {
+//     let itemTotal = cartItem.totalPrice;
+//     // Apply discount if present
+//     if (cartItem.appliedDiscount) {
+//       if (cartItem.appliedDiscount.discountType === 'Percentage') {
+//         itemTotal = itemTotal - (itemTotal * cartItem.appliedDiscount.discountAmount) / 100;
+//       } else if (cartItem.appliedDiscount.discountType === 'Fixed') {
+//         itemTotal = itemTotal - cartItem.appliedDiscount.discountAmount;
+//       }
+//       if (itemTotal < 0) itemTotal = 0;
+//     }
+//     total += itemTotal;
+//   }
+//   return total;
+// }
+
+calculateItemsTotal(): number {
+  return this.cart.reduce((total, cartItem) => total + this.getDiscountedItemTotal(cartItem), 0);
+}
+
+getDiscountedItemTotal(cartItem: any): number {
+  let itemTotal = cartItem.totalPrice;
+  if (cartItem.appliedDiscount) {
+    if (cartItem.appliedDiscount.discountType === 'Percentage') {
+      itemTotal = itemTotal - (itemTotal * cartItem.appliedDiscount.discountAmount) / 100;
+    } else if (cartItem.appliedDiscount.discountType === 'Fixed') {
+      itemTotal = itemTotal - cartItem.appliedDiscount.discountAmount;
+    }
+    if (itemTotal < 0) itemTotal = 0;
+  }
+  return itemTotal;
+}
   // getTaxDescription(): string {
   //   //if (!this.selectedArea) return '';
   //   const taxDescriptions: string[] = [];
@@ -1119,6 +1142,15 @@ changeQuantity(change: number): void {
     return false;
  }
 
+ onDiscountSubmit() {
+  const selectedDiscount = this.availableDiscounts.find(
+    d => d.id === this.selectedDiscountId
+  );
+  if (this.selectedCartItem) {
+    this.selectedCartItem.appliedDiscount = selectedDiscount;
+  }
+  this.cd.detectChanges(); 
+}
   getCategories(restaurantId: string): void {
     this.menuApiService.getCategories(restaurantId).subscribe(
       response => {
