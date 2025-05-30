@@ -132,7 +132,7 @@ export class PosComponent implements AfterViewInit {
   availableDiscounts: any[] = [];
   selectedDiscountId: number | null = null;
   discounts: any[] = [];
-
+  selectedDiscount: any = null;
 
   constructor(
     private data: DataService,
@@ -279,7 +279,12 @@ finalizeAddToCart(selectedTaxes: any[]) {
     //   ? this.getAreaSpecificTaxes(item.itemId, originalTaxes)
     //   : originalTaxes;
       const appliedTaxes = this.getApplicableTaxes(item.itemId, originalTaxes);
-
+      let hasActiveDiscount = false;
+      if (item.discountIds && item.discountIds.length > 0) {
+        hasActiveDiscount = item.discountIds.some((discountId: any) =>
+          this.discounts.find((d: any) => d.id === discountId && d.status === true)
+        );
+      }
 
     // if (applicableTaxes.length > 0) {
     //   finalItem.taxes = applicableTaxes;
@@ -299,8 +304,9 @@ finalizeAddToCart(selectedTaxes: any[]) {
                     ...cartItem,
                     quantity: cartItem.quantity + this.quantity,
                     totalPrice: (cartItem.quantity + this.quantity) * basePrice,
-                    originalTaxes,  // Store all original taxes
-                    appliedTaxes    // Store currently applied taxes                    
+                    originalTaxes, 
+                    appliedTaxes ,
+                    hasActiveDiscount                    
                 }
                 : cartItem
         );
@@ -320,7 +326,8 @@ finalizeAddToCart(selectedTaxes: any[]) {
                     price: parseFloat(addOn.price)
                 })),
                 originalTaxes,  // Store all original taxes
-                appliedTaxes    // Store currently applied taxes
+                appliedTaxes,
+                hasActiveDiscount    // Store currently applied taxes
                 }
         ];
     }
@@ -379,7 +386,7 @@ finalizeAddToCart(selectedTaxes: any[]) {
 //deepseep code
 
 prepareTaxModal(): void {
-  // 🔁 Step 1: Aggregate all unique taxes from all items
+  // Step 1: Aggregate all unique taxes from all items
   const taxMap: { [id: string]: any } = {};
   this.cart.forEach(item => {
     (item.originalTaxes || []).forEach((tax: any) => {
@@ -388,11 +395,11 @@ prepareTaxModal(): void {
   });
   this.availableTaxes = Object.values(taxMap);
 
-  // 🔁 Step 2: Initialize existing selections
+  // Step 2: Initialize existing selections
   const appliedTax = this.cart[0]?.appliedTaxes?.[0];
   this.selectedOrderTaxId = appliedTax?.id || null;
 
-  // 🔁 Step 3: Initialize service tax state
+  // Step 3: Initialize service tax state
   this.isServiceTaxSelected = this.serviceTaxPercent > 0;
   this.customTaxAmount = this.serviceTaxPercent || null;
 }
@@ -560,11 +567,28 @@ onTaxSelectionChange(value: string): void {
       return total + itemTax;
     }, 0);
   }
+
+  // working code2
+  // calculateTax(): number {
+  //   const standardTax = this.cart.reduce((total, item) => {
+  //     const itemTax = (item.appliedTaxes || []).reduce((sum: number, tax: { type: string; amount: number }) => {
+  //       const taxAmount = tax.type === 'Percent'
+  //         ? (item.totalPrice * tax.amount) / 100
+  //         : tax.amount * item.quantity;
+  //       return sum + taxAmount;
+  //     }, 0);
+  //     return total + itemTax;
+  //   }, 0);
+  
+  //   const totalTax = standardTax + this.serviceTaxAmount;
+  //   return totalTax;
+  // }
   calculateTax(): number {
     const standardTax = this.cart.reduce((total, item) => {
+      const discountedTotal = this.getDiscountedItemTotal(item);
       const itemTax = (item.appliedTaxes || []).reduce((sum: number, tax: { type: string; amount: number }) => {
         const taxAmount = tax.type === 'Percent'
-          ? (item.totalPrice * tax.amount) / 100
+          ? (discountedTotal * tax.amount) / 100
           : tax.amount * item.quantity;
         return sum + taxAmount;
       }, 0);
@@ -574,7 +598,6 @@ onTaxSelectionChange(value: string): void {
     const totalTax = standardTax + this.serviceTaxAmount;
     return totalTax;
   }
-  
   getTaxDescription(): string {
     const taxDescriptions = new Set<string>();
     
@@ -625,22 +648,18 @@ onTaxSelectionChange(value: string): void {
 
   getTaxBreakdown(): { label: string, value: number }[] {
     const taxMap: { [key: string]: { cgst: number, sgst: number, rate: number } } = {};
-  
     // Iterate through each cart item and its applied taxes
     this.cart.forEach(item => {
       (item.appliedTaxes || []).forEach((tax: { title: string, amount: number, type: string }) => {
         let taxAmount = 0;
-  
         // Calculate the tax amount based on its type (Percent or Fixed)
         if (tax.type === 'Percent') {
           taxAmount = (item.totalPrice * tax.amount) / 100;
         } else {
           taxAmount = tax.amount * item.quantity;
         }
-  
         const halfAmount = taxAmount / 2; // Split tax into CGST and SGST
         const halfRate = tax.amount / 2; // Split rate into CGST and SGST
-  
         // Aggregate CGST and SGST amounts for the same tax title
         if (taxMap[tax.title]) {
           taxMap[tax.title].cgst += halfAmount;
@@ -650,7 +669,6 @@ onTaxSelectionChange(value: string): void {
         }
       });
     });
-  
     // Convert the aggregated tax map into an array of breakdown objects
     const breakdown: { label: string, value: number }[] = [];
     Object.keys(taxMap).forEach(key => {
@@ -672,7 +690,6 @@ onTaxSelectionChange(value: string): void {
     }
     return breakdown;
   }
-
 // Add this to your component class
     getCurrentTotal(): number {
       if (!this.selectedItem) return 0;
@@ -680,10 +697,8 @@ onTaxSelectionChange(value: string): void {
       const basePrice = this.selectedVariant 
         ? parseFloat(this.selectedVariant.price) 
         : parseFloat(this.selectedItem.basePrice);
-        
       const addOnsTotal = Object.values(this.selectedAddOns)
-        .reduce((sum, addOn) => sum + parseFloat(addOn.price), 0);
-        
+        .reduce((sum, addOn) => sum + parseFloat(addOn.price), 0);       
       return (basePrice + addOnsTotal) * this.quantity;
     }
 
@@ -748,8 +763,7 @@ addVariantToCartFinal(): void {
 
   const selectedAddOnArray = Object.values(this.selectedAddOns);
   const hasMultipleTaxes = this.selectedItem.taxes && this.selectedItem.taxes.length > 1;
-
-  // 🚨 If area not selected and multiple taxes exist, defer to tax modal
+  //  If area not selected and multiple taxes exist, defer to tax modal
   if (!this.selectedArea && hasMultipleTaxes) {
     this.pendingItemToAdd = {
       ...this.selectedItem,
@@ -759,16 +773,13 @@ addVariantToCartFinal(): void {
     };
     this.availableTaxes = this.selectedItem.taxes;
     this.selectedTax = null;
-
     const taxModalTrigger = document.getElementById('taxModalTrigger');
     if (taxModalTrigger) {
       taxModalTrigger.click();
     }
-
     return;
   }
-
-  // ✅ Normal flow
+  // If area is selected or no multiple taxes, proceed to add to cart
   this.addToCart(this.selectedItem, this.selectedVariant, selectedAddOnArray);
 }
 
@@ -921,13 +932,11 @@ changeQuantity(change: number): void {
   // }
   getAreaSpecificTaxes(itemId: number, taxes: any[]): any[] {
     if (!this.selectedArea || !taxes) return taxes || [];
-    
     return taxes.filter(tax => {
       // If tax has no area restrictions, apply it everywhere
       if (!tax.areaWiseItemsTaxes || tax.areaWiseItemsTaxes.length === 0) {
         return true;
       }
-      
       // Otherwise check if it applies to current area
       return tax.areaWiseItemsTaxes.some((areaTax: { menuItemId: number; areaIds: string | any[]; }) => 
         areaTax.menuItemId === itemId && 
@@ -935,16 +944,57 @@ changeQuantity(change: number): void {
       );
     });
   }
-  calculateSubTotal(): number {
-    const itemTotal = this.cart.reduce((total, cartItem) => total + cartItem.totalPrice, 0);
+  // working code for total payable
+  // calculateTotalPayable(): number {
+  //   const itemTotal = this.cart.reduce((total, cartItem) => total + cartItem.totalPrice, 0);
+  //   const taxTotal = this.calculateTax();
+  //   return itemTotal + taxTotal;
+  // }
+  calculateTotalPayable(): number {
+    const itemTotal = this.cart.reduce((total, cartItem) => total + this.getDiscountedItemTotal(cartItem), 0);
     const taxTotal = this.calculateTax();
     return itemTotal + taxTotal;
   }
+  // working code for subtotal amount
+  // calculateItemsTotal(): number {
+  //   return this.cart.reduce((total, cartItem) => total + cartItem.totalPrice, 0);
+  // }
 
-  calculateItemsTotal(): number {
-    return this.cart.reduce((total, cartItem) => total + cartItem.totalPrice, 0);
+// Update the calculateItemsTotal method to remove the "Add on Core" condition check
+// calculateItemsTotal(): number {
+//   let total = 0;
+//   for (const cartItem of this.cart) {
+//     let itemTotal = cartItem.totalPrice;
+//     // Apply discount if present
+//     if (cartItem.appliedDiscount) {
+//       if (cartItem.appliedDiscount.discountType === 'Percentage') {
+//         itemTotal = itemTotal - (itemTotal * cartItem.appliedDiscount.discountAmount) / 100;
+//       } else if (cartItem.appliedDiscount.discountType === 'Fixed') {
+//         itemTotal = itemTotal - cartItem.appliedDiscount.discountAmount;
+//       }
+//       if (itemTotal < 0) itemTotal = 0;
+//     }
+//     total += itemTotal;
+//   }
+//   return total;
+// }
+
+calculateItemsTotal(): number {
+  return this.cart.reduce((total, cartItem) => total + this.getDiscountedItemTotal(cartItem), 0);
+}
+
+getDiscountedItemTotal(cartItem: any): number {
+  let itemTotal = cartItem.totalPrice;
+  if (cartItem.appliedDiscount) {
+    if (cartItem.appliedDiscount.discountType === 'Percentage') {
+      itemTotal = itemTotal - (itemTotal * cartItem.appliedDiscount.discountAmount) / 100;
+    } else if (cartItem.appliedDiscount.discountType === 'Fixed') {
+      itemTotal = itemTotal - cartItem.appliedDiscount.discountAmount;
+    }
+    if (itemTotal < 0) itemTotal = 0;
   }
-  
+  return itemTotal;
+}
   // getTaxDescription(): string {
   //   //if (!this.selectedArea) return '';
   //   const taxDescriptions: string[] = [];
@@ -1054,7 +1104,9 @@ changeQuantity(change: number): void {
     });
   }
 
-  //Discount Modal
+  //Discount code
+
+  //Discount modal window
   openEditProductModal(cartItem: any) {
     const item = this.menuItems.find((menuItem: any) => menuItem.itemId === cartItem.itemId);
     this.selectedCartItem = cartItem; // Save selected cart item
@@ -1063,7 +1115,7 @@ changeQuantity(change: number): void {
     // If item is found and it has discountIds
     if (item && item.discountIds && item.discountIds.length > 0) {
         item.discountIds.forEach((discountId: any) => {
-            const discount = this.discounts.find((d: any) => d.id === discountId);
+            const discount = this.discounts.find((d: any) => d.id === discountId && d.status === true);
             if (discount) {
                 this.availableDiscounts.push(discount);
             } 
@@ -1082,11 +1134,23 @@ changeQuantity(change: number): void {
   isDiscountAvailable(itemId: number): boolean {
     const item = this.menuItems.find((menuItem: any) => menuItem.itemId === itemId);
     if (item && item.discountIds && item.discountIds.length > 0) {
-        return true;
+      return item.discountIds.some((discountId: any) => {
+        const discount = this.discounts.find((d: any) => d.id === discountId);
+        return discount && discount.status === true;
+    });
     }
     return false;
-}
+ }
 
+ onDiscountSubmit() {
+  const selectedDiscount = this.availableDiscounts.find(
+    d => d.id === this.selectedDiscountId
+  );
+  if (this.selectedCartItem) {
+    this.selectedCartItem.appliedDiscount = selectedDiscount;
+  }
+  this.cd.detectChanges(); 
+}
   getCategories(restaurantId: string): void {
     this.menuApiService.getCategories(restaurantId).subscribe(
       response => {
