@@ -6,14 +6,7 @@
 		</div>
 	</div>
 	<ul class="table-top-head">
-		<li>
-			<a data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf" matTooltip="Pdf"
-				matTooltipPosition="above"><img src="assets/img/icons/pdf.svg" alt="img" /></a>
-		</li>
-		<li>
-			<a data-bs-toggle="tooltip" data-bs-placement="top" title="Excel" matTooltip="Excel"
-				matTooltipPosition="above"><img src="assets/img/icons/excel.svg" alt="img" /></a>
-		</li>
+		
 		<li>
 			<a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh" matTooltip="Refresh"
 				matTooltipPosition="above"><i class="ti ti-refresh"></i></a>
@@ -51,29 +44,7 @@
 			</div>
 		</div>
 		<div class="d-flex table-dropdown my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-			<div class="me-2 date-select-small">
-				<div class="input-addon-left position-relative ngxdate">
-					<input type="text" class="form-control datetimepicker" bsDatepicker container=".ngxdate"
-						placeholder="Select Date">
-					<span class="cus-icon"><i data-feather="calendar"
-							class="feather icon-calendar feather-clock"></i></span>
-				</div>
-			</div>
-			<div class="dropdown">
-				<a href="javascript:void(0);"
-					class="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center"
-					data-bs-toggle="dropdown">
-					Select Status
-				</a>
-				<ul class="dropdown-menu  dropdown-menu-end p-3">
-					<li>
-						<a href="javascript:void(0);" class="dropdown-item rounded-1">Approved</a>
-					</li>
-					<li>
-						<a href="javascript:void(0);" class="dropdown-item rounded-1">Rejected</a>
-					</li>
-				</ul>
-			</div>
+			
 		</div>
 	</div>
 	<div class="card-body">
@@ -83,12 +54,7 @@
 				matSortDirection="asc" matSortDisableClear>
 				<thead class="thead-light">
 					<tr>
-						<th class="no-sort">
-							<label class="checkboxs" (click)="selectAll(initChecked)">
-								<input type="checkbox" id="select-all" [(ngModel)]="initChecked" />
-								<span class="checkmarks"></span>
-							</label>
-						</th>
+						
 						<th mat-sort-header="type">Type</th>
 						<th mat-sort-header="date">From Date</th>
 						<th mat-sort-header="todate">To Date</th>
@@ -101,12 +67,7 @@
 				<tbody>
 					@for (data of tableData; track data) {
 					<tr>
-						<td>
-							<label class="checkboxs">
-								<input type="checkbox" />
-								<span class="checkmarks"></span>
-							</label>
-						</td>
+						
 						<td>{{ data.type }}</td>
 						<td>
 							{{ data.fromDate }}
