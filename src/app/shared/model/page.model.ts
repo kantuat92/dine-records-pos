@@ -358,7 +358,7 @@ export interface discount {
 export interface designation {
   id?: any;
   title?: string;
-  createdDate?: string;  
+  createdDate?: string;
   departmentId?:any;
   departmentName?:string;
   sNo?: number;
@@ -778,18 +778,26 @@ export interface leavestype {
   status: string;
   isSelected?: boolean;
 }
-export interface leavesemployee {
+
+export interface LeavesEmployee {
   sNo?: number;
-  empId: string;
-  type: string;
-  fromDate: string;
-  toDate: string;
-  daysOrHours: string;
-  appliedOn: string;
-  reason: string;
-  status: string;
-  isSelected?: boolean;
+  id: number;                     // Corresponds to Long id
+  fromDate: string;               // ISO date string (LocalDate)
+  toDate: string;                 // ISO date string (LocalDate)
+  noOfDays: number;              // Integer number of days
+  reason: string;                // Leave reason
+  status: 'APPLIED' | 'APPROVED' | 'REJECTED';  // Enum LeaveStatus
+  leaveDuration: 'FULL_DAY' | 'HALF_DAY';       // Enum LeaveDuration
+  leaveTypeId: number;           // FK to leave type
+  restaurantId: number;          // FK to restaurant
+  employeeId: number;            // FK to employee
+  createdDate: string;
+
+  // Optional frontend-only fields
+  isSelected?: boolean;          // UI selection flag
 }
+
+
 export interface storeList {
   sNo?: number;
   storeName: string;

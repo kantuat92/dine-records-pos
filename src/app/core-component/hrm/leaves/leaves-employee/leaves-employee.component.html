@@ -8,7 +8,7 @@
   <ul class="table-top-head">
 
     <li>
-      <a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh" matTooltip="Refresh"
+      <a (click)="loadData()" data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh" matTooltip="Refresh"
          matTooltipPosition="above"><i class="ti ti-refresh"></i></a>
     </li>
     <li>
@@ -67,32 +67,32 @@
           @for (data of tableData; track data) {
             <tr>
 
-              <td>{{ data.type }}</td>
+              <td>{{ getLeaveTypeName(data.leaveTypeId) }}</td>
               <td>
-                {{ data.fromDate }}
+                {{ data.fromDate | date: 'MMM d, y' }}
               </td>
               <td>
-                {{ data.toDate }}
+                {{ data.toDate | date: 'MMM d, y' }}
               </td>
-              <td>{{ data.daysOrHours }}</td>
+              <td>{{ data.noOfDays }}</td>
               <td>
-                {{ data.appliedOn }}
+                {{ data.createdDate | date: 'MMM d, y' }}
               </td>
               <td>
 							<span class="badge d-inline-flex align-items-center badge-xs" [ngClass]="{
-                  'badge-purple': data.status === 'Applied',
-                  'badge-success': data.status === 'Approved',
-                  'badge-danger': data.status === 'Rejected'
+                  'badge-purple': data.status === 'APPLIED',
+                  'badge-success': data.status === 'APPROVED',
+                  'badge-danger': data.status === 'REJECTED'
                 }"><i class="ti ti-point-filled me-1"></i>{{ data.status }}</span>
               </td>
               <td class="action-table-data justify-content-end">
                 <div class="edit-delete-action">
 
-                  <a *ngIf="data.status==='Applied'" class="confirm-text p-2 me-2"
+                  <a *ngIf="data.status==='APPLIED'" class="confirm-text p-2 me-2"
                      href="javascript:void(0);">
                     <i class="feather icon-x-circle feather-x-circle"></i>
                   </a>
-                  <a *ngIf="data.status==='Rejected'" class="confirm-text p-2 me-2"
+                  <a *ngIf="data.status==='REJECTED'" class="confirm-text p-2 me-2"
                      href="javascript:void(0);">
                     <i class="feather icon-info feather-info"></i>
                   </a>
@@ -101,7 +101,8 @@
                     <i class="feather icon-edit feather icon-edit feather-edit"></i>
                   </a>
 
-                  <a class="confirm-text p-2" href="javascript:void(0);" data-bs-toggle="modal"
+                  <a (click)="setDeleteLeaveApplication(data.id)" class="confirm-text p-2" href="javascript:void(0);"
+                     data-bs-toggle="modal"
                      data-bs-target="#delete-modal">
                     <i class="feather icon-trash-2 feather-trash-2"></i>
                   </a>
@@ -128,112 +129,105 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form>
+      <form [formGroup]="leaveForm" (ngSubmit)="addLeave()">
         <div class="modal-body">
           <div class="row">
             <div class="col-lg-12">
               <div class="mb-3">
                 <label class="form-label">Employee <span class="text-danger">*</span></label>
-                <mat-select class="custom-mat-select select" placeholder="Select">
-                  <mat-option value="1">Select</mat-option>
-                  <mat-option value="1">Carl Evans</mat-option>
-                  <mat-option value="1">Minerva Rameriz</mat-option>
-                  <mat-option value="1">Robert Lamon</mat-option>
+                <mat-select class="custom-mat-select select" placeholder="Select" formControlName="employeeId">
+                  <mat-option value="">Employee</mat-option>
+                  <mat-option *ngFor="let emp of employees" [value]="emp.id">
+                    {{ emp.firstName }} {{ emp.lastName }}
+                  </mat-option>
                 </mat-select>
               </div>
             </div>
+
             <div class="col-lg-12">
               <div class="mb-3">
                 <label class="form-label">Leave Type <span class="text-danger">*</span></label>
-                <mat-select class="custom-mat-select select" placeholder="Select">
-                  <mat-option value="1">Select</mat-option>
-                  <mat-option value="1">Sick Leave</mat-option>
-                  <mat-option value="1">Casual Leave</mat-option>
+                <mat-select class="custom-mat-select select" placeholder="Select" formControlName="leaveTypeId">
+                  <mat-option value="">Leave Type</mat-option>
+                  <mat-option *ngFor="let leaveType of leaveTypes" [value]="leaveType.id">
+                    {{ leaveType.leaveType }}
+                  </mat-option>
                 </mat-select>
               </div>
             </div>
+
             <div class="col-lg-12">
               <div class="row">
                 <div class="col-lg-6">
                   <div class="mb-3">
                     <label class="form-label">From <span class="text-danger"> *</span></label>
                     <div class="input-addon-right position-relative ngxdate7">
-                      <input type="text" class="form-control datetimepicker" bsDatepicker
-                             container=".ngxdate7" placeholder="dd/mm/yyyy">
-                      <span class="cus-icon"><i data-feather="calendar"
-                                                class="feather-clock"></i></span>
+                      <input type="text" class="form-control datetimepicker" bsDatepicker container=".ngxdate7"
+                             placeholder="dd/mm/yyyy" formControlName="fromDate">
+                      <span class="cus-icon"><i data-feather="calendar" class="feather-clock"></i></span>
                     </div>
                   </div>
                 </div>
+
                 <div class="col-lg-6">
                   <div class="mb-3">
                     <label class="form-label">To <span class="text-danger"> *</span></label>
                     <div class="input-addon-right position-relative ngxdate6">
-                      <input type="text" class="form-control datetimepicker" bsDatepicker
-                             container=".ngxdate6" placeholder="dd/mm/yyyy">
-                      <span class="cus-icon"><i data-feather="calendar"
-                                                class="feather-clock"></i></span>
+                      <input type="text" class="form-control datetimepicker" bsDatepicker container=".ngxdate6"
+                             placeholder="dd/mm/yyyy" formControlName="toDate">
+                      <span class="cus-icon"><i data-feather="calendar" class="feather-clock"></i></span>
                     </div>
                   </div>
                 </div>
+
+
                 <div class="col-lg-6">
                   <div class="mb-3">
-                    <div class="input-addon-right position-relative ngxdate5">
-                      <input type="text" class="form-control datetimepicker" bsDatepicker
-                             container=".ngxdate5" placeholder="dd/mm/yyyy">
-                      <span class="cus-icon"><i data-feather="calendar"
-                                                class="feather-clock"></i></span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-lg-6">
-                  <div class="mb-3">
-                    <mat-select class="custom-mat-select select" placeholder="Select">
-                      <mat-option value="1">Select</mat-option>
-                      <mat-option value="1">Full Day</mat-option>
-                      <mat-option value="1">Half Day</mat-option>
+                    <mat-select class="custom-mat-select select" placeholder="Select" formControlName="leaveDuration">
+                      <mat-option value="">Duration</mat-option>
+                      <mat-option value="FULL_DAY">Full Day</mat-option>
+                      <mat-option value="HALF_DAY">Half Day</mat-option>
                     </mat-select>
                   </div>
                 </div>
               </div>
             </div>
+
             <div class="col-lg-12">
               <div class="bg-light rounded p-3 pb-0">
                 <div class="row">
                   <div class="col-lg-6">
                     <div class="mb-3">
                       <label class="form-label">No of Days</label>
-                      <input type="text" class="form-control bg-light " readonly>
+                      <input type="text" class="form-control bg-light" readonly formControlName="noOfDays">
                     </div>
                   </div>
-                  <div class="col-lg-6">
-                    <div class="mb-3">
-                      <label class="form-label">Remaining Leaves</label>
-                      <input type="text" class="form-control bg-light " readonly>
-                    </div>
-                  </div>
+
                 </div>
               </div>
             </div>
+
             <div class="col-lg-12">
               <div class="summer-description-box mb-0">
                 <label class="form-label">Reason</label>
-                <ngx-editor [editor]="editor">
-                  <ngx-editor-menu [editor]="editor" [toolbar]="toolbar">
-                  </ngx-editor-menu>
+                <ngx-editor [editor]="editor" formControlName="reason">
+                  <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"></ngx-editor-menu>
                 </ngx-editor>
               </div>
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+          <button #closeCreateButton type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel
+          </button>
           <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
         </div>
       </form>
     </div>
   </div>
 </div>
+
+
 <!-- /Add Leave -->
 
 <!-- Edit Leave -->
@@ -367,10 +361,10 @@
           <h4 class="fs-20 text-gray-9 fw-bold mb-2 mt-1">Delete Leave</h4>
           <p class="text-gray-6 mb-0 fs-16">Are you sure you want to delete leave?</p>
           <div class="modal-footer-btn mt-3 d-flex justify-content-center">
-            <button type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
+            <button #closeDeleteButton type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
                     data-bs-dismiss="modal">Cancel
             </button>
-            <button type="submit" class="btn btn-submit fs-13 fw-medium p-2 px-3"
+            <button type="submit" class="btn btn-submit fs-13 fw-medium p-2 px-3" (click)="deleteLeaveApplication()"
                     data-bs-dismiss="modal">Yes Delete
             </button>
           </div>
