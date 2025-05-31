@@ -395,14 +395,14 @@ export class LeavesEmployeeComponent implements OnInit, OnDestroy {
 
   deleteLeaveApplication() {
     if (!this.deleteLeaveApplicationId) {
-      alert("User Id cannot be null");
+      alert("deleteLeaveApplicationId cannot be null");
       return;
     }
 
     this.hrmApiService.deleteLeaveApplication(this.deleteLeaveApplicationId).subscribe(
       () => {
-        this.tableData = this.tableData.filter(user => user.id !== this.deleteLeaveApplicationId);
-        this.tableData.forEach((user, index) => user.sNo = index + 1);
+        this.tableData = this.tableData.filter(leaveApplication => leaveApplication.id !== this.deleteLeaveApplicationId);
+        this.tableData.forEach((leaveApplication, index) => leaveApplication.sNo = index + 1);
         this.serialNumberArray = this.tableData.map((_, index) => index + 1);
         this.dataSource = new MatTableDataSource<LeavesEmployee>(this.tableData);
 

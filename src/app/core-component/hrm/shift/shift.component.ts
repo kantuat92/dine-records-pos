@@ -55,6 +55,7 @@ export class ShiftComponent {
   @ViewChild('closeEditButton') closeEditButton!: ElementRef<HTMLButtonElement>;
   @ViewChild('closeDeleteButton') closeDeleteButton!: ElementRef<HTMLButtonElement>;
 
+  deleteShiftId: number | null = null;
 
   constructor(private hrmApiService: HrmApiService, private pagination: PaginationService, private router: Router,
               private sidebar: SidebarService, private datePipe: DatePipe,
@@ -257,7 +258,6 @@ export class ShiftComponent {
   formatTime(date: Date, form: FormGroup, controlName: string) {
     const selectedDate: Date = new Date(date);
     const time = this.datePipe.transform(selectedDate, 'h:mm a');
-    console.log('time : ', time);
     if (form && controlName) {
       form.get(controlName)?.setValue(time);
     }
@@ -283,6 +283,34 @@ export class ShiftComponent {
 
   convertTo12HourTimeFormat(time: string) {
     return this.datePipe.transform('1970-01-01T' + time, 'h:mm a'); // 1970-01-01T is a dummy date.
+  }
+
+  setDeleteShiftId(id: number) {
+    this.deleteShiftId = id;
+    console.log('deleteShiftId set to : ', this.deleteShiftId);
+  }
+
+  deleteShift() {
+    if (!this.deleteShiftId) {
+      alert("deleteShiftId cannot be null");
+      return;
+    }
+
+    this.hrmApiService.deleteShift(this.deleteShiftId).subscribe(
+      () => {
+        this.tableData = this.tableData.filter(shift => shift.shiftId !== this.deleteShiftId);
+        this.tableData.forEach((shift, index) => shift.sNo = index + 1);
+        this.serialNumberArray = this.tableData.map((_, index) => index + 1);
+        this.dataSource = new MatTableDataSource<Shift>(this.tableData);
+
+        this.deleteShiftId = null; // Clear input field
+        this.closeDeleteButton.nativeElement.click(); // Click the close button
+      },
+      (error) => {
+        console.error('Error:', error);
+        alert('Failed to DELETE shift.');
+      }
+    );
   }
 
 
