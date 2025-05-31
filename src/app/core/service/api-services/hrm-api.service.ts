@@ -186,11 +186,7 @@ export class HrmApiService {
     return this.http.get<apiResultFormat>(`${this.baseURL}/leave-applications/restaurant/${restaurantId}`);
   }
 
-  getLeaveApplicationById(id: number): Observable<LeavesEmployee> {
-    return this.http.get<LeavesEmployee>(`${this.baseURL}/leave-applications/${id}`);
-  }
-
-  updateLeaveApplication(id: number, application: LeavesEmployee): Observable<any> {
+  updateLeaveApplication(id: number | null, application: LeavesEmployee): Observable<any> {
     return this.http.put(`${this.baseURL}/leave-applications/${id}`, application);
   }
 

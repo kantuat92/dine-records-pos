@@ -8,8 +8,8 @@ import {apiResultFormat} from 'src/app/core/core.index';
 import {routes} from 'src/app/core/helpers/routes';
 import {DataService} from 'src/app/core/service/data/data.service';
 import {SidebarService} from 'src/app/core/service/sidebar/sidebar.service';
-import {PaginationService, pageSelection, tablePageSize} from 'src/app/shared/custom-pagination/pagination.service';
-import {employeeList, LeavesEmployee, leavestype, user} from 'src/app/shared/model/page.model';
+import {pageSelection, PaginationService, tablePageSize} from 'src/app/shared/custom-pagination/pagination.service';
+import {employeeList, LeavesEmployee, leavestype} from 'src/app/shared/model/page.model';
 import Swal from 'sweetalert2';
 import {HrmApiService} from "../../../../core/service/api-services/hrm-api.service";
 import {selectRestaurantId} from "../../../../core/store/restaurant.selectors";
@@ -34,6 +34,7 @@ export class LeavesEmployeeComponent implements OnInit, OnDestroy {
   employees: employeeList[] = [];
   leaveTypes: leavestype[] = [];
   deleteLeaveApplicationId: number | null = null;
+  editLeaveApplicationId: number | null = null;
   initChecked = false;
   public routes = routes;
   // pagination variables
@@ -239,22 +240,39 @@ export class LeavesEmployeeComponent implements OnInit, OnDestroy {
       reason: ['']
     });
 
+    this.editLeaveForm = this.fb.group({
+      employeeId: [''],
+      leaveTypeId: [''],
+      fromDate: [''],
+      toDate: [''],
+      leaveDuration: [''],
+      noOfDays: [{value: '', disabled: true}],
+      reason: ['']
+    });
+
     this.leaveForm.get('fromDate')?.valueChanges.subscribe(() => {
-      this.updateNoOfDays();
+      this.updateNoOfDays(this.leaveForm);
     });
 
     this.leaveForm.get('toDate')?.valueChanges.subscribe(() => {
-      this.updateNoOfDays();
+      this.updateNoOfDays(this.leaveForm);
     });
 
+    this.editLeaveForm.get('fromDate')?.valueChanges.subscribe(() => {
+      this.updateNoOfDays(this.editLeaveForm);
+    });
+
+    this.editLeaveForm.get('toDate')?.valueChanges.subscribe(() => {
+      this.updateNoOfDays(this.editLeaveForm);
+    });
     this.fetchEmployees();
     this.fetchLeaveTypes();
     this.loadData();
   }
 
-  updateNoOfDays() {
-    const from = this.leaveForm.get('fromDate')?.value;
-    const to = this.leaveForm.get('toDate')?.value;
+  updateNoOfDays(form: FormGroup) {
+    const from = form.get('fromDate')?.value;
+    const to = form.get('toDate')?.value;
 
     if (from && to) {
       const fromDate = new Date(from);
@@ -268,7 +286,7 @@ export class LeavesEmployeeComponent implements OnInit, OnDestroy {
       const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
       const noOfDays = diffInDays >= 0 ? diffInDays + 1 : 0;
-      this.leaveForm.get('noOfDays')?.setValue(noOfDays);
+      form.get('noOfDays')?.setValue(noOfDays);
     }
   }
 
@@ -332,7 +350,7 @@ export class LeavesEmployeeComponent implements OnInit, OnDestroy {
           sNo: this.tableData.length + 1
         }
         this.tableData.push(newLeaveApplication);
-        this.leaveForm.reset({status: true});
+        this.leaveForm.reset();
         this.closeCreateButton.nativeElement.click();
       },
       err => {
@@ -397,4 +415,49 @@ export class LeavesEmployeeComponent implements OnInit, OnDestroy {
       }
     );
   }
+
+  openEditModal(id: any, leaveApplication: LeavesEmployee) {
+    this.editLeaveApplicationId = id;
+
+    this.editLeaveForm.patchValue({
+      employeeId: leaveApplication.employeeId,
+      leaveTypeId: leaveApplication.leaveTypeId,
+      fromDate: leaveApplication.fromDate ? new Date(leaveApplication.fromDate) : null,
+      toDate: leaveApplication.toDate ? new Date(leaveApplication.toDate) : null,
+      leaveDuration: leaveApplication.leaveDuration,
+      noOfDays: leaveApplication.noOfDays,
+      reason: leaveApplication.reason
+    });
+  }
+
+  editLeave() {
+    if (this.editLeaveForm.invalid) return;
+
+    const editLeavePayload = {
+      ...this.editLeaveForm.getRawValue(),
+      fromDate: this.editLeaveForm.value.fromDate?.toISOString().slice(0, 10),
+      toDate: this.editLeaveForm.value.toDate?.toISOString().slice(0, 10),
+      restaurantId: this.restaurantId
+    };
+
+    this.hrmApiService.updateLeaveApplication(this.editLeaveApplicationId, editLeavePayload).subscribe(
+      res => {
+        const index = this.tableData.findIndex(d => d.id === this.editLeaveApplicationId);
+        if (index !== -1) {
+          this.tableData[index] = {
+            ...this.tableData[index],
+            ...res
+          };
+          this.dataSource = new MatTableDataSource<LeavesEmployee>(this.tableData);
+        }
+        this.editLeaveApplicationId = null;
+        this.editLeaveForm.reset();
+        this.closeEditButton.nativeElement.click();
+      },
+      err => {
+        console.error('Error editing leave application:', err);
+      }
+    );
+  }
+
 }
