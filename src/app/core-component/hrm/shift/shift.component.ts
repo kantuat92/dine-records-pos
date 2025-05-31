@@ -56,6 +56,7 @@ export class ShiftComponent {
   @ViewChild('closeDeleteButton') closeDeleteButton!: ElementRef<HTMLButtonElement>;
 
   deleteShiftId: number | null = null;
+  editShiftId: number | null = null;
 
   constructor(private hrmApiService: HrmApiService, private pagination: PaginationService, private router: Router,
               private sidebar: SidebarService, private datePipe: DatePipe,
@@ -76,6 +77,15 @@ export class ShiftComponent {
       endTime: ['', Validators.required],
       weekOff: ['', Validators.required]
     });
+
+    this.editShiftForm = this.fb.group({
+      shiftName: ['', Validators.required],
+      shiftType: ['', Validators.required],
+      startTime: ['', Validators.required],
+      endTime: ['', Validators.required],
+      weekOff: ['', Validators.required]
+    });
+
     this.loadData();
   }
 
@@ -311,6 +321,64 @@ export class ShiftComponent {
         alert('Failed to DELETE shift.');
       }
     );
+  }
+
+  openEditModal(id: any, shift: Shift) {
+    console.log('edit modal opened, id: ', id);
+    this.editShiftId = id;
+
+    this.time9 = this.convertToDateObject(shift.startTime); // For display binding
+    this.time10 = this.convertToDateObject(shift.endTime);
+
+    const startTime12h = this.convertTo12HourTimeFormat(shift.startTime);
+    const endTime12h = this.convertTo12HourTimeFormat(shift.endTime);
+
+    this.editShiftForm.patchValue({
+      shiftName: shift.shiftName,
+      shiftType: shift.shiftType,
+      startTime: startTime12h,
+      endTime: endTime12h,
+      weekOff: shift.weekOff
+    });
+  }
+
+
+  editShift() {
+    if (this.editShiftForm.invalid) return;
+
+    const formValue = this.editShiftForm.value;
+
+    const editShiftPayload = {
+      ...formValue,
+      startTime: this.convertTo24Hour(formValue.startTime),
+      endTime: this.convertTo24Hour(formValue.endTime),
+      restaurantId: this.restaurantId
+    };
+    this.hrmApiService.updateShift(this.editShiftId, editShiftPayload).subscribe(
+      res => {
+        const index = this.tableData.findIndex(d => d.shiftId === this.editShiftId);
+        if (index !== -1) {
+          this.tableData[index] = {
+            ...this.tableData[index],
+            ...res
+          };
+          this.dataSource = new MatTableDataSource<Shift>(this.tableData);
+        }
+        this.editShiftId = null;
+        this.editShiftForm.reset();
+        this.closeEditButton.nativeElement.click();
+      },
+      err => {
+        console.error('Error editing shift.:', err);
+      }
+    );
+  }
+
+  convertToDateObject(timeStr: string): Date {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const now = new Date();
+    now.setHours(hours, minutes, 0, 0);
+    return now;
   }
 
 

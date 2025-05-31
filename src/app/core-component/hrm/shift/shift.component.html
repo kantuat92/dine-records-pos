@@ -50,9 +50,11 @@
             <td>{{ data.weekOff }}</td>
 
             <td class="action-table-data">
-              <div class="edit-delete-action"><a class="me-2 p-2" href="javascript:void(0);" data-bs-toggle="modal"
+              <div class="edit-delete-action"><a (click)="openEditModal(data.shiftId, data)" class="me-2 p-2"
+                                                 href="javascript:void(0);" data-bs-toggle="modal"
                                                  data-bs-target="#edit-units"><i
-                class="feather icon-edit feather-edit"></i></a><a (click)="setDeleteShiftId(data.shiftId)" data-bs-toggle="modal" data-bs-target="#delete-modal"
+                class="feather icon-edit feather-edit"></i></a><a (click)="setDeleteShiftId(data.shiftId)"
+                                                                  data-bs-toggle="modal" data-bs-target="#delete-modal"
                                                                   class="confirm-text p-2" href="javascript:void(0);"><i
                 class="feather icon-trash-2 feather-trash-2"></i></a></div>
             </td>
@@ -82,18 +84,21 @@
                      aria-labelledby="pills-add-shift-info-tab">
                   <div class="row">
                     <div class="col-lg-12">
-                      <div class="input-blocks"><label>Shift Name</label><input type="text" class="form-control" formControlName="shiftName"/></div>
+                      <div class="input-blocks"><label>Shift Name</label><input type="text" class="form-control"
+                                                                                formControlName="shiftName"/></div>
                     </div>
                     <div class="col-lg-12">
                       <div class="input-blocks"><label>Shift Type</label>
                         <mat-select formControlName="shiftType" class="select"
                                     placeholder="Choose">@for (data of selectedList2; track data) {
                           <mat-option [value]="data.value">{{ data.value }}</mat-option>
-                        }</mat-select></div>
+                        }</mat-select>
+                      </div>
                     </div>
                     <div class="col-lg-6">
                       <div class="input-blocks"><label>From</label>
-                        <div class="form-icon"><input (click)="toggleTimePicker('time1')" [value]="formatTime(time1, shiftForm, 'startTime')"
+                        <div class="form-icon"><input (click)="toggleTimePicker('time1')"
+                                                      [value]="formatTime(time1, shiftForm, 'startTime')"
                                                       type="text" placeholder="Select Time"
                                                       class="form-control timepicker"/><span class="cus-icon"><i
                           class="feather icon-clock feather-clock"></i><timepicker
@@ -104,7 +109,8 @@
                     <div class="col-lg-6">
                       <div class="input-blocks"><label>To</label>
                         <div class="form-icon"><input type="text" class="form-control timepicker"
-                                                      (click)="toggleTimePicker('time2')" [value]="formatTime(time2, shiftForm, 'endTime')"
+                                                      (click)="toggleTimePicker('time2')"
+                                                      [value]="formatTime(time2, shiftForm, 'endTime')"
                                                       placeholder="Select Time"/><span class="cus-icon"><i
                           class="feather icon-clock feather-clock"></i><timepicker
                           [class.d-block]=" showTimePicker[0] === 'time2'" class="custom-timepicker"
@@ -123,7 +129,8 @@
                 </div>
               </div>
               <div class="modal-footer-btn">
-                <button #closeCreateButton type="button" class="btn btn-cancel me-2" data-bs-dismiss="modal">Cancel</button>
+                <button #closeCreateButton type="button" class="btn btn-cancel me-2" data-bs-dismiss="modal">Cancel
+                </button>
                 <button type="submit" class="btn btn-submit">Submit</button>
               </div>
             </form>
@@ -147,18 +154,18 @@
             </button>
           </div>
           <div class="modal-body custom-modal-body">
-            <form>
+            <form [formGroup]="editShiftForm" (ngSubmit)="editShift()">
               <div class="tab-content" id="pills-tabContent">
                 <div class="tab-pane fade show active" id="pills-add-shift-info" role="tabpanel"
                      aria-labelledby="pills-add-shift-info-tab">
                   <div class="row">
                     <div class="col-lg-12">
-                      <div class="input-blocks"><label>Shift Name</label><input type="text" class="form-control"/></div>
+                      <div class="input-blocks"><label>Shift Name</label><input type="text" class="form-control"
+                                                                                formControlName="shiftName"/></div>
                     </div>
-
                     <div class="col-lg-12">
-                      <div class="input-blocks"><label>Weekoff</label>
-                        <mat-select [(ngModel)]="selectedValue2" [ngModelOptions]="{ standalone: true }" class="select"
+                      <div class="input-blocks"><label>Shift Type</label>
+                        <mat-select formControlName="shiftType" class="select"
                                     placeholder="Choose">@for (data of selectedList2; track data) {
                           <mat-option [value]="data.value">{{ data.value }}</mat-option>
                         }</mat-select>
@@ -166,7 +173,8 @@
                     </div>
                     <div class="col-lg-6">
                       <div class="input-blocks"><label>From</label>
-                        <div class="form-icon"><input (click)="toggleTimePicker('time9')" [value]="formatTime(time9, editShiftForm, 'startTime')"
+                        <div class="form-icon"><input (click)="toggleTimePicker('time9')"
+                                                      [value]="formatTime(time9, editShiftForm, 'startTime')"
                                                       type="text" placeholder="Select Time"
                                                       class="form-control timepicker"/><span class="cus-icon"><i
                           class="feather icon-clock feather-clock"></i><timepicker
@@ -177,16 +185,17 @@
                     <div class="col-lg-6">
                       <div class="input-blocks"><label>To</label>
                         <div class="form-icon"><input type="text" class="form-control timepicker"
-                                                      (click)="toggleTimePicker('time10')" [value]="formatTime(time10, editShiftForm, 'endTime')"
+                                                      (click)="toggleTimePicker('time10')"
+                                                      [value]="formatTime(time10, editShiftForm, 'endTime')"
                                                       placeholder="Select Time"/><span class="cus-icon"><i
                           class="feather icon-clock feather-clock"></i><timepicker
-                          [class.d-block]=" showTimePicker[1] === 'time10'" class="custom-timepicker"
+                          [class.d-block]=" showTimePicker[0] === 'time10'" class="custom-timepicker"
                           [ngModelOptions]="{ standalone: true }" [(ngModel)]="time10"></timepicker></span></div>
                       </div>
                     </div>
                     <div class="col-lg-12">
                       <div class="input-blocks"><label>Weekoff</label>
-                        <mat-select [(ngModel)]="selectedValue4" [ngModelOptions]="{ standalone: true }" class="select"
+                        <mat-select formControlName="weekOff" class="select"
                                     placeholder="Choose">@for (data of selectedList4; track data) {
                           <mat-option [value]="data.value">{{ data.value }}</mat-option>
                         }</mat-select>
@@ -196,7 +205,8 @@
                 </div>
               </div>
               <div class="modal-footer-btn">
-                <button type="button" class="btn btn-cancel me-2" data-bs-dismiss="modal">Cancel</button>
+                <button #closeEditButton type="button" class="btn btn-cancel me-2" data-bs-dismiss="modal">Cancel
+                </button>
                 <button type="submit" class="btn btn-submit">Submit</button>
               </div>
             </form>
@@ -222,7 +232,8 @@
             <button #closeDeleteButton type="button" class="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
                     data-bs-dismiss="modal">Cancel
             </button>
-            <button (click)="deleteShift()" type="submit" class="btn btn-submit fs-13 fw-medium p-2 px-3" data-bs-dismiss="modal">Yes Delete
+            <button (click)="deleteShift()" type="submit" class="btn btn-submit fs-13 fw-medium p-2 px-3"
+                    data-bs-dismiss="modal">Yes Delete
             </button>
           </div>
         </div>
