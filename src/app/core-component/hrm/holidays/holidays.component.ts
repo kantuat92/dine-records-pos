@@ -374,4 +374,12 @@ export class HolidaysComponent {
     this.editor.destroy();
     this.editor1.destroy();
   }
+
+  stripPAndTruncate(input: string): string {
+    if (!input) return '';
+    // Remove <p> and </p> tags
+    const cleaned = input.replace(/<\/?p>/g, '');
+    // Truncate to 20 characters, add ellipsis if needed
+    return cleaned.length > 20 ? cleaned.slice(0, 20) + '...' : cleaned;
+  }
 }

@@ -73,10 +73,9 @@
 					@for (data of tableData; track data; let i = $index) {
 					<tr>
 
-						<td>{{data.holiday}}</td>						
+						<td>{{data.holiday}}</td>
 						<td>{{ data.fromDate | date: 'dd MMM yyyy' }}</td>
-						<td>{{ data.description.length > 20 ? (data.description | slice:0:20) + '...' : data.description
-							}}</td>
+            <td>{{ stripPAndTruncate(data.description) }}</td>
 
 						<td>
 							<span [ngClass]="{ 'bg-success': data.status, 'bg-danger': !data.status }"

@@ -231,23 +231,23 @@ export class LeavesEmployeeComponent implements OnInit, OnDestroy {
     this.editor1 = new Editor();
 
     this.leaveForm = this.fb.group({
-      employeeId: [''],
-      leaveTypeId: [''],
-      fromDate: [''],
-      toDate: [''],
-      leaveDuration: [''],
+      employeeId: ['', Validators.required],
+      leaveTypeId: ['', Validators.required],
+      fromDate: ['', Validators.required],
+      toDate: ['', Validators.required],
+      leaveDuration: ['', Validators.required],
       noOfDays: [{value: '', disabled: true}],
-      reason: ['']
+      reason: ['', Validators.required]
     });
 
     this.editLeaveForm = this.fb.group({
-      employeeId: [''],
-      leaveTypeId: [''],
-      fromDate: [''],
-      toDate: [''],
-      leaveDuration: [''],
+      employeeId: ['', Validators.required],
+      leaveTypeId: ['', Validators.required],
+      fromDate: ['', Validators.required],
+      toDate: ['', Validators.required],
+      leaveDuration: ['', Validators.required],
       noOfDays: [{value: '', disabled: true}],
-      reason: ['']
+      reason: ['', Validators.required]
     });
 
     this.leaveForm.get('fromDate')?.valueChanges.subscribe(() => {
