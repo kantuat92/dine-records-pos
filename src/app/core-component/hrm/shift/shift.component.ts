@@ -1,18 +1,17 @@
 import {DatePipe} from '@angular/common';
-import {Component} from '@angular/core';
+import {Component, ElementRef, ViewChild} from '@angular/core';
 import {Sort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
 import {Router} from '@angular/router';
-import {
-  SidebarService,
-  apiResultFormat,
-  pageSelection,
-  routes,
-} from 'src/app/core/core.index';
-import {DataService} from 'src/app/core/service/data/data.service';
-import {shift} from 'src/app/shared/model/page.model';
+import {apiResultFormat, pageSelection, routes, SidebarService,} from 'src/app/core/core.index';
+import {Shift} from 'src/app/shared/model/page.model';
 import {PaginationService, tablePageSize} from 'src/app/shared/shared.index';
 import Swal from 'sweetalert2';
+import {Store} from "@ngrx/store";
+import {selectRestaurantId} from "../../../core/store/restaurant.selectors";
+import {Subscription} from "rxjs";
+import {HrmApiService} from "../../../core/service/api-services/hrm-api.service";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 
 interface data {
   value: string;
@@ -38,35 +37,69 @@ export class ShiftComponent {
   public selectedValue5 = '';
 
   // pagination variables
-  public tableData: Array<shift> = [];
+  public tableData: Array<Shift> = [];
   public pageSize = 10;
   public serialNumberArray: Array<number> = [];
   public totalData = 0;
   showFilter = false;
-  dataSource!: MatTableDataSource<shift>;
+  dataSource!: MatTableDataSource<Shift>;
   public searchDataValue = '';
 
   //** / pagination variables
 
-  constructor(private data: DataService, private pagination: PaginationService, private router: Router, private sidebar: SidebarService, private datePipe: DatePipe) {
-    this.data.getDataTable().subscribe((apiRes: apiResultFormat) => {
-      this.totalData = apiRes.totalData;
-      this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
-        if (this.router.url == this.routes.shift) {
-          this.getTableData({skip: res.skip, limit: this.totalData});
-          this.pageSize = res.pageSize;
-        }
-      });
+  restaurantId: any;
+  private tablePageSizeSub!: Subscription;
+  shiftForm!: FormGroup;
+  editShiftForm!: FormGroup;
+  @ViewChild('closeCreateButton') closeCreateButton!: ElementRef<HTMLButtonElement>;
+  @ViewChild('closeEditButton') closeEditButton!: ElementRef<HTMLButtonElement>;
+  @ViewChild('closeDeleteButton') closeDeleteButton!: ElementRef<HTMLButtonElement>;
+
+
+  constructor(private hrmApiService: HrmApiService, private pagination: PaginationService, private router: Router,
+              private sidebar: SidebarService, private datePipe: DatePipe,
+              private store: Store, private fb: FormBuilder) {
+
+    this.store.select(selectRestaurantId).subscribe(id => {
+      console.log('In leaves-employee.component.ts Restaurant id from store: ', id);
+      this.restaurantId = id;
     });
+  }
+
+  ngOnInit(): void {
+
+    this.shiftForm = this.fb.group({
+      shiftName: ['', Validators.required],
+      shiftType: ['', Validators.required],
+      startTime: ['', Validators.required],
+      endTime: ['', Validators.required],
+      weekOff: ['', Validators.required]
+    });
+    this.loadData();
+  }
+
+  loadData() {
+    if (this.tablePageSizeSub) {
+      this.tablePageSizeSub.unsubscribe();
+    }
+    this.tablePageSizeSub = this.pagination.tablePageSize.subscribe((res: tablePageSize) => {
+      console.log('In tablePageSize subscribe, shifts');
+      if (this.router.url == this.routes.shift) {
+        this.getTableData({skip: res.skip, limit: res.limit});
+        this.pageSize = res.pageSize;
+      }
+    });
+
+    this.searchDataValue = '';
   }
 
 
   private getTableData(pageOption: pageSelection): void {
-    this.data.getShift().subscribe((apiRes: apiResultFormat) => {
+    this.hrmApiService.getShiftsByRestaurant(this.restaurantId).subscribe((apiRes: apiResultFormat) => {
       this.tableData = [];
       this.serialNumberArray = [];
       this.totalData = apiRes.totalData;
-      apiRes.data.map((res: shift, index: number) => {
+      apiRes.data.map((res: Shift, index: number) => {
         const serialNumber = index + 1;
         if (index >= pageOption.skip && serialNumber <= pageOption.limit) {
           res.sNo = serialNumber;
@@ -74,7 +107,7 @@ export class ShiftComponent {
           this.serialNumberArray.push(serialNumber);
         }
       });
-      this.dataSource = new MatTableDataSource<shift>(this.tableData);
+      this.dataSource = new MatTableDataSource<Shift>(this.tableData);
       this.pagination.calculatePageSize.next({
         totalData: this.totalData,
         pageSize: this.pageSize,
@@ -82,6 +115,35 @@ export class ShiftComponent {
         serialNumberArray: this.serialNumberArray,
       });
     });
+  }
+
+  addShift() {
+    if (this.shiftForm.invalid) return;
+
+    const formValue = this.shiftForm.value;
+
+    const addShiftPayload = {
+      ...formValue,
+      startTime: this.convertTo24Hour(formValue.startTime),
+      endTime: this.convertTo24Hour(formValue.endTime),
+      restaurantId: this.restaurantId
+    };
+
+
+    this.hrmApiService.createShift(addShiftPayload).subscribe(
+      response => {
+        const newLeaveApplication = {
+          ...response,
+          sNo: this.tableData.length + 1
+        }
+        this.tableData.push(newLeaveApplication);
+        this.shiftForm.reset();
+        this.closeCreateButton.nativeElement.click();
+      },
+      err => {
+        console.error('Error saving shift', err);
+      }
+    );
   }
 
   public sortData(sort: Sort) {
@@ -192,9 +254,36 @@ export class ShiftComponent {
 
   public initChecked = false;
 
-  formatTime(date: Date) {
+  formatTime(date: Date, form: FormGroup, controlName: string) {
     const selectedDate: Date = new Date(date);
-    return this.datePipe.transform(selectedDate, 'h:mm a');
+    const time = this.datePipe.transform(selectedDate, 'h:mm a');
+    console.log('time : ', time);
+    if (form && controlName) {
+      form.get(controlName)?.setValue(time);
+    }
+    return time;
   }
+
+  convertTo24Hour(time12h: string): string {
+    const [time, modifier] = time12h.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+
+    if (modifier.toLowerCase() === 'pm' && hours !== 12) {
+      hours += 12;
+    }
+    if (modifier.toLowerCase() === 'am' && hours === 12) {
+      hours = 0;
+    }
+
+    // Format to HH:mm:ss
+    const hh = hours.toString().padStart(2, '0');
+    const mm = minutes.toString().padStart(2, '0');
+    return `${hh}:${mm}:00`;
+  }
+
+  convertTo12HourTimeFormat(time: string) {
+    return this.datePipe.transform('1970-01-01T' + time, 'h:mm a'); // 1970-01-01T is a dummy date.
+  }
+
 
 }

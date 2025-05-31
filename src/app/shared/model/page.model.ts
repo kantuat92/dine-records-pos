@@ -606,16 +606,17 @@ export interface salesList {
   isSelected?: boolean;
 }
 
-
-export interface shift {
+export interface Shift {
   sNo: number;
+  shiftId: number;
+  restaurantId: number;
   shiftName: string;
-  time: string;
+  shiftType: string;
+  startTime: string;  // Format: "HH:mm"
+  endTime: string;
   weekOff: string;
-  createdOn: string;
-  status: string;
-  isSelected?: boolean;
 }
+
 
 export interface lowStocks {
   sNo: number;

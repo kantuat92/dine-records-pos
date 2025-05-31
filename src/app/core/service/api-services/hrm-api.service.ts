@@ -3,7 +3,7 @@ import {Injectable} from "@angular/core";
 import {map, Observable} from "rxjs";
 import {Department} from "../../models/department.model";
 import {apiResultFormat} from "../../core.index";
-import {designation, employeeList, LeavesEmployee} from "src/app/shared/model/page.model";
+import {designation, LeavesEmployee} from "src/app/shared/model/page.model";
 import {Shift} from "../../models/shift.model";
 import {Attendance} from "src/app/shared/model/attendance.model";
 
@@ -192,6 +192,22 @@ export class HrmApiService {
 
   deleteLeaveApplication(id: number): Observable<any> {
     return this.http.delete(`${this.baseURL}/leave-applications/${id}`);
+  }
+
+  createShift(shift: Shift): Observable<any> {
+    return this.http.post(`${this.baseURL}/shifts`, shift);
+  }
+
+  getShiftsByRestaurant(restaurantId: number): Observable<apiResultFormat> {
+    return this.http.get<apiResultFormat>(`${this.baseURL}/shifts/restaurant/${restaurantId}`);
+  }
+
+  updateShift(id: number | null, shift: Shift): Observable<any> {
+    return this.http.put(`${this.baseURL}/shifts/${id}`, shift);
+  }
+
+  deleteShift(id: number): Observable<any> {
+    return this.http.delete(`${this.baseURL}/shifts/${id}`);
   }
 
 }
