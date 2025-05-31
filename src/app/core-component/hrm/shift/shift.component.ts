@@ -153,12 +153,12 @@ export class ShiftComponent {
   ];
   selectedList2: data[] = [
     {value: 'Choose Shift'},
-    {value: 'Fixed'},
-    {value: 'Rotating'},
-    {value: 'Split'},
-    {value: 'On-Call'},
+    {value: 'Regular'},
+    {value: 'Overtime'},
     {value: 'Weekend'},
+    {value: 'Rotational'}
   ];
+
   selectedList3: data[] = [
     {value: 'Choose Status'},
     {value: 'Active'},

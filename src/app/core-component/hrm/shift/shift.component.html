@@ -15,7 +15,9 @@
   </ul>
   <div class="page-btn"><a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="modal"
                            data-bs-target="#add-units"><i class="ti ti-circle-plus me-2"></i>Add Shift</a></div>
-</div><!-- /product list -->
+</div>
+
+<!-- /product list -->
 <div class="card table-list-card">
   <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
     <div class="search-set">
@@ -85,6 +87,13 @@
                     <div class="col-lg-12">
                       <div class="input-blocks"><label>Shift Name</label><input type="text" class="form-control"/></div>
                     </div>
+                    <div class="col-lg-12">
+                      <div class="input-blocks"><label>Shift Type</label>
+                        <mat-select [(ngModel)]="selectedValue2" [ngModelOptions]="{ standalone: true }" class="select"
+                                    placeholder="Choose">@for (data of selectedList2; track data) {
+                          <mat-option [value]="data.value">{{ data.value }}</mat-option>
+                        }</mat-select></div>
+                    </div>
                     <div class="col-lg-6">
                       <div class="input-blocks"><label>From</label>
                         <div class="form-icon"><input (click)="toggleTimePicker('time1')" [value]="formatTime(time1)"
@@ -148,6 +157,15 @@
                   <div class="row">
                     <div class="col-lg-12">
                       <div class="input-blocks"><label>Shift Name</label><input type="text" class="form-control"/></div>
+                    </div>
+
+                    <div class="col-lg-12">
+                      <div class="input-blocks"><label>Weekoff</label>
+                        <mat-select [(ngModel)]="selectedValue2" [ngModelOptions]="{ standalone: true }" class="select"
+                                    placeholder="Choose">@for (data of selectedList2; track data) {
+                          <mat-option [value]="data.value">{{ data.value }}</mat-option>
+                        }</mat-select>
+                      </div>
                     </div>
                     <div class="col-lg-6">
                       <div class="input-blocks"><label>From</label>
